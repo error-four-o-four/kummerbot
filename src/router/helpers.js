@@ -1,9 +1,8 @@
-export const routes = {
-	chat: 'chat',
-	view: 'view',
-};
+import { routes } from './config.js';
 
-export const getData = async (file) => {
+export const isChatRoute = (value) => value.includes(routes.chat)
+
+export const fetchData = async (file) => {
 	const data = await fetch(file);
 	if (data.ok) {
 		return {

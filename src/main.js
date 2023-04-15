@@ -1,9 +1,12 @@
 import './style.css';
 
-import { render } from './renderer/renderer.js';
-import { listen } from './listener/listener.js';
+import router from './router/router.js';
+import renderer from './renderer/renderer.js';
+import listener from './listener/listener.js';
+
+router.update();
 
 (async () => {
-	await render();
-	listen();
+	await renderer.update();
+	listener.init();
 })();

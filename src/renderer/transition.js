@@ -60,7 +60,9 @@ export function showChoices(elt) {
 			easing: 'ease-out',
 		});
 
-		promise.then((p) => console.log(p.effect.target === child));
+		// promise.then((p) => console.log(p.effect.target === child));
+
+		return promise;
 	});
 
 	return promises.at(-1);

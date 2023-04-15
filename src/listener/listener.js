@@ -1,10 +1,10 @@
 import router from '../router/router.js';
-import { ATTR_ROUTE, render } from '../renderer/renderer.js';
+import renderer, { ATTR_ROUTE } from '../renderer/renderer.js';
 
-export function listen() {
+function init() {
 	window.onpopstate = () => {
 		router.update();
-		render();
+		renderer.update();
 	};
 
 	window.addEventListener('click', (e) => {
@@ -14,7 +14,12 @@ export function listen() {
 
 		if (!target.hasAttribute(ATTR_ROUTE)) return;
 
-		router.route(e);
-		render();
+		router.handle(e);
+		router.update();
+		renderer.update();
 	});
+}
+
+export default {
+	init
 }
