@@ -1,10 +1,12 @@
 import {
   ATTR_ROUTE,
   ATTR_CHOICE,
+  VAL_HOMEPAGE,
   VAL_POPSTATE,
   VAL_RESETSTATE,
   elements,
 } from './config.js';
+
 import {
   insertSingleSection,
   appendSingleSection,
@@ -18,7 +20,7 @@ import {
   showChoices,
 } from './transition.js';
 
-import router, { routes, fetchData } from '../router/router.js';
+import router, { fetchData } from '../router/router.js';
 
 const getPath = (key) => {
   const step = router.query.indexOf(key);
@@ -96,6 +98,12 @@ export async function renderChat() {
     const file = getPath(key);
     const { error, data } = await fetchData(file);
 
+    // create elements 'content', 'choices', 'chosen'
+    // set href of anchor elements
+    renderSectionContents(data, step);
+    // update visiblity of 'choices' and 'chosen'
+    updateChoicesElement(values);
+
     // if (fetched.error) {
     // 	// @todo? remove listeners?
     // 	app.innerHTML = '';
@@ -105,18 +113,10 @@ export async function renderChat() {
     // 	return;
     // }
 
-    // @todo
     if (error) {
       console.error(`Error: ${error}`);
-      router.set(routes.error);
       return;
     }
-
-    // create elements 'content', 'choices', 'chosen'
-    // set href of anchor elements
-    renderSectionContents(data, step);
-    // update visiblity of 'choices' and 'chosen'
-    updateChoicesElement(values);
 
     if (!values.isLastSection) continue;
 
@@ -125,9 +125,18 @@ export async function renderChat() {
   }
 }
 
+const errorContentTemplate = `
+<div>
+  <p>&#x26A0; Ein Fehler ist aufgetreten.</p>
+</div>
+<div>
+  <div ${ATTR_ROUTE}="${VAL_HOMEPAGE}">Ich m&ouml;chte zur&uuml;ck zum Anfang</div>
+</div>
+`;
+
 function renderSectionContents(data, step) {
   const template = document.createElement('template');
-  template.innerHTML = data;
+  template.innerHTML = data ? data : errorContentTemplate;
 
   // data has two template elements
   const content = createContentElement(template);
@@ -138,7 +147,6 @@ function renderSectionContents(data, step) {
   const fragment = document.createDocumentFragment();
   fragment.append(content, choices, chosen);
 
-  // get last section
   const { section } = elements;
   section.innerHTML = '';
   section.append(fragment);
@@ -184,7 +192,10 @@ function createChoicesElement(template, step) {
   for (const child of elt.children) {
     const key = child.getAttribute(ATTR_ROUTE);
     const text = child.textContent;
-    const href = getRouteToStep(step) + '/' + key;
+    const href =
+      key === VAL_HOMEPAGE
+        ? getRouteToStep(0)
+        : getRouteToStep(step) + '/' + key;
 
     const anchor = document.createElement('a');
     anchor.textContent = text;
@@ -201,7 +212,7 @@ function createChoicesElement(template, step) {
     const anchorWrap = document.createElement('div');
     const anchor = document.createElement('a');
     anchor.href = getRouteToStep(step - 1);
-    anchor.innerHTML = 'zur&uuml;ck';
+    anchor.innerHTML = 'Ich m&ouml;chte einen Schritt zur&uuml;ck';
     anchor.setAttribute(ATTR_ROUTE, VAL_POPSTATE);
 
     anchorWrap.appendChild(anchor);

@@ -73,7 +73,10 @@ class Router {
   }
 
   set(route) {
-    window.location.replace(this.root + route);
+    const href = this.root + route;
+    // @todo prevent reload / fouc
+    window.history.pushState({}, '', href);
+    window.location.replace(href);
     this.update();
   }
 }

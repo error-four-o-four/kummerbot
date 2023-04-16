@@ -1,6 +1,7 @@
 export const ATTR_ROUTE = 'data-route';
 export const ATTR_CHOICE = 'data-choice';
 
+export const VAL_HOMEPAGE = 'homepage';
 export const VAL_POPSTATE = 'popstate';
 export const VAL_RESETSTATE = 'resetstate';
 
