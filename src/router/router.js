@@ -8,6 +8,22 @@ class Router {
     this.query = null;
   }
 
+  handle(e) {
+    // called on click event
+    e = e || new Event();
+    e.preventDefault();
+    window.history.pushState({}, '', e.target.href);
+    this.update();
+  }
+
+  set(route) {
+    // called programmatically
+    const e = new Event('route');
+    e.preventDefault();
+    window.location.replace(route);
+    this.update();
+  }
+
   update() {
     // get current location
     const { pathname } = window.location;
@@ -15,12 +31,7 @@ class Router {
     // set pathname
     this.path = pathname;
 
-    // trailing slash is required to handle popstate for chat route
-    // if (isChatRoute(this.path) && !pathname.endsWith('/')) {
-    // 	this.path = this.path + '/';
-    // }
-
-    // @todo url params
+    // @todo url params ??
     if (pathname !== '/' && pathname.endsWith('/')) {
       this.path = this.path.slice(0, -1);
     }
@@ -31,7 +42,7 @@ class Router {
     }
 
     if (this.path !== pathname) {
-      window.location.replace(this.root + this.path);
+      window.location.replace(this.path);
     }
 
     this.query = [
@@ -45,8 +56,8 @@ class Router {
   validate() {
     // redirect from root to chat
     if (this.path === '/') {
-      this.set(routes.chat);
-      return routes.chat;
+      this.set(routes.home);
+      return routes.home;
     }
 
     // compare pathname with valid routes
@@ -63,21 +74,6 @@ class Router {
     }
 
     return matchedRoute;
-  }
-
-  handle(e) {
-    e = e || window.event;
-    e.preventDefault();
-    window.history.pushState({}, '', e.target.href);
-    // this.update();
-  }
-
-  set(route) {
-    const href = this.root + route;
-    // @todo prevent reload / fouc
-    window.history.pushState({}, '', href);
-    window.location.replace(href);
-    this.update();
   }
 }
 
