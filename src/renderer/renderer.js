@@ -1,7 +1,7 @@
 import router, { isChatRoute } from '../router/router.js';
 
 // @todo move to router ??
-import { ATTR_ROUTE, VAL_POPSTATE } from './config.js';
+import { ATTR, VAL } from './config.js';
 import { renderChat } from './render.chat.js';
 import { renderView } from './render.view.js';
 
@@ -16,7 +16,7 @@ async function update() {
   renderView();
 }
 
-export { ATTR_ROUTE, VAL_POPSTATE };
+export { ATTR, VAL };
 
 export default {
   update,

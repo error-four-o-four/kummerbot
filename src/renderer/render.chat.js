@@ -1,11 +1,4 @@
-import {
-  ATTR_ROUTE,
-  ATTR_CHOICE,
-  VAL_HOMEPAGE,
-  VAL_POPSTATE,
-  VAL_RESETSTATE,
-  elements,
-} from './config.js';
+import { ATTR, VAL, elements, contents } from './config.js';
 
 import {
   insertSingleSection,
@@ -15,18 +8,29 @@ import {
 
 import {
   scrollIntoViewOptions,
+  hideContent,
   showContent,
   hideChoices,
   showChoices,
 } from './transition.js';
 
-import router, { fetchData } from '../router/router.js';
+import router, { fetchData, routes } from '../router/router.js';
 
 const getPath = (key) => {
   const step = router.query.indexOf(key);
-  return (
-    router.root + '/views' + (step > 0 ? `/chat-${step}/` : '/') + key + '.html'
-  );
+
+  // return first section or share section
+  return step === 0 || key === VAL.SHARE
+    ? '/views/chat/' + key + '.html'
+    : '/views/chat-' + step + '/' + key + '.html';
+
+  // return (
+  //   router.root +
+  //   '/views' +
+  //   (step > 0 && key !== VAL.SHARE ? `/chat-${step}/` : '/chat/') +
+  //   key +
+  //   '.html'
+  // );
 };
 
 const filterRenderedSections = () => {
@@ -100,21 +104,14 @@ export async function renderChat() {
 
     // create elements 'content', 'choices', 'chosen'
     // set href of anchor elements
-    renderSectionContents(data, step);
+    // handle error
     // update visiblity of 'choices' and 'chosen'
+    renderSectionContents(data, step);
     updateChoicesElement(values);
-
-    // if (fetched.error) {
-    // 	// @todo? remove listeners?
-    // 	app.innerHTML = '';
-    // 	const section = appendSection('error');
-    // 	section.innerHTML = '';
-    // 	section.append(createErrorFragment(router.root + '/chat'));
-    // 	return;
-    // }
 
     if (error) {
       console.error(`Error: ${error}`);
+      scrollSectionIntoView();
       return;
     }
 
@@ -125,23 +122,17 @@ export async function renderChat() {
   }
 }
 
-const errorContentTemplate = `
-<div>
-  <p>&#x26A0; Ein Fehler ist aufgetreten.</p>
-</div>
-<div>
-  <div ${ATTR_ROUTE}="${VAL_HOMEPAGE}">Ich m&ouml;chte zur&uuml;ck zum Anfang</div>
-</div>
-`;
-
 function renderSectionContents(data, step) {
   const template = document.createElement('template');
-  template.innerHTML = data ? data : errorContentTemplate;
+  template.innerHTML = data ? data : contents.templateError;
 
   // data has two template elements
   const content = createContentElement(template);
   const choices = createChoicesElement(template, step);
   const chosen = createChosenElement();
+
+  // @todo
+  // update and convert contact links if possible
 
   // use DocumentFragment for performance
   const fragment = document.createDocumentFragment();
@@ -155,7 +146,9 @@ function renderSectionContents(data, step) {
 async function animateSectionContents() {
   // animation
   const [content, choices] = [...elements.section.children];
+  hideContent(content);
   hideChoices(choices);
+  await new Promise((resolve) => setTimeout(resolve, 300));
   await showContent(content);
   await showChoices(choices);
 }
@@ -165,22 +158,26 @@ function scrollSectionIntoView() {
 }
 
 // retrieve route from router path
-const getRouteToStep = (step) => {
+const getRouteToStep = (step, key = null) => {
   const path = router.query.slice(0, step + 1).join('/');
-  return router.root + '/' + path;
+  return '/' + path + (key ? `/${key}` : '');
 };
 
 function createContentElement(template) {
   const elt = template.content.firstElementChild.cloneNode(true);
   elt.classList.add('row', 'content');
 
+  // create info element if necessary
+  const div = elt.querySelector(`[${ATTR.INFO}]`);
+
+  if (div) {
+    div.innerHTML = contents.templateInfo;
+  }
+
   return elt;
 }
 
 // ############### Choices Element
-
-// // append key to router path
-// const getNextRoute = (key) => router.root + router.path + '/' + key;
 
 function createChoicesElement(template, step) {
   const elt = template.content.lastElementChild.cloneNode(true);
@@ -188,38 +185,73 @@ function createChoicesElement(template, step) {
 
   // get data from div element
   // reset div element
-  // create and append anchor element
+  // create and append anchor elements
   for (const child of elt.children) {
-    const key = child.getAttribute(ATTR_ROUTE);
-    const text = child.textContent;
-    const href =
-      key === VAL_HOMEPAGE
-        ? getRouteToStep(0)
-        : getRouteToStep(step) + '/' + key;
+    const key = child.getAttribute(ATTR.ROUTE);
 
-    const anchor = document.createElement('a');
-    anchor.textContent = text;
-    anchor.href = href;
-    anchor.setAttribute(ATTR_ROUTE, key);
+    const anchor =
+      // key === VAL.HOMEPAGE
+      //   ? createAnchorHomepage()
+      //   : key === VAL.SHARE
+      //   ? createAnchorNext(step, key, contents.text.anchorShare)
+      // : createAnchorNext(step, key, child.textContent);
+      key in createAnchorHandler
+        ? createAnchorHandler[key](step, key)
+        : createAnchorNext(step, key, child.textContent);
+
+    anchor.setAttribute(ATTR.ROUTE, key);
 
     child.innerHTML = '';
     child.appendChild(anchor);
-    child.removeAttribute(ATTR_ROUTE);
+    child.removeAttribute(ATTR.ROUTE);
   }
 
-  // insert back button if necessary
+  // insert back anchor if necessary
   if (step > 0) {
-    const anchorWrap = document.createElement('div');
-    const anchor = document.createElement('a');
-    anchor.href = getRouteToStep(step - 1);
-    anchor.innerHTML = 'Ich m&ouml;chte einen Schritt zur&uuml;ck';
-    anchor.setAttribute(ATTR_ROUTE, VAL_POPSTATE);
-
-    anchorWrap.appendChild(anchor);
-    elt.insertBefore(anchorWrap, elt.children[0]);
+    const ref = elt.children[0].children[0].getAttribute(ATTR.ROUTE) === VAL.HOMEPAGE ? 1 : 0;
+    const anchor = createAnchorBack(step);
+    elt.insertBefore(anchor, elt.children[ref]);
   }
 
   return elt;
+}
+
+const createAnchorHandler = {
+  [VAL.HOMEPAGE]: createAnchorHomepage,
+  [VAL.SHARE]: createAnchorNext,
+  [VAL.VIEW]: createAnchorView,
+};
+
+function createAnchorHomepage() {
+  const anchor = document.createElement('a');
+  anchor.innerHTML = contents.text.anchorHomepage;
+  anchor.href = routes.home;
+  return anchor;
+}
+
+function createAnchorBack(step) {
+  const wrap = document.createElement('div');
+  const anchor = document.createElement('a');
+  anchor.href = getRouteToStep(step - 1);
+  anchor.innerHTML = contents.text.anchorBack;
+  anchor.setAttribute(ATTR.ROUTE, VAL.POPSTATE);
+
+  wrap.appendChild(anchor);
+  return wrap;
+}
+
+function createAnchorNext(step, key, text) {
+  const anchor = document.createElement('a');
+  anchor.innerHTML = key === VAL.SHARE ? contents.text.anchorShare : text;
+  anchor.href = getRouteToStep(step, key);
+  return anchor;
+}
+
+function createAnchorView(step, key) {
+  const anchor = document.createElement('a');
+  anchor.innerHTML = contents.text.anchorView;
+  anchor.href = routes.view;
+  return anchor;
 }
 
 function updateChoicesElement({ step, isLastSection }) {
@@ -239,14 +271,14 @@ function updateChoicesElement({ step, isLastSection }) {
   const key = router.query[step + 1];
 
   // chosen element hasn't been rendered yet
-  if (!chosen.getAttribute(ATTR_CHOICE)) {
-    chosen.setAttribute(ATTR_CHOICE, key);
+  if (!chosen.getAttribute(ATTR.CHOICE)) {
+    chosen.setAttribute(ATTR.CHOICE, key);
 
     // get route to chosen step
     const href = getRouteToStep(step);
     // use key to get the anchor text for the next section
     const text = anchors.find(
-      (elt) => elt.getAttribute(ATTR_ROUTE) === key
+      (elt) => elt.getAttribute(ATTR.ROUTE) === key
     )?.textContent;
 
     // set href to current section
@@ -254,11 +286,11 @@ function updateChoicesElement({ step, isLastSection }) {
   }
 
   // chosen element has been rendered
-  const choice = chosen.getAttribute(ATTR_CHOICE);
+  const choice = chosen.getAttribute(ATTR.CHOICE);
   // update content if necessary
   if (choice !== key) {
     const text = anchors.find(
-      (elt) => elt.getAttribute(ATTR_ROUTE) === key
+      (elt) => elt.getAttribute(ATTR.ROUTE) === key
     )?.textContent;
     updateChosenContents(chosen, text);
   }
@@ -286,7 +318,7 @@ function createChosenElement() {
 
 function renderChosenContents(elt, href, text) {
   const anchorWrap = document.createElement('div');
-  anchorWrap.innerHTML = `<a href="${href}" ${ATTR_ROUTE}="${VAL_RESETSTATE}">✖</a>`;
+  anchorWrap.innerHTML = `<a href="${href}" ${ATTR.ROUTE}="${VAL.RESETSTATE}">✖</a>`;
 
   const textWrap = document.createElement('div');
   textWrap.textContent = text;

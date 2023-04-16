@@ -18,8 +18,12 @@ function animateTo(elt, keyframes, options) {
 export const scrollIntoViewOptions = {
   block: 'end',
   inline: 'nearest',
-  behavior: 'instant',
+  behavior: 'smooth',
 };
+
+export function hideContent(elt) {
+  elt.classList.add('is-transparent');
+}
 
 export function showContent(elt) {
   const keyframes = [
@@ -43,7 +47,10 @@ export function showContent(elt) {
   };
 
   const promise = animateTo(elt, keyframes, options);
-  promise.then(() => elt.removeAttribute('style'));
+  promise.then(() => {
+    elt.classList.remove('is-transparent');
+    elt.removeAttribute('style');
+  });
 
   return promise;
 }

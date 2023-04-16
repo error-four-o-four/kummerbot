@@ -1,4 +1,4 @@
-import { ATTR_ROUTE, elements } from './config.js';
+import { elements } from './config.js';
 
 export function removeAllSections() {
   elements.app.innerHTML = '';
@@ -40,18 +40,4 @@ function createLoadingIndicator() {
   const elt = document.createElement('div');
   elt.innerHTML = 'Loading ...';
   return elt;
-}
-
-export function createErrorFragment(href) {
-  const warn = document.createElement('p');
-  warn.innerHTML = '&#x26A0; Ein Fehler ist aufgetreten.';
-
-  const info = document.createElement('p');
-  info.innerHTML = 'Bitte überpr&uuml;fen Sie die eingegeben Adresse oder<br>';
-  info.innerHTML += `kehren Sie zur <a href="${href}" ${ATTR_ROUTE}="home">Startseite</a> zur&uuml;ck.`;
-
-  const fragment = document.createDocumentFragment();
-  fragment.append(warn, info);
-
-  return fragment;
 }

@@ -1,5 +1,5 @@
 import router from '../router/router.js';
-import renderer, { ATTR_ROUTE } from '../renderer/renderer.js';
+import renderer, { ATTR } from '../renderer/renderer.js';
 
 function init() {
   window.onpopstate = () => {
@@ -12,10 +12,9 @@ function init() {
 
     if (target.tagName !== 'A') return;
 
-    if (!target.hasAttribute(ATTR_ROUTE)) return;
+    if (!target.hasAttribute(ATTR.ROUTE)) return;
 
     router.handle(e);
-    router.update();
     renderer.update();
   });
 }
