@@ -1,10 +1,22 @@
-import { ATTR_ROUTE, elements } from './config.js';
+import {
+  ATTR_ROUTE,
+  ATTR_CHOICE,
+  VAL_POPSTATE,
+  VAL_RESETSTATE,
+  elements,
+} from './config.js';
 import {
   insertSingleSection,
   appendSingleSection,
   setCurrentSection,
 } from './helpers.js';
-import { hideChoices, showChoices, showContent } from './transition.js';
+
+import {
+  scrollIntoViewOptions,
+  showContent,
+  hideChoices,
+  showChoices,
+} from './transition.js';
 
 import router, { routes, fetchData } from '../router/router.js';
 
@@ -15,12 +27,19 @@ const getPath = (key) => {
   );
 };
 
-const getRoute = (step) => {
-  const path = router.query.slice(0, step + 1).join('/');
-  return router.root + '/' + path;
-};
+const filterRenderedSections = () => {
+  for (let i = elements.app.children.length - 1; i >= 0; i -= 1) {
+    setCurrentSection(elements.app.children[i]);
 
-const getNextRoute = (key) => router.root + router.path + '/' + key;
+    const id = elements.section.id;
+    const key = router.query[i];
+
+    if (!key || id !== key) {
+      elements.section.remove();
+      elements.section = null;
+    }
+  }
+};
 
 // called onpopstate/onpushstate
 export async function renderChat() {
@@ -57,6 +76,12 @@ export async function renderChat() {
     // correct section was rendered
     if (id && id === key) {
       updateChoicesElement(values);
+
+      if (!isLastSection) continue;
+
+      scrollSectionIntoView();
+      await animateChoicesElement();
+
       continue;
     }
 
@@ -88,38 +113,25 @@ export async function renderChat() {
     }
 
     // create elements 'content', 'choices', 'chosen'
-    renderSectionContents(data);
-
-    // update visiblity and href values
+    // set href of anchor elements
+    renderSectionContents(data, step);
+    // update visiblity of 'choices' and 'chosen'
     updateChoicesElement(values);
 
     if (!values.isLastSection) continue;
 
+    scrollSectionIntoView();
     await animateSectionContents();
   }
 }
 
-function filterRenderedSections() {
-  for (let i = elements.app.children.length - 1; i >= 0; i -= 1) {
-    setCurrentSection(elements.app.children[i]);
-
-    const id = elements.section.id;
-    const key = router.query[i];
-
-    if (!key || id !== key) {
-      elements.section.remove();
-      elements.section = null;
-    }
-  }
-}
-
-function renderSectionContents(data) {
+function renderSectionContents(data, step) {
   const template = document.createElement('template');
   template.innerHTML = data;
 
   // data has two template elements
   const content = createContentElement(template);
-  const choices = createChoicesElement(template);
+  const choices = createChoicesElement(template, step);
   const chosen = createChosenElement();
 
   // use DocumentFragment for performance
@@ -133,14 +145,22 @@ function renderSectionContents(data) {
 }
 
 async function animateSectionContents() {
-  // @todo add animation / scroll to bottom
-
   // animation
   const [content, choices] = [...elements.section.children];
   hideChoices(choices);
   await showContent(content);
   await showChoices(choices);
 }
+
+function scrollSectionIntoView() {
+  elements.section.scrollIntoView(scrollIntoViewOptions);
+}
+
+// retrieve route from router path
+const getRouteToStep = (step) => {
+  const path = router.query.slice(0, step + 1).join('/');
+  return router.root + '/' + path;
+};
 
 function createContentElement(template) {
   const elt = template.content.firstElementChild.cloneNode(true);
@@ -149,17 +169,43 @@ function createContentElement(template) {
   return elt;
 }
 
-function createChoicesElement(template) {
+// ############### Choices Element
+
+// // append key to router path
+// const getNextRoute = (key) => router.root + router.path + '/' + key;
+
+function createChoicesElement(template, step) {
   const elt = template.content.lastElementChild.cloneNode(true);
   elt.classList.add('row', 'choices');
 
-  // update children
+  // get data from div element
+  // reset div element
+  // create and append anchor element
   for (const child of elt.children) {
     const key = child.getAttribute(ATTR_ROUTE);
-    const text = child.innerText;
+    const text = child.textContent;
+    const href = getRouteToStep(step) + '/' + key;
 
-    child.innerHTML = `<a href="#" ${ATTR_ROUTE}="${key}">${text}</a>`;
+    const anchor = document.createElement('a');
+    anchor.textContent = text;
+    anchor.href = href;
+    anchor.setAttribute(ATTR_ROUTE, key);
+
+    child.innerHTML = '';
+    child.appendChild(anchor);
     child.removeAttribute(ATTR_ROUTE);
+  }
+
+  // insert back button if necessary
+  if (step > 0) {
+    const anchorWrap = document.createElement('div');
+    const anchor = document.createElement('a');
+    anchor.href = getRouteToStep(step - 1);
+    anchor.innerHTML = 'zur&uuml;ck';
+    anchor.setAttribute(ATTR_ROUTE, VAL_POPSTATE);
+
+    anchorWrap.appendChild(anchor);
+    elt.insertBefore(anchorWrap, elt.children[0]);
   }
 
   return elt;
@@ -170,47 +216,55 @@ function updateChoicesElement({ step, isLastSection }) {
   const [, choices, chosen] = section.children;
   const anchors = [...choices.querySelectorAll('a')];
 
-  // add back button
-  if (step > 0 && anchors[0]?.getAttribute(ATTR_ROUTE) !== 'back') {
-    // @todo
-    console.log('insert back button');
-
-    // const btn = document.createElement('div');
-    // btn.innerHTML = `<a href="#" ${ATTR_ROUTE}="back">zur&uuml;ck</a>`;
-    // elt.insertBefore(btn, elt.children[0]);
-  }
-
+  // section hasn't been answered yet
+  // only display choices element
   if (isLastSection) {
-    // show all choices
     choices.classList.remove('is-hidden');
     chosen.classList.add('is-hidden');
-
-    // update href
-    for (const elt of anchors) {
-      const key = elt.getAttribute(ATTR_ROUTE);
-      elt.href = getNextRoute(key);
-    }
     return;
   }
 
-  // use key to get text from choices / anchor elements
+  // this is the next step
   const key = router.query[step + 1];
-  const text = anchors.find(
-    (elt) => elt.getAttribute(ATTR_ROUTE) === key
-  )?.innerText;
-  const href = getRoute(step);
 
-  updateChosenElement(chosen, href, text);
+  // chosen element hasn't been rendered yet
+  if (!chosen.getAttribute(ATTR_CHOICE)) {
+    chosen.setAttribute(ATTR_CHOICE, key);
 
-  // hide choices
+    // get route to chosen step
+    const href = getRouteToStep(step);
+    // use key to get the anchor text for the next section
+    const text = anchors.find(
+      (elt) => elt.getAttribute(ATTR_ROUTE) === key
+    )?.textContent;
+
+    // set href to current section
+    renderChosenContents(chosen, href, text);
+  }
+
+  // chosen element has been rendered
+  const choice = chosen.getAttribute(ATTR_CHOICE);
+  // update content if necessary
+  if (choice !== key) {
+    const text = anchors.find(
+      (elt) => elt.getAttribute(ATTR_ROUTE) === key
+    )?.textContent;
+    updateChosenContents(chosen, text);
+  }
+
+  // section has been answered
+  // hide choices, show chosen choice
   choices.classList.add('is-hidden');
   chosen.classList.remove('is-hidden');
-
-  // update href
-  for (const elt of anchors) {
-    elt.href = getRoute(step);
-  }
 }
+
+async function animateChoicesElement() {
+  const choices = elements.section.children[1];
+  hideChoices(choices);
+  await showChoices(choices);
+}
+
+// ########### Chosen Element
 
 function createChosenElement() {
   const elt = document.createElement('div');
@@ -219,16 +273,20 @@ function createChosenElement() {
   return elt;
 }
 
-function updateChosenElement(elt, href, text) {
+function renderChosenContents(elt, href, text) {
   const anchorWrap = document.createElement('div');
-  anchorWrap.innerHTML = `<a href="${href}" ${ATTR_ROUTE}="reset">✖</a>`;
+  anchorWrap.innerHTML = `<a href="${href}" ${ATTR_ROUTE}="${VAL_RESETSTATE}">✖</a>`;
 
   const textWrap = document.createElement('div');
-  textWrap.innerText = text;
+  textWrap.textContent = text;
 
   const fragment = document.createDocumentFragment();
   fragment.append(anchorWrap, textWrap);
 
   elt.innerHTML = '';
   elt.append(fragment);
+}
+
+function updateChosenContents(elt, text) {
+  elt.lastElementChild.textContent = text;
 }

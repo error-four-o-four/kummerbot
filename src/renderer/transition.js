@@ -6,12 +6,20 @@ function animateTo(elt, keyframes, options) {
 
   return new Promise((resolve) => {
     animation.addEventListener('finish', () => {
-      animation.commitStyles();
+      if (elt.offsetParent !== null) {
+        animation.commitStyles();
+      }
       animation.cancel();
       resolve(animation);
     });
   });
 }
+
+export const scrollIntoViewOptions = {
+  block: 'end',
+  inline: 'nearest',
+  behavior: 'instant',
+};
 
 export function showContent(elt) {
   const keyframes = [
@@ -34,7 +42,10 @@ export function showContent(elt) {
     easing: 'ease-out',
   };
 
-  return animateTo(elt, keyframes, options);
+  const promise = animateTo(elt, keyframes, options);
+  promise.then(() => elt.removeAttribute('style'));
+
+  return promise;
 }
 
 export function hideChoices(elt) {
@@ -61,6 +72,10 @@ export function showChoices(elt) {
     });
 
     // promise.then((p) => console.log(p.effect.target === child));
+    promise.then(() => {
+      child.classList.remove('is-transparent');
+      child.removeAttribute('style');
+    });
 
     return promise;
   });
