@@ -208,7 +208,7 @@ function createChoicesElement(template, step) {
 
   // insert back anchor if necessary
   if (step > 0) {
-    const ref = elt.children[0].children[0].getAttribute(ATTR.ROUTE) === VAL.HOMEPAGE ? 1 : 0;
+    const ref = elt.children[0]?.children[0]?.getAttribute(ATTR.ROUTE) === VAL.HOMEPAGE ? 1 : 0;
     const anchor = createAnchorBack(step);
     elt.insertBefore(anchor, elt.children[ref]);
   }
