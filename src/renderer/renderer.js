@@ -6,22 +6,18 @@ import { renderChat } from './render.chat.js';
 import { renderView } from './render.view.js';
 
 async function update() {
-	const route = router.validate();
+  const route = router.validate();
 
-	if (isChatRoute(route)) {
-		renderChat();
-		return;
-	}
+  if (isChatRoute(route)) {
+    renderChat();
+    return;
+  }
 
-	renderView();
+  renderView();
 }
 
-export {
-	ATTR_ROUTE,
-	VAL_POPSTATE
-}
+export { ATTR_ROUTE, VAL_POPSTATE };
 
 export default {
-	update
-}
-
+  update,
+};

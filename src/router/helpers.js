@@ -1,18 +1,18 @@
 import { routes } from './config.js';
 
-export const isChatRoute = (value) => value.includes(routes.chat)
+export const isChatRoute = (value) => value.includes(routes.chat);
 
 export const fetchData = async (file) => {
-	const data = await fetch(file);
-	if (data.ok) {
-		return {
-			error: null,
-			data: await data.text(),
-		};
-	}
+  const data = await fetch(file);
+  if (data.ok) {
+    return {
+      error: null,
+      data: await data.text(),
+    };
+  }
 
-	return {
-		error: `Unable to fetch data from ${file}`,
-		data: null,
-	};
+  return {
+    error: `Unable to fetch data from ${file}`,
+    data: null,
+  };
 };

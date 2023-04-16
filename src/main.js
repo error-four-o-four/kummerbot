@@ -7,6 +7,6 @@ import listener from './listener/listener.js';
 router.update();
 
 (async () => {
-	await renderer.update();
-	listener.init();
+  await renderer.update();
+  listener.init();
 })();
