@@ -7,7 +7,7 @@ const getId = () => router.path.slice(1);
 
 const getPath = () => router.root + '/views' + router.path + '.html';
 
-export async function renderView() {
+export async function renderPage() {
   // clear innerHTML of 'main#app'
   removeAllSections();
 

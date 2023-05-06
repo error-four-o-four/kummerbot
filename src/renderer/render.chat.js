@@ -81,6 +81,7 @@ export async function renderChat() {
 
     // correct section was rendered
     if (id && id === key) {
+      // @todo
       updateChoicesElement(values);
 
       if (!isLastSection) continue;
