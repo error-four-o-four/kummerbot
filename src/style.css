@@ -21,6 +21,7 @@
 a {
   font-weight: 500;
   text-decoration: inherit;
+  cursor: pointer;
 }
 
 html {

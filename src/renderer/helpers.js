@@ -1,4 +1,4 @@
-import { elements } from './config.js';
+import elements from '../elements/elements.js';
 
 export function removeAllSections() {
   elements.app.innerHTML = '';

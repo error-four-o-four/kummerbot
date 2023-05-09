@@ -1,11 +1,16 @@
-import { elements } from './config.js';
+import elements, { contents } from '../elements/elements.js';
 import { removeAllSections, appendSingleSection } from './helpers.js';
 
 import router, { routes, fetchData } from '../router/router.js';
 
 const getId = () => router.path.slice(1);
 
-const getPath = () => router.root + '/views' + router.path + '.html';
+const getPathToPageFile = () => '/views' + router.path + '.html';
+
+const getPathToViewFile = () => {
+  const [, index, file] = router.query;
+  return '/views/chat-' + index + '/' + file + '.html';
+};
 
 export async function renderPage() {
   // clear innerHTML of 'main#app'
@@ -17,12 +22,12 @@ export async function renderPage() {
   appendSingleSection(id);
 
   // get contents
-  const file = getPath();
+  const file = router.isViewRoute ? getPathToViewFile() : getPathToPageFile();
   const { error, data } = await fetchData(file);
 
   if (error) {
     console.error(`Error: ${error}`);
-    router.set(routes.error);
+    router.replace(routes.error);
     return;
   }
 
@@ -33,4 +38,5 @@ export async function renderPage() {
 function renderSectionContents(html) {
   // @todo ?? handle undefined ?? fallback
   elements.section.innerHTML = html;
+  // @todo add back anchor
 }

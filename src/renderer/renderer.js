@@ -1,22 +1,27 @@
-import router, { isChatRoute } from '../router/router.js';
+import router from '../router/router.js';
+import {
+  createNavbarAnchor,
+  updateNavbarAnchor,
+} from '../elements/elements.js';
 
-// @todo move to router ??
-import { ATTR, VAL } from './config.js';
 import { renderChat } from './render.chat.js';
 import { renderPage } from './render.page.js';
 
-async function update() {
-  const route = router.validate();
+export let isInitialRender = true;
 
-  if (isChatRoute(route)) {
+async function update() {
+  if (isInitialRender) createNavbarAnchor();
+
+  updateNavbarAnchor();
+
+  if (router.isChatRoute) {
     renderChat();
-    return;
+  } else {
+    renderPage();
   }
 
-  renderPage();
+  if (isInitialRender) isInitialRender = false;
 }
-
-export { ATTR, VAL };
 
 export default {
   update,
