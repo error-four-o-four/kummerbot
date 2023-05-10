@@ -1,4 +1,5 @@
 import router from '../router/router.js';
+
 import {
   createNavbarAnchor,
   updateNavbarAnchor,
@@ -26,3 +27,5 @@ async function update() {
 export default {
   update,
 };
+
+export * from './utils.js';

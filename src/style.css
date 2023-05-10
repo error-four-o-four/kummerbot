@@ -39,7 +39,7 @@ body {
   padding: 0;
 }
 
-.wrap {
+.app {
   max-width: 720px;
   min-height: 100vh;
   margin: 0 auto;
@@ -70,15 +70,11 @@ main > section {
   padding: 1rem 0 0;
 }
 
-.content,
-.chosen {
-  margin: 0 0 1rem;
-}
-
 .content {
   width: 80%;
   min-width: 256px;
   padding: 0 0.625rem;
+  margin: 0 0 1rem;
 
   /* border-radius: 0.625rem; */
   border-radius: 0 1.25rem 1.25rem 0.875rem;
@@ -93,59 +89,54 @@ main > section {
   }
 }
 
-.choices {
+.options {
+  display: flex;
   align-self: flex-end;
 
-  display: flex;
   flex-direction: column;
   align-items: flex-end;
   max-width: 80%;
 
   margin-bottom: 1rem;
-
-  & div {
-    width: fit-content;
-    margin: 0 0 0.5rem;
-
-    & a {
-      display: inline-block;
-      width: 100%;
-      padding: 0.625rem 0.625rem;
-
-      /* border-radius: 1.25rem; */
-      border-radius: 1.25rem 0.875rem 0 1.25rem;
-    }
-  }
-
-  & > div:last-of-type {
-    margin-bottom: 0;
-  }
 }
 
-.chosen {
+.option {
   display: flex;
+
   align-self: flex-end;
-  max-width: 80%;
-  padding: 0.375rem 1rem 0.375rem 0.375rem;
-  border-radius: 1.25rem 0.75rem 0 1.25rem;
+  text-align: right;
+  margin: 0 0 0.5rem;
+  border-radius: 1.25rem 0.875rem 0 1.25rem;
 
-  & > div:first-of-type {
-    flex: 0 1;
-  }
-
-  & > div:nth-of-type(2) {
-    flex: 1;
-    align-self: center;
+  &:last-of-type {
+    margin-bottom: 0;
   }
 
   & a {
     display: inline-block;
-    width: 2rem;
-    height: 2rem;
-    margin: 0 0.5rem 0 0;
-    text-align: center;
-    line-height: 1.75rem;
-    border-radius: 50%;
+    width: fit-content;
+    padding: 0.625rem 0.625rem;
+  }
+
+  & a[data-route='reset'] {
+    display: none;
+  }
+
+  &.is-choice {
+    & a {
+      flex: 1;
+    }
+
+    & a[data-route='reset'] {
+      flex: 0 1;
+      display: inline-flex;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      margin: 0.375rem 0 0 0.375rem;
+      line-height: 0.625rem;
+      border-radius: 50%;
+    }
   }
 }
 

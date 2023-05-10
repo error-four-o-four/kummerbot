@@ -1,25 +1,23 @@
-import elements, { contents } from '../elements/elements.js';
-import { removeAllSections, appendSingleSection } from './helpers.js';
+import elements, { templates } from '../elements/elements.js';
+import {
+  appendLoadingIndicator,
+  clearOutlet,
+  createOutletChild,
+  removeLoadingIndicator,
+} from './utils.js';
+// import { removeAllSections, appendSingleSection } from './helpers.js';
 
-import router, { routes, fetchData } from '../router/router.js';
-
-const getId = () => router.path.slice(1);
-
-const getPathToPageFile = () => '/views' + router.path + '.html';
-
-const getPathToViewFile = () => {
-  const [, index, file] = router.query;
-  return '/views/chat-' + index + '/' + file + '.html';
-};
+import router, {
+  routes,
+  fetchData,
+  getPathToPageFile,
+  getPathToViewFile,
+  getIdFromPath,
+} from '../router/router.js';
 
 export async function renderPage() {
-  // clear innerHTML of 'main#app'
-  removeAllSections();
-
-  // create section element
-  // store as value of 'elements'
-  const id = getId();
-  appendSingleSection(id);
+  clearOutlet();
+  appendLoadingIndicator();
 
   // get contents
   const file = router.isViewRoute ? getPathToViewFile() : getPathToPageFile();
@@ -32,11 +30,10 @@ export async function renderPage() {
   }
 
   // @todo url params
-  renderSectionContents(data);
-}
+  removeLoadingIndicator();
 
-function renderSectionContents(html) {
-  // @todo ?? handle undefined ?? fallback
-  elements.section.innerHTML = html;
-  // @todo add back anchor
+  // create section element
+  const id = getIdFromPath();
+  const wrap = createOutletChild(id, data);
+  elements.outlet.append(wrap);
 }

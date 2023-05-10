@@ -1,16 +1,15 @@
-import { fetchData } from './helpers.js';
 import { KEYS, routes } from './config.js';
-import { ATTR } from '../elements/anchors.js';
+import { ATTR } from '../elements/elements.js';
 
 class Router {
   constructor() {
     this.root = window.location.origin;
     this.path = null;
-    this.query = null;
+    this.steps = null;
   }
 
   get isChatRoute() {
-    return this.path.startsWith(routes[KEYS.HOME]);
+    return this.path.startsWith(routes[KEYS.CHAT]);
   }
 
   get isViewRoute() {
@@ -19,6 +18,10 @@ class Router {
 
   get isAboutRoute() {
     return this.path.startsWith(routes.about);
+  }
+
+  isCurrentRoute(route) {
+    return this.path.startsWith(route);
   }
 
   handle(e) {
@@ -42,14 +45,12 @@ class Router {
       }
 
       if (key === KEYS.RESET) {
-        const choice = e.target.parentElement.parentElement.getAttribute(
-          ATTR.CHOICE
-        );
-        const index = this.query.indexOf(choice);
-        route = '/' + this.query.slice(0, index).join('/');
+        const choice = e.target.nextElementSibling.getAttribute(ATTR.ROUTE);
+        const index = this.steps.indexOf(choice);
+        route = '/' + this.steps.slice(0, index).join('/');
       }
 
-      if (key === KEYS.HOME) {
+      if (key === KEYS.CHAT) {
         route = routes[key];
       }
 
@@ -58,8 +59,8 @@ class Router {
       }
 
       if (key === KEYS.VIEW) {
-        const choice = this.query[this.query.length - 2];
-        const index = this.query.indexOf(choice);
+        const choice = this.steps[this.steps.length - 2];
+        const index = this.steps.indexOf(choice);
         route = routes[key] + '/' + index + '/' + choice;
       }
     }
@@ -73,19 +74,11 @@ class Router {
     if (Object.values(routes).includes(key) && key.startsWith('/')) {
       // value is a route to another view
       // compare pathname with valid routes
-
-      // const validRoutes = Object.values(routes);
-      // route = validRoutes.reduce(
-      //   (result, route) => (key === route ? key : result),
-      //   routes.error
-      // );
-
       route = key;
     }
 
     window.history.pushState({}, '', route);
     this.update();
-    return;
   }
 
   replace(route) {
@@ -121,7 +114,7 @@ class Router {
     }
 
     this.path = pathname;
-    this.query = [
+    this.steps = [
       ...this.path
         .substring(1)
         .split('/')
@@ -132,6 +125,7 @@ class Router {
   }
 }
 
-export { KEYS, routes, fetchData };
+export * from './config.js';
+export * from './utils.js';
 
 export default new Router();

@@ -87,15 +87,7 @@
   background-color: var(--body-fill);
 }
 
-a {
-  color: var(--link-color);
-
-  &:hover {
-    color: var(--link-color-hover);
-  }
-}
-
-.wrap {
+.app {
   background-color: var(--wrap-fill);
   box-shadow: 0 0 1rem var(--wrap-shadow);
 }
@@ -103,6 +95,14 @@ a {
 header {
   background-color: var(--header-fill);
   border-bottom: 1px solid var(--header-border);
+
+  & a {
+    color: var(--link-color);
+
+    &:hover {
+      color: var(--link-color-hover);
+    }
+  }
 }
 
 .content {
@@ -110,24 +110,25 @@ header {
   border: 1px solid var(--content-border);
 }
 
-.choices a {
+.option {
   color: var(--choice-color);
   border: 1px solid var(--choice-border);
   background-color: var(--choice-fill);
 
-  &:hover {
+  &:not(.is-choice):hover {
     color: var(--choice-color-hover);
     border-color: var(--choice-border-hover);
     background-color: var(--choice-fill-hover);
   }
-}
 
-.chosen {
-  color: var(--chosen-color);
-  border: 1px solid var(--chosen-border);
-  background-color: var(--chosen-fill);
+  &.is-choice,
+  &.is-choice:hover {
+    color: var(--chosen-color);
+    border: 1px solid var(--chosen-border);
+    background-color: var(--chosen-fill);
+  }
 
-  & a {
+  & a[data-route='reset'] {
     color: var(--chosen-btn-color);
     border: 1px solid var(--chosen-btn-color);
 

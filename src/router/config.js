@@ -6,7 +6,7 @@
 //   }, {});
 
 export const KEYS = {
-  HOME: 'home',
+  CHAT: 'home',
   BACK: 'back',
   VIEW: 'view',
   SHARE: 'share',
@@ -14,7 +14,7 @@ export const KEYS = {
 };
 
 export const routes = {
-  [KEYS.HOME]: '/home',
+  [KEYS.CHAT]: '/chat',
   [KEYS.VIEW]: '/view',
   about: '/about',
   code: '/code',

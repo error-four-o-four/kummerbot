@@ -1,5 +1,5 @@
 import renderer from '../renderer/renderer.js';
-import router from '../router/router.js';
+import router, { KEYS } from '../router/router.js';
 import { ATTR } from '../elements/elements.js';
 
 function init() {
@@ -9,19 +9,28 @@ function init() {
   });
 
   window.addEventListener('click', (e) => {
-    const { target } = e;
+    const key = e.target.getAttribute(ATTR.ROUTE);
 
-    if (target.tagName !== 'A') return;
+    if (key === null) return;
 
-    if (target.hasAttribute(ATTR.ROUTE)) {
-      router.handle(e);
+    if (
+      key !== KEYS.RESET &&
+      e.target.parentElement.classList.contains('is-choice')
+    )
+      return;
+
+    router.handle(e);
+
+    if (key === KEYS.SHARE) {
+      console.log(navigator.canShare);
+      // clipBoard etc
+      return;
+    }
+
+    // already called via history back
+    // which emits a popstate event
+    if (key !== KEYS.BACK) {
       renderer.update();
-
-      // if (value === KEYS.SHARE) {
-      //   // navigator.canShare()
-      //   // clipBoard etc
-      //   return;
-      // }
     }
   });
 }
