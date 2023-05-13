@@ -1,17 +1,16 @@
-import elements from '../elements/elements.js';
+import elements, { ATTR } from '../elements/elements.js';
 
 import {
   appendLoadingIndicator,
   clearOutlet,
-  createOutletChild,
   removeLoadingIndicator,
 } from './utils.js';
 
 import router, {
   fetchData,
+  getKeyOfPageSection,
   getPathToPageFile,
   getPathToViewFile,
-  // getIdFromPath,
 } from '../router/router.js';
 
 export async function renderPage() {
@@ -33,7 +32,9 @@ export async function renderPage() {
   removeLoadingIndicator();
 
   // create section element
-  // const id = getIdFromPath();
-  const wrap = createOutletChild(id, data);
-  elements.outlet.append(wrap);
+  const key = getKeyOfPageSection();
+  const elt = document.createElement('section');
+  elt.setAttribute(ATTR.SECTION_KEY, key)
+  elt.innerHTML = data;
+  elements.outlet.append(elt);
 }

@@ -32,6 +32,4 @@ export const getPathToViewFile = () => {
   return '/views/chat-' + index + '/' + file + '.html';
 };
 
-// @todo currently used in renderPage to set id of section
-// but renderChat uses custom attributes
-// export const getIdFromPath = () => router.keys[0];
+export const getKeyOfPageSection = () => router.keys[0];

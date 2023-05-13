@@ -32,13 +32,6 @@ export function filterOutlet() {
   }
 }
 
-export function createOutletChild(id, html) {
-  const elt = document.createElement('section');
-  elt.id = id;
-  elt.innerHTML = html;
-  return elt;
-}
-
 const loadingIndicatorId = 'loading-indicator';
 
 export function appendLoadingIndicator() {
