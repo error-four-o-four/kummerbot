@@ -28,7 +28,6 @@ export async function renderPage() {
     return;
   }
 
-  // @todo url params
   removeLoadingIndicator();
 
   // create section element
