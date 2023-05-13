@@ -1,17 +1,21 @@
-<div>
-  <p>
-    Wenn das Erlebnis mit Gewalt von Erwachsenen zu tun hat, dann kann dir das
-    'Kinderschutzzentrum' weiterhelfen.
-  </p>
+<template>
+  <div>
+    <p>
+      Wenn das Erlebnis mit Gewalt von Erwachsenen zu tun hat, dann kann dir das
+      'Kinderschutzzentrum' weiterhelfen.
+    </p>
+  </div>
+  <div>
+    <ul>
+      <li>
+        <p data-contact="contact-1" data-homepage="#">Kinderschutzzentrum</p>
+      </li>
+    </ul>
+  </div>
   <div data-info-contacts></div>
-  <ul>
-    <li>
-      <p data-contact="contact-1" data-homepage="#">Kinderschutzzentrum</p>
-    </li>
-  </ul>
-</div>
+</template>
 
-<div>
-  <div data-route="home"></div>
-  <div data-route="share"></div>
-</div>
+<template>
+  <chat-link target="root"></chat-link>
+  <chat-link target="share"></chat-link>
+</template>

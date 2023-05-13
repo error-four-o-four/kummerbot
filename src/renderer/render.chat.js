@@ -1,10 +1,6 @@
-import { ATTR, VAL, elements, contents } from './config.js';
+import elements, { ATTR } from '../elements/elements.js';
 
-import {
-  insertSingleSection,
-  appendSingleSection,
-  setCurrentSection,
-} from './helpers.js';
+import { templates } from './renderer.js';
 
 import {
   scrollIntoViewOptions,
@@ -14,134 +10,190 @@ import {
   showChoices,
 } from './transition.js';
 
-import router, { fetchData, routes } from '../router/router.js';
+import router, {
+  KEYS,
+  fetchData,
+  getPathToChatFile,
+} from '../router/router.js';
 
-const getPath = (key) => {
-  const step = router.query.indexOf(key);
+import {
+  isInitialRender,
+  filterOutlet,
+  appendLoadingIndicator,
+  removeLoadingIndicator,
+} from './renderer.js';
 
-  // return first section or share section
-  return step === 0 || key === VAL.SHARE
-    ? '/views/chat/' + key + '.html'
-    : '/views/chat-' + step + '/' + key + '.html';
+import { CUSTOM_ATTR, CUSTOM_TAG } from '../components/chat-link/config.js';
 
-  // return (
-  //   router.root +
-  //   '/views' +
-  //   (step > 0 && key !== VAL.SHARE ? `/chat-${step}/` : '/chat/') +
-  //   key +
-  //   '.html'
-  // );
-};
-
-const filterRenderedSections = () => {
-  for (let i = elements.app.children.length - 1; i >= 0; i -= 1) {
-    setCurrentSection(elements.app.children[i]);
-
-    const id = elements.section.id;
-    const key = router.query[i];
-
-    if (!key || id !== key) {
-      elements.section.remove();
-      elements.section = null;
-    }
-  }
-};
-
-// called onpopstate/onpushstate
+// called onpopstate/onpushstate via renderer.update()
 export async function renderChat() {
-  // @todo on first render
-  const isFirstRender =
-    elements.app.children.length === 0 && router.query.length > 0;
-
-  if (isFirstRender) {
+  if (isInitialRender) {
+    // @todo on first render
     // @todo hide app
     // @todo show app when last element was rendered
     console.log('first render');
   }
 
   // remove incorrect sections
-  if (elements.app.children.length > 0) {
-    filterRenderedSections();
+  if (elements.outlet.children.length > 0) {
+    filterOutlet();
   }
 
-  // compare router query [intern, option-a, ...]
-  // with the ids of the rendered sections
-  for (let step = 0, steps = router.query.length; step < steps; step += 1) {
-    setCurrentSection(elements.app.children[step]);
+  for (let step = 0, steps = router.keys.length; step < steps; step += 1) {
+    // compare router query [intern, option-a, ...]
+    // with the ids of the rendered sections
+    // get prev, current and next key
+    const keys = [step - 1, step, step + 1].map(
+      (step) => router.keys[step] || null
+    );
+    const section = elements.outlet.children[step];
 
-    const id = elements.section?.id;
-    const key = router.query[step];
+    // section is rendered or
+    // wasn't removed in filterOutlet()
+    if (section) {
+      updateChatSection(section, ...keys);
 
-    const isLastSection = step === steps - 1;
+      // @todo animation !!
 
-    const values = {
-      step,
-      isLastSection,
-    };
-
-    // correct section was rendered
-    if (id && id === key) {
-      updateChoicesElement(values);
-
-      if (!isLastSection) continue;
-
-      scrollSectionIntoView();
-      await animateChoicesElement();
+      // cases: isInitialRender or isLastSection
+      // scrollChatSectionIntoView();
+      // await animateChatOptions();
 
       continue;
     }
 
-    // @todo
-    // check position of section and insertBefore if necessary
-    // insertSingleSection(step, key);
-
     // section was not rendered yet
-    appendSingleSection(key);
+    appendLoadingIndicator();
 
     // get contents
-    const file = getPath(key);
+    const file = getPathToChatFile(keys[1]);
     const { error, data } = await fetchData(file);
 
-    // create elements 'content', 'choices', 'chosen'
-    // set href of anchor elements
+    removeLoadingIndicator();
+
+    // create elements 'content', 'options'
     // handle error
-    // update visiblity of 'choices' and 'chosen'
-    renderSectionContents(data, step);
-    updateChoicesElement(values);
+    // visiblity of 'options' is handled by
+    // custom element in connectedCallback
+    appendChatSection(data, ...keys);
 
     if (error) {
       console.error(`Error: ${error}`);
-      scrollSectionIntoView();
+      // scrollChatSectionIntoView();
       return;
     }
 
-    if (!values.isLastSection) continue;
+    // @todo animation !!
 
-    scrollSectionIntoView();
-    await animateSectionContents();
+    // if (!condition.isLastSection) continue;
+
+    // scrollChatSectionIntoView();
+    // await animateSectionContents();
   }
 }
 
-function renderSectionContents(data, step) {
+function appendChatSection(data, prevKey, key, nextKey) {
+  // create Element
+  const elt = document.createElement('section');
+  elt.setAttribute(ATTR.SECTION_KEY, key);
+
+  if (nextKey) {
+    elt.setAttribute(ATTR.SELECTED_KEY, nextKey);
+  }
+
+  const fragment = document.createDocumentFragment();
+  fragment.append(elt);
+
+  if (!data) {
+    // handle error
+    elt.innerHTML = templates.getErrorTemplate();
+    elements.outlet.append(fragment);
+    return;
+  }
+
+  renderContent(elt, data, prevKey);
+  elements.outlet.append(fragment);
+}
+
+function renderContent(section, data, prevKey) {
   const template = document.createElement('template');
-  template.innerHTML = data ? data : contents.templateError;
+  template.innerHTML = data;
 
   // data has two template elements
-  const content = createContentElement(template);
-  const choices = createChoicesElement(template, step);
-  const chosen = createChosenElement();
+  // the first one renders content rows
+  // the second one renders the possible answers / links
+  const [clonedContentRows, clonedLinks] = [
+    ...template.content.cloneNode(true).children,
+  ]
+    .map((template) => template.content.cloneNode(true))
+    .map((cloned) => [...cloned.children]);
 
-  // @todo
-  // update and convert contact links if possible
+  for (const contentRow of clonedContentRows) {
+    contentRow.classList.add('row', 'content');
 
-  // use DocumentFragment for performance
-  const fragment = document.createDocumentFragment();
-  fragment.append(content, choices, chosen);
+    // insert templates if necessary
+    for (const attr of [ATTR.INFO]) {
+      if (contentRow.hasAttribute(attr)) {
+        contentRow.innerHTML = templates[attr];
+      }
+    }
 
-  const { section } = elements;
-  section.innerHTML = '';
-  section.append(fragment);
+    // @todo => custom Element ?
+    // update and convert contact links if possible
+  }
+
+  const linksRow = document.createElement('div');
+  linksRow.classList.add('row', 'links');
+
+  for (const link of clonedLinks) {
+    linksRow.appendChild(link);
+  }
+
+  section.append(...clonedContentRows, linksRow);
+
+  if (!prevKey) return;
+  // insert back anchor if necessary
+  // after the anchor /home
+  // before other options
+
+  const links = linksRow.children;
+
+  const position =
+    links[0]?.getAttribute(CUSTOM_ATTR.TARGET_KEY) === KEYS.ROOT ? 1 : 0;
+
+  const link = document.createElement(CUSTOM_TAG);
+  link.setAttribute(CUSTOM_ATTR.TARGET_KEY, KEYS.BACK);
+  link.setAttribute(CUSTOM_ATTR.TEXT, templates.text[KEYS.BACK]);
+
+  linksRow.insertBefore(link, links[position]);
 }
+
+function updateChatSection(elt, ...keys) {
+  const selectedKey = elt.getAttribute(ATTR.SELECTED_KEY);
+  const nextKey = keys[2]; // @todo refactor
+
+  if (nextKey && selectedKey && nextKey === selectedKey) {
+    // section was rendered correctely
+    return;
+  }
+
+  if (nextKey && nextKey !== selectedKey) {
+    // section was rendered incorrectely
+    elt.setAttribute(ATTR.SELECTED_KEY, nextKey);
+  }
+
+  if (nextKey === null && selectedKey) {
+    // make sure to show all options
+    elt.removeAttribute(ATTR.SELECTED_KEY);
+  }
+
+  // update links
+  for (const link of elt.lastElementChild.children) {
+    link.update();
+  }
+}
+
+// ################# animation
 
 async function animateSectionContents() {
   // animation
@@ -153,186 +205,12 @@ async function animateSectionContents() {
   await showChoices(choices);
 }
 
-function scrollSectionIntoView() {
+function scrollChatSectionIntoView() {
   elements.section.scrollIntoView(scrollIntoViewOptions);
 }
 
-// retrieve route from router path
-const getRouteToStep = (step, key = null) => {
-  const path = router.query.slice(0, step + 1).join('/');
-  return '/' + path + (key ? `/${key}` : '');
-};
-
-function createContentElement(template) {
-  const elt = template.content.firstElementChild.cloneNode(true);
-  elt.classList.add('row', 'content');
-
-  // create info element if necessary
-  const div = elt.querySelector(`[${ATTR.INFO}]`);
-
-  if (div) {
-    div.innerHTML = contents.templateInfo;
-  }
-
-  return elt;
-}
-
-// ############### Choices Element
-
-function createChoicesElement(template, step) {
-  const elt = template.content.lastElementChild.cloneNode(true);
-  elt.classList.add('row', 'choices');
-
-  // get data from div element
-  // reset div element
-  // create and append anchor elements
-  for (const child of elt.children) {
-    const key = child.getAttribute(ATTR.ROUTE);
-
-    const anchor =
-      // key === VAL.HOMEPAGE
-      //   ? createAnchorHomepage()
-      //   : key === VAL.SHARE
-      //   ? createAnchorNext(step, key, contents.text.anchorShare)
-      // : createAnchorNext(step, key, child.textContent);
-      key in createAnchorHandler
-        ? createAnchorHandler[key](step, key)
-        : createAnchorNext(step, key, child.textContent);
-
-    anchor.setAttribute(ATTR.ROUTE, key);
-
-    child.innerHTML = '';
-    child.appendChild(anchor);
-    child.removeAttribute(ATTR.ROUTE);
-  }
-
-  // insert back anchor if necessary
-  if (step > 0) {
-    const ref =
-      elt.children[0]?.children[0]?.getAttribute(ATTR.ROUTE) === VAL.HOMEPAGE
-        ? 1
-        : 0;
-    const anchor = createAnchorBack(step);
-    elt.insertBefore(anchor, elt.children[ref]);
-  }
-
-  return elt;
-}
-
-const createAnchorHandler = {
-  [VAL.HOMEPAGE]: createAnchorHomepage,
-  [VAL.SHARE]: createAnchorNext,
-  [VAL.VIEW]: createAnchorView,
-};
-
-function createAnchorHomepage() {
-  const anchor = document.createElement('a');
-  anchor.innerHTML = contents.text.anchorHomepage;
-  anchor.href = routes.home;
-  return anchor;
-}
-
-function createAnchorBack(step) {
-  const wrap = document.createElement('div');
-  const anchor = document.createElement('a');
-  anchor.href = getRouteToStep(step - 1);
-  anchor.innerHTML = contents.text.anchorBack;
-  anchor.setAttribute(ATTR.ROUTE, VAL.POPSTATE);
-
-  wrap.appendChild(anchor);
-  return wrap;
-}
-
-function createAnchorNext(step, key, text) {
-  const anchor = document.createElement('a');
-  anchor.innerHTML = key === VAL.SHARE ? contents.text.anchorShare : text;
-  anchor.href = getRouteToStep(step, key);
-  return anchor;
-}
-
-function createAnchorView(step, key) {
-  const anchor = document.createElement('a');
-  anchor.innerHTML = contents.text.anchorView;
-  anchor.href = routes.view;
-  return anchor;
-}
-
-function updateChoicesElement({ step, isLastSection }) {
-  const { section } = elements;
-  const [, choices, chosen] = section.children;
-  const anchors = [...choices.querySelectorAll('a')];
-
-  // section hasn't been answered yet
-  // only display choices element
-  if (isLastSection) {
-    choices.classList.remove('is-hidden');
-    chosen.classList.add('is-hidden');
-    return;
-  }
-
-  // this is the next step
-  const key = router.query[step + 1];
-
-  // chosen element hasn't been rendered yet
-  if (!chosen.getAttribute(ATTR.CHOICE)) {
-    chosen.setAttribute(ATTR.CHOICE, key);
-
-    // get route to chosen step
-    const href = getRouteToStep(step);
-    // use key to get the anchor text for the next section
-    const text = anchors.find(
-      (elt) => elt.getAttribute(ATTR.ROUTE) === key
-    )?.textContent;
-
-    // set href to current section
-    renderChosenContents(chosen, href, text);
-  }
-
-  // chosen element has been rendered
-  const choice = chosen.getAttribute(ATTR.CHOICE);
-  // update content if necessary
-  if (choice !== key) {
-    const text = anchors.find(
-      (elt) => elt.getAttribute(ATTR.ROUTE) === key
-    )?.textContent;
-    updateChosenContents(chosen, text);
-  }
-
-  // section has been answered
-  // hide choices, show chosen choice
-  choices.classList.add('is-hidden');
-  chosen.classList.remove('is-hidden');
-}
-
-async function animateChoicesElement() {
+async function animateChatOptions() {
   const choices = elements.section.children[1];
   hideChoices(choices);
   await showChoices(choices);
-}
-
-// ########### Chosen Element
-
-function createChosenElement() {
-  const elt = document.createElement('div');
-  elt.classList.add('row', 'chosen');
-
-  return elt;
-}
-
-function renderChosenContents(elt, href, text) {
-  const anchorWrap = document.createElement('div');
-  anchorWrap.innerHTML = `<a href="${href}" ${ATTR.ROUTE}="${VAL.RESETSTATE}">✖</a>`;
-
-  const textWrap = document.createElement('div');
-  textWrap.textContent = text;
-
-  const fragment = document.createDocumentFragment();
-  fragment.append(anchorWrap, textWrap);
-
-  elt.innerHTML = '';
-  elt.append(fragment);
-}
-
-function updateChosenContents(elt, text) {
-  elt.lastElementChild.textContent = text;
 }

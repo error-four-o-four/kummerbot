@@ -1,23 +1,32 @@
-import router, { isChatRoute } from '../router/router.js';
+import router from '../router/router.js';
+import elements from '../elements/elements.js';
 
-// @todo move to router ??
-import { ATTR, VAL } from './config.js';
 import { renderChat } from './render.chat.js';
-import { renderView } from './render.view.js';
+import { renderPage } from './render.page.js';
 
-async function update() {
-  const route = router.validate();
+// @todo reset initalRender on postate
+// routed from page
+let isInitialRender = true;
 
-  if (isChatRoute(route)) {
+async function update(prevPathname = null) {
+  if (router.isChatRoute) {
     renderChat();
-    return;
+  } else {
+    renderPage();
   }
 
-  renderView();
-}
+  if (prevPathname !== null) {
+    elements.aboutLink.update(prevPathname);
+  }
 
-export { ATTR, VAL };
+  if (isInitialRender) isInitialRender = false;
+}
 
 export default {
   update,
 };
+
+export { isInitialRender };
+
+export * from './templates.js';
+export * from './utils.js';

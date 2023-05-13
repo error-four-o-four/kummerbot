@@ -1,4 +1,7 @@
-import './style.css';
+import './style/main.css';
+
+import './components/about-link/index.js';
+import './components/chat-link/index.js';
 
 import router from './router/router.js';
 import renderer from './renderer/renderer.js';

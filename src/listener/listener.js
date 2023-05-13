@@ -1,22 +1,31 @@
-import router from '../router/router.js';
-import renderer, { ATTR } from '../renderer/renderer.js';
+import renderer from '../renderer/renderer.js';
+import router, { KEYS } from '../router/router.js';
 
 function init() {
-  window.onpopstate = () => {
+  window.addEventListener('popstate', (_) => {
     router.update();
     renderer.update();
-  };
+  });
 
-  window.addEventListener('click', (e) => {
-    const { target } = e;
+  window.addEventListener('keypress', handleKeypress);
+  window.addEventListener('click', handle);
+}
 
-    if (target.tagName !== 'A') return;
+function handleKeypress(e) {}
 
-    if (!target.hasAttribute(ATTR.ROUTE)) return;
+function handle(e) {
+  if (router.isRouterLink(e.target)) {
+    const prevPathname = router.path;
+
+    //   if (key === KEYS.SHARE) {
+    //     console.log(navigator.canShare);
+    //     // clipBoard etc
+    //     return;
+    //   }
 
     router.handle(e);
-    renderer.update();
-  });
+    renderer.update(prevPathname);
+  }
 }
 
 export default {
