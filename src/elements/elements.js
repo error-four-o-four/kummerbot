@@ -10,4 +10,3 @@ export default {
 };
 
 export * from './config.js';
-export * from './navbar.js';
