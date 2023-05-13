@@ -23,7 +23,7 @@
   --wrap-fill: hsl(240, 10%, 8%);
   --wrap-shadow: #000;
 
-  --header-fill: var(--shade-23);
+  --header-fill: hsla(240, 2%, 23%, 0.25);
   --header-border: var(--shade-30);
 
   --link-color: var(--powder-blue);
@@ -57,7 +57,7 @@
     --wrap-fill: hsl(0, 0%, 98%);
     --wrap-shadow: #999;
 
-    --header-fill: hsl(0, 0%, 96%);
+    --header-fill: hsla(0, 0%, 96%, 0.25);
     --header-border: var(--shade-88);
 
     --link-color: var(--true-blue);
@@ -94,6 +94,7 @@
 
 header {
   background-color: var(--header-fill);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--header-border);
 
   & a {

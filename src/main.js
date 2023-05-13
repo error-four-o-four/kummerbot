@@ -1,4 +1,4 @@
-import './style.css';
+import './style/main.css';
 
 import './components/about-link/index.js';
 import './components/chat-link/index.js';
