@@ -13,8 +13,10 @@ class Router {
 
     this.routes = routes;
 
-    if (!Object.keys(window.history.state).length) {
-      const { href } = window.location;
+    // on page load
+    // redirect from '/' to '/chat'
+    if (window.history.state === null && window.location.pathname === '/') {
+      const href = this.root + routes.root;
       window.history.replaceState({ href }, '', href);
     }
   }
@@ -42,9 +44,11 @@ class Router {
   setLocation(route) {
     // called programmatically
     // does not add a history state
-    const e = new Event('route');
-    e.preventDefault();
+    // const e = new Event('route');
+    // e.preventDefault();
 
+    // const href = this.root + route;
+    // window.history.replaceState({ href }, '', href);
     window.location.replace(route);
     this.update();
   }
@@ -106,10 +110,6 @@ class Router {
     // }
   }
 
-  handleChatRoute() {}
-
-  handlePageRoute() {}
-
   update() {
     // get current location
     // populate path and query
@@ -123,13 +123,9 @@ class Router {
       pathname = pathname.slice(0, -1);
     }
 
-    // redirect to /home from root
-    if (pathname === '/') {
-      pathname = routes.root;
-    }
-
     if (pathname !== window.location.pathname) {
-      window.location.replace(pathname);
+      const href = this.root + pathname;
+      window.history.replaceState({ href }, '', href);
     }
 
     this.path = pathname;
