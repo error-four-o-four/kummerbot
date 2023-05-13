@@ -1,17 +1,25 @@
-<div>
-  <p>Keine Sorge 🤗</p>
-  <p>
-    Ich werde versuchen dir zu helfen, indem ich dir ein paar Fragen stelle.
-  </p>
-  <p>M&ouml;chtest du dich &uuml;ber etwas bei pro liberis beschweren</p>
-  <p>oder</p>
-  <p>
-    ist dir etwas passiert und du m&ouml;chtest mit einer Person dar&uuml;ber
-    reden?
-  </p>
-</div>
+<template>
+  <div>
+    <p>Keine Sorge 🤗</p>
+  </div>
+  <div>
+    <p>
+      Ich werde versuchen dir zu helfen, indem ich dir ein paar Fragen stelle.
+    </p>
+  </div>
+  <div>
+    <p>M&ouml;chtest du dich &uuml;ber etwas bei pro liberis beschweren</p>
+    <p>oder</p>
+    <p>
+      ist dir etwas passiert und du m&ouml;chtest mit einer Person dar&uuml;ber
+      reden?
+    </p>
+  </div>
+</template>
 
-<div>
-  <div data-route="complaint">Ich m&ouml;chte mich beschweren!</div>
-  <div data-route="event">Mir ist etwas passiert.</div>
-</div>
+<template>
+  <chat-link
+    target="complaint"
+    text="Ich m&ouml;chte mich beschweren!"></chat-link>
+  <chat-link target="event" text="Mir ist etwas passiert."></chat-link>
+</template>

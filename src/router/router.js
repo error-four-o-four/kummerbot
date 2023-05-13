@@ -1,15 +1,26 @@
 import { KEYS, routes } from './config.js';
 import { ATTR } from '../elements/elements.js';
 
+export { KEYS };
+
+export * from './utils.js';
+
 class Router {
   constructor() {
     this.root = window.location.origin;
     this.path = null;
-    this.steps = null;
+    this.keys = null;
+
+    this.routes = routes;
+
+    if (!Object.keys(window.history.state).length) {
+      const { href } = window.location;
+      window.history.replaceState({ href }, '', href);
+    }
   }
 
   get isChatRoute() {
-    return this.path.startsWith(routes[KEYS.CHAT]);
+    return this.path.startsWith(routes[KEYS.ROOT]);
   }
 
   get isViewRoute() {
@@ -20,68 +31,15 @@ class Router {
     return this.path.startsWith(routes.about);
   }
 
-  isCurrentRoute(route) {
-    return this.path.startsWith(route);
+  // isCurrentRoute(route) {
+  //   return this.path.startsWith(route);
+  // }
+
+  isRouterLink({ href }) {
+    return href && href.startsWith(this.root);
   }
 
-  handle(e) {
-    // called on click event
-    // adds a history state
-    // key is the data-route value of the anchor
-    const key = e.target.getAttribute(ATTR.ROUTE);
-
-    // return error route by default
-    let route = '/error';
-
-    e = e || new Event('route');
-    e.preventDefault();
-
-    if (Object.values(KEYS).includes(key)) {
-      // handle special cases
-      if (key === KEYS.BACK) {
-        // this.update() is called in popstate event
-        window.history.back();
-        return;
-      }
-
-      if (key === KEYS.RESET) {
-        const choice = e.target.nextElementSibling.getAttribute(ATTR.ROUTE);
-        const index = this.steps.indexOf(choice);
-        route = '/' + this.steps.slice(0, index).join('/');
-      }
-
-      if (key === KEYS.CHAT) {
-        route = routes[key];
-      }
-
-      if (key === KEYS.SHARE) {
-        route = this.path + '/' + key;
-      }
-
-      if (key === KEYS.VIEW) {
-        const choice = this.steps[this.steps.length - 2];
-        const index = this.steps.indexOf(choice);
-        route = routes[key] + '/' + index + '/' + choice;
-      }
-    }
-
-    if (!Object.values(KEYS).includes(key) && !key.startsWith('/')) {
-      // chat route
-      route = this.path + '/' + key;
-      console.log(route);
-    }
-
-    if (Object.values(routes).includes(key) && key.startsWith('/')) {
-      // value is a route to another view
-      // compare pathname with valid routes
-      route = key;
-    }
-
-    window.history.pushState({}, '', route);
-    this.update();
-  }
-
-  replace(route) {
+  setLocation(route) {
     // called programmatically
     // does not add a history state
     const e = new Event('route');
@@ -90,6 +48,67 @@ class Router {
     window.location.replace(route);
     this.update();
   }
+
+  handle(e) {
+    // called on event
+    // adds a history state
+
+    const { href } = e.target;
+    e.preventDefault();
+    window.history.pushState({ href }, '', href);
+    this.update();
+
+    // // return error route by default
+    // let route = '/error';
+
+    // // e = e || new Event('route');
+    // // e.preventDefault();
+
+    // if (Object.values(KEYS).includes(key)) {
+    //   // handle special cases
+    //   if (key === KEYS.BACK) {
+    //     // this.update() is called in popstate event
+    //     window.history.back();
+    //     return;
+    //   }
+
+    //   if (key === KEYS.RESET) {
+    //     const choice = e.target.nextElementSibling.getAttribute(ATTR.ROUTE);
+    //     const index = this.steps.indexOf(choice);
+    //     route = '/' + this.steps.slice(0, index).join('/');
+    //   }
+
+    //   if (key === KEYS.ROOT) {
+    //     route = routes[key];
+    //   }
+
+    //   if (key === KEYS.SHARE) {
+    //     route = this.path + '/' + key;
+    //   }
+
+    //   if (key === KEYS.VIEW) {
+    //     const choice = this.steps[this.steps.length - 2];
+    //     const index = this.steps.indexOf(choice);
+    //     route = routes[key] + '/' + index + '/' + choice;
+    //   }
+    // }
+
+    // if (!Object.values(KEYS).includes(key) && !key.startsWith('/')) {
+    //   // chat route
+    //   route = this.path + '/' + key;
+    //   console.log(route);
+    // }
+
+    // if (Object.values(routes).includes(key) && key.startsWith('/')) {
+    //   // value is a route to another view
+    //   // compare pathname with valid routes
+    //   route = key;
+    // }
+  }
+
+  handleChatRoute() {}
+
+  handlePageRoute() {}
 
   update() {
     // get current location
@@ -106,7 +125,7 @@ class Router {
 
     // redirect to /home from root
     if (pathname === '/') {
-      pathname = routes.home;
+      pathname = routes.root;
     }
 
     if (pathname !== window.location.pathname) {
@@ -114,7 +133,7 @@ class Router {
     }
 
     this.path = pathname;
-    this.steps = [
+    this.keys = [
       ...this.path
         .substring(1)
         .split('/')
@@ -124,8 +143,5 @@ class Router {
     // console.log(this);
   }
 }
-
-export * from './config.js';
-export * from './utils.js';
 
 export default new Router();

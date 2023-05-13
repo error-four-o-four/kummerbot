@@ -1,4 +1,6 @@
-import elements, { templates, ATTR } from '../elements/elements.js';
+import elements, { ATTR } from '../elements/elements.js';
+
+import { templates } from './renderer.js';
 
 import {
   scrollIntoViewOptions,
@@ -9,9 +11,9 @@ import {
 } from './transition.js';
 
 import router, {
-  getPathToChatFile,
-  fetchData,
   KEYS,
+  fetchData,
+  getPathToChatFile,
 } from '../router/router.js';
 
 import {
@@ -20,6 +22,8 @@ import {
   appendLoadingIndicator,
   removeLoadingIndicator,
 } from './renderer.js';
+
+import { CUSTOM_ATTR, CUSTOM_TAG } from '../components/chat-link/config.js';
 
 // called onpopstate/onpushstate via renderer.update()
 export async function renderChat() {
@@ -31,27 +35,27 @@ export async function renderChat() {
   }
 
   // remove incorrect sections
-  if (elements.outletChildren.length > 0) {
+  if (elements.outlet.children.length > 0) {
     filterOutlet();
   }
 
-  for (let step = 0, steps = router.steps.length; step < steps; step += 1) {
-    const section = elements.outletChildren[step];
-
+  for (let step = 0, steps = router.keys.length; step < steps; step += 1) {
     // compare router query [intern, option-a, ...]
     // with the ids of the rendered sections
-    const id = section?.id;
-    const key = router.steps[step];
+    // get prev, current and next key
+    const keys = [step - 1, step, step + 1].map(
+      (step) => router.keys[step] || null
+    );
+    const section = elements.outlet.children[step];
 
-    // required to trigger scrollIntoView animation
-    const isLastSection = step === steps - 1;
+    // section is rendered or
+    // wasn't removed in filterOutlet()
+    if (section) {
+      updateChatSection(section, ...keys);
 
-    // correct section was rendered
-    if (id && id === key) {
-      updateOptions(section.lastElementChild, step, isLastSection);
+      // @todo animation !!
 
-      // if (!isLastSection) continue;
-
+      // cases: isInitialRender or isLastSection
       // scrollChatSectionIntoView();
       // await animateChatOptions();
 
@@ -62,19 +66,16 @@ export async function renderChat() {
     appendLoadingIndicator();
 
     // get contents
-    const file = getPathToChatFile(key);
+    const file = getPathToChatFile(keys[1]);
     const { error, data } = await fetchData(file);
 
     removeLoadingIndicator();
 
-    // @todo
-    // check position of section and insertBefore if necessary
-    // insertSingleSection(step, key);
-
     // create elements 'content', 'options'
     // handle error
-    // update visiblity of 'options'
-    appendChatPart(key, step, data);
+    // visiblity of 'options' is handled by
+    // custom element in connectedCallback
+    appendChatSection(data, ...keys);
 
     if (error) {
       console.error(`Error: ${error}`);
@@ -82,8 +83,7 @@ export async function renderChat() {
       return;
     }
 
-    const options = elements.outletChildren[step].lastElementChild;
-    updateOptions(options, step, isLastSection);
+    // @todo animation !!
 
     // if (!condition.isLastSection) continue;
 
@@ -92,91 +92,104 @@ export async function renderChat() {
   }
 }
 
-function appendChatPart(key, step, data) {
-  // use DocumentFragment for performance
-  const fragment = document.createDocumentFragment();
+function appendChatSection(data, prevKey, key, nextKey) {
+  // create Element
+  const elt = document.createElement('section');
+  elt.setAttribute(ATTR.SECTION_KEY, key);
 
-  // e.g. section#help
-  const wrap = document.createElement('section');
-  wrap.id = key;
-  fragment.append(wrap);
+  if (nextKey) {
+    elt.setAttribute(ATTR.SELECTED_KEY, nextKey);
+  }
+
+  const fragment = document.createDocumentFragment();
+  fragment.append(elt);
 
   if (!data) {
-    wrap.innerHTML = templates.getErrorTemplate();
+    // handle error
+    elt.innerHTML = templates.getErrorTemplate();
     elements.outlet.append(fragment);
     return;
   }
 
-  // data has two template elements
-  // the first one renders the question
-  // the second one renders the possible answers
-  wrap.innerHTML = data;
-
-  renderContent(wrap);
-  renderOptions(wrap, step);
-
+  renderContent(elt, data, prevKey);
   elements.outlet.append(fragment);
 }
 
-function renderContent(parent) {
-  const content = parent.firstElementChild;
-  content.classList.add('row', 'content');
+function renderContent(section, data, prevKey) {
+  const template = document.createElement('template');
+  template.innerHTML = data;
 
-  // create info element if necessary
-  for (const attr of [ATTR.INFO]) {
-    const element = content.querySelector(`[${attr}]`);
-    if (element) {
-      element.innerHTML = templates[attr];
+  // data has two template elements
+  // the first one renders content rows
+  // the second one renders the possible answers / links
+  const [clonedContentRows, clonedLinks] = [
+    ...template.content.cloneNode(true).children,
+  ]
+    .map((template) => template.content.cloneNode(true))
+    .map((cloned) => [...cloned.children]);
+
+  for (const contentRow of clonedContentRows) {
+    contentRow.classList.add('row', 'content');
+
+    // insert templates if necessary
+    for (const attr of [ATTR.INFO]) {
+      if (contentRow.hasAttribute(attr)) {
+        contentRow.innerHTML = templates[attr];
+      }
     }
-  }
-  // @todo => custom Element ?
-  // update and convert contact links if possible
-}
 
-function renderOptions(parent, step) {
-  const options = parent.lastElementChild;
-  options.classList.add('row', 'options');
-
-  for (const option of options.children) {
-    const key = option.getAttribute(ATTR.ROUTE);
-    const text = option.textContent;
-
-    option.classList.add('option');
-    option.innerHTML = templates.getOptionTemplate(key, text);
-    option.removeAttribute(ATTR.ROUTE);
+    // @todo => custom Element ?
+    // update and convert contact links if possible
   }
 
+  const linksRow = document.createElement('div');
+  linksRow.classList.add('row', 'links');
+
+  for (const link of clonedLinks) {
+    linksRow.appendChild(link);
+  }
+
+  section.append(...clonedContentRows, linksRow);
+
+  if (!prevKey) return;
   // insert back anchor if necessary
   // after the anchor /home
   // before other options
-  if (step > 0) {
-    const position =
-      options.children[0]?.getAttribute(ATTR.ROUTE) === KEYS.CHAT ? 1 : 0;
 
-    const option = document.createElement('div');
-    option.setAttribute(ATTR.ROUTE, KEYS.BACK);
-    option.classList.add('option');
-    option.innerHTML = templates.getOptionTemplate(KEYS.BACK);
+  const links = linksRow.children;
 
-    options.insertBefore(option, options.children[position]);
-  }
+  const position =
+    links[0]?.getAttribute(CUSTOM_ATTR.TARGET_KEY) === KEYS.ROOT ? 1 : 0;
+
+  const link = document.createElement(CUSTOM_TAG);
+  link.setAttribute(CUSTOM_ATTR.TARGET_KEY, KEYS.BACK);
+  link.setAttribute(CUSTOM_ATTR.TEXT, templates.text[KEYS.BACK]);
+
+  linksRow.insertBefore(link, links[position]);
 }
 
-function updateOptions(options, step) {
-  const nextKey = router.steps[step + 1] || null;
+function updateChatSection(elt, ...keys) {
+  const selectedKey = elt.getAttribute(ATTR.SELECTED_KEY);
+  const nextKey = keys[2]; // @todo refactor
 
-  for (const option of options.children) {
-    // show all options because it's the last element
-    if (nextKey === null) {
-      option.classList.remove('is-hidden');
-      option.classList.remove('is-choice');
-      continue;
-    }
+  if (nextKey && selectedKey && nextKey === selectedKey) {
+    // section was rendered correctely
+    return;
+  }
 
-    const index = option.children.length === 1 ? 0 : 1;
-    const key = option.children[index].getAttribute(ATTR.ROUTE);
-    const state = key === nextKey ? 'is-choice' : 'is-hidden';
-    option.classList.add(state);
+  if (nextKey && nextKey !== selectedKey) {
+    // section was rendered incorrectely
+    elt.setAttribute(ATTR.SELECTED_KEY, nextKey);
+  }
+
+  if (nextKey === null && selectedKey) {
+    // make sure to show all options
+    elt.removeAttribute(ATTR.SELECTED_KEY);
+  }
+
+  // update links
+  for (const link of elt.lastElementChild.children) {
+    link.update();
   }
 }
 

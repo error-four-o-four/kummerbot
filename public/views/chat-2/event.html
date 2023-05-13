@@ -1,17 +1,19 @@
-<div>
-  <p>
-    Gibt es bei pro liberis eine Person mit der du reden kannst und
-    m&ouml;chtest
-  </p>
-  <p>oder</p>
-  <p>ben&ouml;tigst du Hilfe von einer au&szlig;enstehenden Person?</p>
-</div>
+<template>
+  <div>
+    <p>
+      Gibt es bei pro liberis eine Person mit der du reden kannst und
+      m&ouml;chtest
+    </p>
+    <p>oder</p>
+    <p>ben&ouml;tigst du Hilfe von einer au&szlig;enstehenden Person?</p>
+  </div>
+</template>
 
-<div>
-  <div data-route="internal-event">
-    Ich m&ouml;chte mit einer Person von pro liberis reden
-  </div>
-  <div data-route="external-event">
-    Ich m&ouml;chte mit einer au&szlig;enstehenden Person reden
-  </div>
-</div>
+<template>
+  <chat-link
+    target="internal-event"
+    text="Ich m&ouml;chte mit einer Person von pro liberis reden."></chat-link>
+  <chat-link
+    target="external-event"
+    text="Ich m&ouml;chte mit einer au&szlig;enstehenden Person reden."></chat-link>
+</template>

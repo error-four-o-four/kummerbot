@@ -1,15 +1,21 @@
-<div>
-  <p>Hallo 👋</p>
-  <p>
-    Ich bin a2BS, das anonyme Beschwerde und Beratungsmanagement System bei pro
-    liberis.
-  </p>
-  <p>Wei&szlig;t du schon genau bei wem du dich melden m&ouml;chtest?</p>
-</div>
-
-<div>
-  <div data-route="contacts">
-    Ja, allerdings ben&ouml;tige ich die genauen Kontaktdaten
+<template>
+  <div>
+    <p>Hallo 👋</p>
   </div>
-  <div data-route="help">Nein, das wei&szlig; ich nicht</div>
-</div>
+  <div>
+    <p>
+      Ich bin a2BS, das anonyme Beschwerde und Beratungsmanagement System bei
+      pro liberis.
+    </p>
+  </div>
+  <div>
+    <p>Wei&szlig;t du schon genau bei wem du dich melden m&ouml;chtest?</p>
+  </div>
+</template>
+
+<template>
+  <chat-link
+    target="contacts"
+    text="Ja, allerdings ben&ouml;tige ich die genauen Kontaktdaten."></chat-link>
+  <chat-link target="help" text="Nein, das wei&szlig; ich nicht."></chat-link>
+</template>

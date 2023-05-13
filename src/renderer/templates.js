@@ -1,6 +1,7 @@
 import { KEYS } from '../router/config.js';
-import { ATTR } from './config.js';
+import { ATTR } from '../elements/config.js';
 
+// @todo getContactInfoTemplate()
 const info = `
 <p>
   Du kannst auf den gew&uuml;nschten Kontakt klicken, um zu einem anonymen
@@ -12,7 +13,7 @@ const info = `
 const blocks = {
   error: '&#x26A0; Ein Fehler ist aufgetreten.',
   [KEYS.BACK]: 'Ich m&ouml;chte einen Schritt zur&uuml;ck',
-  [KEYS.CHAT]: 'Ich m&ouml;chte zur&uuml;ck zum Anfang',
+  [KEYS.ROOT]: 'Ich m&ouml;chte zur&uuml;ck zum Anfang',
   [KEYS.VIEW]: 'Wie sieht das aus, was ich teile?',
   [KEYS.SHARE]: 'Ich m&ouml;chte diese Informationen teilen',
   headerAnchorAbout: 'Details',
@@ -21,34 +22,13 @@ const blocks = {
 
 function getErrorTemplate() {
   return `
-<div>
+<div class="row content">
 	<p>${blocks.error}</p>
 </div>`;
-}
-
-function getOptionTemplate(key, text) {
-  if (
-    Object.values(KEYS)
-      .filter((key) => key !== KEYS.SHARE)
-      .includes(key)
-  ) {
-    return `<a ${ATTR.ROUTE}="${key}">${blocks[key]}</a>`;
-  }
-
-  if (key === KEYS.SHARE) {
-    return `
-<a ${ATTR.ROUTE}="${KEYS.RESET}">✖</a>
-<a ${ATTR.ROUTE}="${key}">${blocks[key]}</a>`;
-  }
-
-  return `
-<a ${ATTR.ROUTE}="${KEYS.RESET}">✖</a>
-<a ${ATTR.ROUTE}="${key}">${text}</a>`;
 }
 
 export const templates = {
   [ATTR.INFO]: info,
   text: blocks,
   getErrorTemplate,
-  getOptionTemplate,
 };

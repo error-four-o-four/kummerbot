@@ -8,12 +8,16 @@ import {
 import { renderChat } from './render.chat.js';
 import { renderPage } from './render.page.js';
 
-export let isInitialRender = true;
+let isInitialRender = true;
 
-async function update() {
-  if (isInitialRender) createNavbarAnchor();
+async function update(prevRoute = null) {
+  if (isInitialRender) {
+    createNavbarAnchor();
+  }
 
-  updateNavbarAnchor();
+  if ((isInitialRender && router.isAboutRoute) || prevRoute) {
+    updateNavbarAnchor(prevRoute);
+  }
 
   if (router.isChatRoute) {
     renderChat();
@@ -28,4 +32,7 @@ export default {
   update,
 };
 
+export { isInitialRender };
+
+export * from './templates.js';
 export * from './utils.js';

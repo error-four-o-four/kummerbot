@@ -5,13 +5,9 @@ const outlet = document.getElementById('outlet');
 export default {
   app,
   header,
-  headerAnchor: null,
+  headerLink: null,
   outlet,
-  get outletChildren() {
-    return outlet.children;
-  },
 };
 
 export * from './config.js';
-export * from './templates.js';
 export * from './navbar.js';

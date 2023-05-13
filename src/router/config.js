@@ -6,15 +6,15 @@
 //   }, {});
 
 export const KEYS = {
-  CHAT: 'home',
-  BACK: 'back',
+  ROOT: 'root',
+  BACK: 'popstate',
+  RESET: 'resetstate',
   VIEW: 'view',
   SHARE: 'share',
-  RESET: 'reset',
 };
 
 export const routes = {
-  [KEYS.CHAT]: '/chat',
+  [KEYS.ROOT]: '/chat',
   [KEYS.VIEW]: '/view',
   about: '/about',
   code: '/code',

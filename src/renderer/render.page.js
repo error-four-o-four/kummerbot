@@ -1,18 +1,17 @@
-import elements, { templates } from '../elements/elements.js';
+import elements from '../elements/elements.js';
+
 import {
   appendLoadingIndicator,
   clearOutlet,
   createOutletChild,
   removeLoadingIndicator,
 } from './utils.js';
-// import { removeAllSections, appendSingleSection } from './helpers.js';
 
 import router, {
-  routes,
   fetchData,
   getPathToPageFile,
   getPathToViewFile,
-  getIdFromPath,
+  // getIdFromPath,
 } from '../router/router.js';
 
 export async function renderPage() {
@@ -24,8 +23,9 @@ export async function renderPage() {
   const { error, data } = await fetchData(file);
 
   if (error) {
+    // @todo pass error message / wrong url as params
     console.error(`Error: ${error}`);
-    router.replace(routes.error);
+    router.setLocation(router.routes.error);
     return;
   }
 
@@ -33,7 +33,7 @@ export async function renderPage() {
   removeLoadingIndicator();
 
   // create section element
-  const id = getIdFromPath();
+  // const id = getIdFromPath();
   const wrap = createOutletChild(id, data);
   elements.outlet.append(wrap);
 }

@@ -17,7 +17,7 @@ export const fetchData = async (file) => {
 };
 
 export const getPathToChatFile = (key) => {
-  const step = router.steps.indexOf(key);
+  const step = router.keys.indexOf(key);
 
   // return first section or share section
   return step === 0 || key === KEYS.SHARE
@@ -28,8 +28,10 @@ export const getPathToChatFile = (key) => {
 export const getPathToPageFile = () => '/views' + router.path + '.html';
 
 export const getPathToViewFile = () => {
-  const [, index, file] = router.steps;
+  const [, index, file] = router.keys;
   return '/views/chat-' + index + '/' + file + '.html';
 };
 
-export const getIdFromPath = () => router.steps[0];
+// @todo currently used in renderPage to set id of section
+// but renderChat uses custom attributes
+// export const getIdFromPath = () => router.keys[0];

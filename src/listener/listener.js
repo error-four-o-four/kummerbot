@@ -1,6 +1,5 @@
 import renderer from '../renderer/renderer.js';
 import router, { KEYS } from '../router/router.js';
-import { ATTR } from '../elements/elements.js';
 
 function init() {
   window.addEventListener('popstate', (_) => {
@@ -8,31 +7,25 @@ function init() {
     renderer.update();
   });
 
-  window.addEventListener('click', (e) => {
-    const key = e.target.getAttribute(ATTR.ROUTE);
+  window.addEventListener('keypress', handleKeypress);
+  window.addEventListener('click', handle);
+}
 
-    if (key === null) return;
+function handleKeypress(e) {}
 
-    if (
-      key !== KEYS.RESET &&
-      e.target.parentElement.classList.contains('is-choice')
-    )
-      return;
+function handle(e) {
+  if (router.isRouterLink(e.target)) {
+    const prevRoute = router.path;
+
+    //   if (key === KEYS.SHARE) {
+    //     console.log(navigator.canShare);
+    //     // clipBoard etc
+    //     return;
+    //   }
 
     router.handle(e);
-
-    if (key === KEYS.SHARE) {
-      console.log(navigator.canShare);
-      // clipBoard etc
-      return;
-    }
-
-    // already called via history back
-    // which emits a popstate event
-    if (key !== KEYS.BACK) {
-      renderer.update();
-    }
-  });
+    renderer.update(prevRoute);
+  }
 }
 
 export default {
