@@ -55,7 +55,7 @@ header {
     font-size: 1.25rem;
   }
 
-  & a {
+  & about-link {
     margin-left: auto;
   }
 }

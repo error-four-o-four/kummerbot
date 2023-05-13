@@ -1,28 +1,22 @@
 import router from '../router/router.js';
-
-import {
-  createNavbarAnchor,
-  updateNavbarAnchor,
-} from '../elements/elements.js';
+import elements from '../elements/elements.js';
 
 import { renderChat } from './render.chat.js';
 import { renderPage } from './render.page.js';
 
+// @todo reset initalRender on postate
+// routed from page
 let isInitialRender = true;
 
-async function update(prevRoute = null) {
-  if (isInitialRender) {
-    createNavbarAnchor();
-  }
-
-  if ((isInitialRender && router.isAboutRoute) || prevRoute) {
-    updateNavbarAnchor(prevRoute);
-  }
-
+async function update(prevPathname = null) {
   if (router.isChatRoute) {
     renderChat();
   } else {
     renderPage();
+  }
+
+  if (prevPathname !== null) {
+    elements.aboutLink.update(prevPathname);
   }
 
   if (isInitialRender) isInitialRender = false;

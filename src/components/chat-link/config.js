@@ -46,7 +46,7 @@ const getText = (type, elt) =>
     ? elt.getAttribute(CUSTOM_ATTR.TEXT)
     : templates.text[elt.keyOfTarget];
 
-export const getHref = (key) => {
+const getHref = (key) => {
   const hasSubsequentRoute = getType(key);
   const keyIndex = router.keys.indexOf(key);
 
@@ -65,4 +65,4 @@ export const getHref = (key) => {
   // @todo case VIEW
 };
 
-export { CUSTOM_ATTR, CUSTOM_TAG, IDS, getType, getTemplate, getText };
+export { CUSTOM_ATTR, CUSTOM_TAG, IDS, getType, getTemplate, getText, getHref };

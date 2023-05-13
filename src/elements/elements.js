@@ -5,8 +5,8 @@ const outlet = document.getElementById('outlet');
 export default {
   app,
   header,
-  headerLink: null,
   outlet,
+  aboutLink: null,
 };
 
 export * from './config.js';

@@ -1,5 +1,6 @@
 import './style.css';
 
+import './components/about-link/index.js';
 import './components/chat-link/index.js';
 
 import router from './router/router.js';

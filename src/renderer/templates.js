@@ -10,25 +10,23 @@ const info = `
 </p>
 <p>Wer diese Ansprechpartner sind, siehst du, indem du auf den weiterführenden Link klickst.</p>`;
 
-const blocks = {
+const displayedText = {
   error: '&#x26A0; Ein Fehler ist aufgetreten.',
   [KEYS.BACK]: 'Ich m&ouml;chte einen Schritt zur&uuml;ck',
   [KEYS.ROOT]: 'Ich m&ouml;chte zur&uuml;ck zum Anfang',
   [KEYS.VIEW]: 'Wie sieht das aus, was ich teile?',
   [KEYS.SHARE]: 'Ich m&ouml;chte diese Informationen teilen',
-  headerAnchorAbout: 'Details',
-  headerAnchorBack: 'zur&uuml;ck',
 };
 
 function getErrorTemplate() {
   return `
 <div class="row content">
-	<p>${blocks.error}</p>
+	<p>${displayedText.error}</p>
 </div>`;
 }
 
 export const templates = {
   [ATTR.INFO]: info,
-  text: blocks,
+  text: displayedText,
   getErrorTemplate,
 };
