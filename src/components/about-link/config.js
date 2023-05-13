@@ -1,11 +1,8 @@
 const CUSTOM_TAG = 'about-link';
 
 const TEXT = {
-	ABOUT: 'Details',
+  ABOUT: 'Details',
   BACK: 'zur&uuml;ck',
-}
+};
 
-export {
-	CUSTOM_TAG,
-	TEXT,
-}
+export { CUSTOM_TAG, TEXT };

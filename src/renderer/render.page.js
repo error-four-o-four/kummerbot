@@ -34,7 +34,7 @@ export async function renderPage() {
   // create section element
   const key = getKeyOfPageSection();
   const elt = document.createElement('section');
-  elt.setAttribute(ATTR.SECTION_KEY, key)
+  elt.setAttribute(ATTR.SECTION_KEY, key);
   elt.innerHTML = data;
   elements.outlet.append(elt);
 }
