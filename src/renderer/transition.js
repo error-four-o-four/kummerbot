@@ -19,14 +19,31 @@ export function toggleLoadingIndicator() {
 
 // #####################################
 
-const scrollIntoViewOptions = {
-  block: 'start',
-  inline: 'nearest',
-  behavior: 'smooth',
-};
+export function setFixedHeight(element) {
+  element.style.height = element.scrollHeight + 'px';
+}
 
-export function scrollSectionIntoView(section) {
-  section.scrollIntoView(scrollIntoViewOptions);
+// remove fixed height when next section was appended
+export function removeFixedHeight(element) {
+  element.removeAttribute('style');
+}
+
+// #####################################
+
+export function scrollNextSectionIntoView(section) {
+  section.scrollIntoView({
+    block: 'start',
+    inline: 'nearest',
+    behavior: 'smooth',
+  });
+}
+
+export function scrollPreviousSectionIntoView(section) {
+  section.scrollIntoView({
+    block: 'end',
+    inline: 'nearest',
+    behavior: 'smooth',
+  });
 }
 
 // #####################################
@@ -217,6 +234,7 @@ function playChainedAnimation(
       child.classList.remove('is-transparent');
       child.removeAttribute('style');
     });
+
     return promise;
   });
 

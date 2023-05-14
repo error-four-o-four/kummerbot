@@ -71,7 +71,8 @@ main > section {
   padding: 1rem 0 0;
 
   &:last-of-type {
-    min-height: calc(100vh - 10.5rem);
+    /* min-height: 50vh; */
+    min-height: calc(100vh - 8rem);
   }
 }
 

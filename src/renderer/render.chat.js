@@ -21,9 +21,13 @@ import {
 } from './renderer.js';
 
 import {
-  scrollSectionIntoView,
+  scrollNextSectionIntoView,
+  scrollPreviousSectionIntoView,
   playSectionFadeInAnimation,
+  playSectionsFadeOutAnimation,
   toggleLoadingIndicator,
+  setFixedHeight,
+  removeFixedHeight,
 } from './transition.js';
 
 import elements, { ATTR } from '../elements/elements.js';
@@ -76,15 +80,7 @@ export async function renderChat() {
       continue;
     }
 
-    // get contents
-    const file = getPathToChatFile(keys[1]);
-    const { error, data } = await fetchData(file);
-
-    // create elements 'content', 'options'
-    // handle error
-    // visiblity of 'options' is handled by
-    // custom element in connectedCallback
-    appendChatSection(data, ...keys);
+    const { error, elt: newSection } = await renderChatSection(step, keys);
 
     if (error) {
       scrollNextSectionIntoView(newSection);
@@ -93,16 +89,16 @@ export async function renderChat() {
       return;
     }
 
-    // no need to show an animation
-    // when the appended section is not the last one
     if (keys[2] !== null) continue;
 
     toggleLoadingIndicator();
 
-    section = elements.outlet.lastElementChild;
+    // set fixed height of current section links wrap
+    // required to smoothen scroll animation
+    setFixedHeight(newSection.lastElementChild);
 
-    scrollSectionIntoView(section);
-    await playSectionFadeInAnimation(section);
+    scrollNextSectionIntoView(newSection);
+    await playSectionFadeInAnimation(newSection);
 
     toggleLoadingIndicator();
   }
@@ -222,5 +218,58 @@ function updateChatSection(elt, ...keys) {
   // update links
   for (const link of elt.lastElementChild.children) {
     link.update();
+  }
+}
+
+// #############################
+
+function filterChatSections() {
+  let i = 0;
+
+  while (i < router.keys.length) {
+    // compare router keys
+    // with the keys of the rendered sections
+    const section = elements.outlet.children[i];
+
+    // there are less sections rendered than required
+    // no need to remove any sections
+    if (!section) return [-1, null];
+
+    const currentKey = router.keys[i];
+    const sectionKey = section.getAttribute(ATTR.SECTION_KEY);
+
+    // break if there's an incorrect section
+    if (currentKey !== sectionKey) break;
+
+    i += 1;
+  }
+
+  return [i - 1, [...elements.outlet.children].slice(i)];
+}
+
+async function removeSections() {
+  if (elements.outlet.children.length === 0) return;
+
+  const firstSection = elements.outlet.children[0];
+
+  if (firstSection.getAttribute(ATTR.SECTION_KEY) !== router.keys[0]) {
+    renderer.isInitialRender = true;
+    clearOutlet();
+    return;
+  }
+
+  const [index, filtered] = filterChatSections();
+
+  if (filtered === null) return;
+
+  const lastSection = elements.outlet.children[index];
+
+  updateChatSection(lastSection, []);
+
+  scrollPreviousSectionIntoView(lastSection);
+  await playSectionsFadeOutAnimation(filtered);
+
+  for (const section of filtered) {
+    section.remove();
   }
 }

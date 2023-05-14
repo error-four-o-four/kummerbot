@@ -37,6 +37,17 @@ export const validate = (pathname) => {
   );
 };
 
+export const validate = (pathname) => {
+  const requested = '/' + pathname.substring(1).split('/')[0];
+
+  if (requested === '/') return true;
+
+  return Object.values(routes).reduce(
+    (matched, valid) => (valid === requested ? true : matched),
+    false
+  );
+};
+
 export const getPathToChatFile = (key) => {
   const step = router.keys.indexOf(key);
 
