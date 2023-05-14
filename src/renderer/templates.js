@@ -16,6 +16,10 @@ const displayedText = {
   [KEYS.ROOT]: 'Ich m&ouml;chte zur&uuml;ck zum Anfang',
   [KEYS.VIEW]: 'Wie sieht das aus, was ich teile?',
   [KEYS.SHARE]: 'Ich m&ouml;chte diese Informationen teilen',
+  indicator: {
+    pending: 'Schreibt ...',
+    waiting: 'Online',
+  },
 };
 
 function getErrorTemplate() {

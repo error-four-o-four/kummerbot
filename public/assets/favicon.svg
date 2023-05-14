@@ -1,0 +1,32 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<!-- https://css-tricks.com/svg-favicons-in-action/ -->
+<svg
+  width="64"
+  height="64"
+  viewBox="0 0 64 64"
+  version="1.1"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:svg="http://www.w3.org/2000/svg">
+  <style>
+    path,
+    rect,
+    circle {
+      fill: hsl(230, 84%, 80%);
+    }
+    @media (prefers-color-scheme: light) {
+      path,
+      rect,
+      circle {
+        fill: hsl(220, 46%, 18%);
+      }
+    }
+  </style>
+  <g>
+    <path
+      id="outline"
+      d="M 32,0 A 32,32 0 0 0 0,32 32,32 0 0 0 20.488281,61.771484 12,8 0 0 1 23.626953,58.279297 22,22 0 0 1 10,38 22,22 0 0 1 32,16 22,22 0 0 1 54,38 22,22 0 0 1 40.378906,58.275391 12,8 0 0 1 43.521484,61.767578 32,32 0 0 0 64,32 32,32 0 0 0 32,0 Z m 0,4 a 4,4 0 0 1 4,4 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 4,4 0 0 1 4,-4 z" />
+    <rect width="8" height="16" x="20" y="28" ry="4" />
+    <rect width="8" height="16" x="36" y="28" ry="4" />
+  </g>
+</svg>
+

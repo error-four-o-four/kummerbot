@@ -12,7 +12,11 @@ import {
   removeLoadingIndicator,
 } from './renderer.js';
 
-import { scrollSectionIntoView, playSectionFadeInAnimation } from './transition.js';
+import {
+  scrollSectionIntoView,
+  playSectionFadeInAnimation,
+  toggleLoadingIndicator,
+} from './transition.js';
 
 import elements, { ATTR } from '../elements/elements.js';
 import { CUSTOM_ATTR, CUSTOM_TAG } from '../components/chat-link/config.js';
@@ -76,10 +80,14 @@ export async function renderChat() {
     // when the appended section is not the last one
     if (keys[2] !== null) continue;
 
+    toggleLoadingIndicator();
+
     section = elements.outlet.lastElementChild;
 
     scrollSectionIntoView(section);
     await playSectionFadeInAnimation(section);
+
+    toggleLoadingIndicator();
   }
 }
 

@@ -1,3 +1,24 @@
+import elements from '../elements/elements.js';
+import { templates } from './templates.js';
+
+export function toggleLoadingIndicator() {
+  const header = elements.header.elt;
+  const element = elements.header.span;
+  const { pending, waiting } = templates.text.indicator;
+  const isWaiting = element.innerText === waiting;
+
+  if (isWaiting) {
+    element.innerText = pending;
+    header.classList.add('pending');
+    return;
+  }
+
+  element.innerText = waiting;
+  header.classList.remove('pending');
+}
+
+// #####################################
+
 const scrollIntoViewOptions = {
   block: 'start',
   inline: 'nearest',
@@ -69,7 +90,7 @@ function getAnimatedElements(section) {
 
 function rowsDelayReducer(result, row, i) {
   const prev = result[i - 1] || 0;
-  result.push(prev + 3 * row.innerText.length);
+  result.push(prev + 5 * row.innerText.length);
   return result;
 }
 

@@ -92,50 +92,7 @@
   box-shadow: 0 0 1rem var(--wrap-shadow);
 }
 
-header {
-  background-color: var(--header-fill);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--header-border);
-
-  & a {
-    color: var(--link-color);
-
-    &:hover {
-      color: var(--link-color-hover);
-    }
-  }
-}
-
 .content {
   background-color: var(--content-fill);
   border: 1px solid var(--content-border);
-}
-
-.option {
-  color: var(--choice-color);
-  border: 1px solid var(--choice-border);
-  background-color: var(--choice-fill);
-
-  &:not(.is-choice):hover {
-    color: var(--choice-color-hover);
-    border-color: var(--choice-border-hover);
-    background-color: var(--choice-fill-hover);
-  }
-
-  &.is-choice,
-  &.is-choice:hover {
-    color: var(--chosen-color);
-    border: 1px solid var(--chosen-border);
-    background-color: var(--chosen-fill);
-  }
-
-  & a[data-route='reset'] {
-    color: var(--chosen-btn-color);
-    border: 1px solid var(--chosen-btn-color);
-
-    &:hover {
-      color: var(--chosen-btn-color-hover);
-      border-color: var(--chosen-btn-color-hover);
-    }
-  }
 }

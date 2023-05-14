@@ -16,7 +16,7 @@ async function update(prevPathname = null) {
   }
 
   if (prevPathname !== null) {
-    elements.aboutLink.update(prevPathname);
+    elements.header.link.update(prevPathname);
   }
 
   if (isInitialRender) isInitialRender = false;

@@ -2,15 +2,46 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="shortcut icon" href="data:;base64,=" type="image/x-icon" />
+    <link rel="shortcut icon" href="/assets/favicon.svg" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KummerBot</title>
   </head>
   <body>
+    <svg style="display: none">
+      <symbol viewBox="0 0 64 64" id="default"></symbol>
+      <!-- resuable svg icons <use xlink:href="id"></use> -->
+    </svg>
     <div class="app">
       <header>
-        <h1>KummerBot a2BS</h1>
-        <about-link></about-link>
+        <div>
+          <svg
+            id="avatar-svg"
+            viewBox="0 0 64 64"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M 32,0 A 32,32 0 0 0 0,32 32,32 0 0 0 20.488281,61.771484 12,8 0 0 1 23.626953,58.279297 22,22 0 0 1 10,38 22,22 0 0 1 32,16 22,22 0 0 1 54,38 22,22 0 0 1 40.378906,58.275391 12,8 0 0 1 43.521484,61.767578 32,32 0 0 0 64,32 32,32 0 0 0 32,0 Z m 0,4 a 4,4 0 0 1 4,4 4,4 0 0 1 -4,4 4,4 0 0 1 -4,-4 4,4 0 0 1 4,-4 z" />
+            <g id="default">
+              <rect width="8" height="16" x="20" y="28" ry="4" />
+              <rect width="8" height="16" x="36" y="28" ry="4" />
+            </g>
+            <g id="pending">
+              <circle cx="22" cy="38" r="4" />
+              <circle cx="32" cy="38" r="4" />
+              <circle cx="44" cy="38" r="4" />
+            </g>
+            <g id="error">
+              <rect width="8" height="8" x="28" y="44" ry="2" />
+              <rect width="8" height="16" x="28" y="24" ry="2" />
+            </g>
+          </svg>
+        </div>
+        <div>
+          <h1>KummerBot a2BS</h1>
+          <span id="status-indicator">Online</span>
+        </div>
+        <div>
+          <about-link></about-link>
+        </div>
       </header>
       <main id="outlet"></main>
     </div>
