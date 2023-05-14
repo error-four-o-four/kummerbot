@@ -1,15 +1,3 @@
-import elements, { ATTR } from '../elements/elements.js';
-
-import { templates } from './renderer.js';
-
-import {
-  scrollIntoViewOptions,
-  hideContent,
-  showContent,
-  hideChoices,
-  showChoices,
-} from './transition.js';
-
 import router, {
   KEYS,
   fetchData,
@@ -18,11 +6,15 @@ import router, {
 
 import {
   isInitialRender,
+  templates,
   filterOutlet,
   appendLoadingIndicator,
   removeLoadingIndicator,
 } from './renderer.js';
 
+import { scrollSectionIntoView, playSectionFadeInAnimation } from './transition.js';
+
+import elements, { ATTR } from '../elements/elements.js';
 import { CUSTOM_ATTR, CUSTOM_TAG } from '../components/chat-link/config.js';
 
 // called onpopstate/onpushstate via renderer.update()
@@ -36,6 +28,7 @@ export async function renderChat() {
 
   // remove incorrect sections
   if (elements.outlet.children.length > 0) {
+    // @todo fadeOut animation
     filterOutlet();
   }
 
@@ -46,7 +39,8 @@ export async function renderChat() {
     const keys = [step - 1, step, step + 1].map(
       (step) => router.keys[step] || null
     );
-    const section = elements.outlet.children[step];
+
+    let section = elements.outlet.children[step];
 
     // section is rendered or
     // wasn't removed in filterOutlet()
@@ -62,14 +56,9 @@ export async function renderChat() {
       continue;
     }
 
-    // section was not rendered yet
-    appendLoadingIndicator();
-
     // get contents
     const file = getPathToChatFile(keys[1]);
     const { error, data } = await fetchData(file);
-
-    removeLoadingIndicator();
 
     // create elements 'content', 'options'
     // handle error
@@ -83,12 +72,14 @@ export async function renderChat() {
       return;
     }
 
-    // @todo animation !!
+    // no need to show an animation
+    // when the appended section is not the last one
+    if (keys[2] !== null) continue;
 
-    // if (!condition.isLastSection) continue;
+    section = elements.outlet.lastElementChild;
 
-    // scrollChatSectionIntoView();
-    // await animateSectionContents();
+    scrollSectionIntoView(section);
+    await playSectionFadeInAnimation(section);
   }
 }
 
@@ -191,26 +182,4 @@ function updateChatSection(elt, ...keys) {
   for (const link of elt.lastElementChild.children) {
     link.update();
   }
-}
-
-// ################# animation
-
-async function animateSectionContents() {
-  // animation
-  const [content, choices] = [...elements.section.children];
-  hideContent(content);
-  hideChoices(choices);
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  await showContent(content);
-  await showChoices(choices);
-}
-
-function scrollChatSectionIntoView() {
-  elements.section.scrollIntoView(scrollIntoViewOptions);
-}
-
-async function animateChatOptions() {
-  const choices = elements.section.children[1];
-  hideChoices(choices);
-  await showChoices(choices);
 }
