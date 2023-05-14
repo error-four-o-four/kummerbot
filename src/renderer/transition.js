@@ -1,3 +1,15 @@
+const scrollIntoViewOptions = {
+  block: 'start',
+  inline: 'nearest',
+  behavior: 'smooth',
+};
+
+export function scrollSectionIntoView(section) {
+  section.scrollIntoView(scrollIntoViewOptions);
+}
+
+// #####################################
+
 import elements from '../elements.js';
 import templates from '../templates/templates.js';
 
@@ -73,7 +85,23 @@ const keyframesFadeIn = [
     opacity: 1,
   },
 ];
+const keyframesFadeIn = [
+  {
+    opacity: 0,
+  },
+  {
+    opacity: 1,
+  },
+];
 
+const keyframesFadeOut = [
+  {
+    opacity: 1,
+  },
+  {
+    opacity: 0,
+  },
+];
 const keyframesFadeOut = [
   {
     opacity: 1,
@@ -97,7 +125,26 @@ const keyframesBounceIn = [
     opacity: 1,
   },
 ];
+const keyframesBounceIn = [
+  {
+    transform: 'scale(0.9)',
+    opacity: 0,
+  },
+  {
+    transform: 'scale(1.05)',
+    opacity: 1,
+  },
+  {
+    transform: 'scale(1)',
+    opacity: 1,
+  },
+];
 
+function getAnimatedElements(section) {
+  return [
+    [...section.children].slice(0, -1),
+    [...section.lastElementChild.children],
+  ];
 function getAnimatedElements(section) {
   return [
     [...section.children].slice(0, -1),
@@ -107,7 +154,7 @@ function getAnimatedElements(section) {
 
 function rowsDelayReducer(result, row, i) {
   const prev = result[i - 1] || 0;
-  result.push(prev + 5 * row.innerText.length);
+  result.push(prev + 3 * row.innerText.length);
   return result;
 }
 
@@ -130,12 +177,25 @@ function playChainedAnimation(
       easing,
     };
     const promise = animateTo(child, keyframes, options);
+// @todo refactor
+// thenable sequence
+function playChainedAnimation(
+  elements,
+  keyframes,
+  { duration, delays, easing }
+) {
+  const promises = elements.map((child, i) => {
+    const options = {
+      duration,
+      delay: delays[i],
+      easing,
+    };
+    const promise = animateTo(child, keyframes, options);
 
     promise.then(() => {
       child.classList.remove('is-transparent');
       child.removeAttribute('style');
     });
-
     return promise;
   });
 
