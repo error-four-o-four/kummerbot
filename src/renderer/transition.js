@@ -19,14 +19,31 @@ export function toggleLoadingIndicator() {
 
 // #####################################
 
-const scrollIntoViewOptions = {
-  block: 'start',
-  inline: 'nearest',
-  behavior: 'smooth',
-};
+export function setFixedHeight(element) {
+  element.style.height = element.scrollHeight + 'px';
+}
 
-export function scrollSectionIntoView(section) {
-  section.scrollIntoView(scrollIntoViewOptions);
+// remove fixed height when next section was appended
+export function removeFixedHeight(element) {
+  element.removeAttribute('style');
+}
+
+// #####################################
+
+export function scrollNextSectionIntoView(section) {
+  section.scrollIntoView({
+    block: 'start',
+    inline: 'nearest',
+    behavior: 'smooth',
+  });
+}
+
+export function scrollPreviousSectionIntoView(section) {
+  section.scrollIntoView({
+    block: 'end',
+    inline: 'nearest',
+    behavior: 'smooth',
+  });
 }
 
 // #####################################
@@ -118,6 +135,7 @@ function playChainedAnimation(
       child.classList.remove('is-transparent');
       child.removeAttribute('style');
     });
+
     return promise;
   });
 
@@ -143,4 +161,28 @@ export async function playSectionFadeInAnimation(section) {
   keyframeOptions.delays = links.reduce(linksDelayReducer, []);
 
   await playChainedAnimation(links, keyframesFadeIn, keyframeOptions);
+}
+
+export async function playSectionsFadeOutAnimation(sections) {
+  const keyframeOptions = {
+    // needs to be a bit longer than
+    // scroll animation to make it smooth
+    duration: 350,
+    easing: 'ease-out',
+  };
+
+  const promises = sections.map((child) => {
+    const promise = animateTo(child, keyframesFadeOut, keyframeOptions);
+
+    promise.then(() => {
+      child.classList.add('is-transparent');
+      child.removeAttribute('style');
+    });
+
+    return promise;
+  });
+
+  return new Promise((res) => {
+    Promise.all(promises).then(() => res());
+  });
 }

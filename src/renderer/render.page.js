@@ -1,17 +1,17 @@
 import elements, { ATTR } from '../elements/elements.js';
 
-import {
-  appendLoadingIndicator,
-  clearOutlet,
-  removeLoadingIndicator,
-} from './utils.js';
-
 import router, {
   fetchData,
   getKeyOfPageSection,
   getPathToPageFile,
   getPathToViewFile,
 } from '../router/router.js';
+
+import {
+  clearOutlet,
+  appendLoadingIndicator,
+  removeLoadingIndicator,
+} from './utils.js';
 
 export async function renderPage() {
   clearOutlet();

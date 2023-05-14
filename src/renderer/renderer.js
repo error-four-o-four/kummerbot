@@ -4,13 +4,16 @@ import elements from '../elements/elements.js';
 import { renderChat } from './render.chat.js';
 import { renderPage } from './render.page.js';
 
-// @todo reset initalRender on postate
-// routed from page
-let isInitialRender = true;
+let initial = true;
+let transition = false;
 
 async function update(prevPathname = null) {
   if (router.isChatRoute) {
-    renderChat();
+    transition = true;
+    await renderChat();
+    transition = false;
+
+    if (initial) initial = false;
   } else {
     renderPage();
   }
@@ -18,15 +21,23 @@ async function update(prevPathname = null) {
   if (prevPathname !== null) {
     elements.header.link.update(prevPathname);
   }
-
-  if (isInitialRender) isInitialRender = false;
 }
 
 export default {
   update,
+  set isInitialRender(bool) {
+    initial = bool;
+  },
+  get isInitialRender() {
+    return initial;
+  },
+  set isTransitioning(bool) {
+    transition = bool;
+  },
+  get isTransitioning() {
+    return transition;
+  },
 };
-
-export { isInitialRender };
 
 export * from './templates.js';
 export * from './utils.js';

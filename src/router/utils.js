@@ -1,5 +1,5 @@
 import router from './router.js';
-import { KEYS } from './config.js';
+import { KEYS, routes } from './config.js';
 
 export const fetchData = async (file) => {
   const data = await fetch(file);
@@ -14,6 +14,17 @@ export const fetchData = async (file) => {
     error: `Unable to fetch data from ${file}`,
     data: null,
   };
+};
+
+export const validate = (pathname) => {
+  const requested = '/' + pathname.substring(1).split('/')[0];
+
+  if (requested === '/') return true;
+
+  return Object.values(routes).reduce(
+    (matched, valid) => (valid === requested ? true : matched),
+    false
+  );
 };
 
 export const getPathToChatFile = (key) => {

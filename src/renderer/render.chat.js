@@ -4,18 +4,16 @@ import router, {
   getPathToChatFile,
 } from '../router/router.js';
 
-import {
-  isInitialRender,
-  templates,
-  filterOutlet,
-  appendLoadingIndicator,
-  removeLoadingIndicator,
-} from './renderer.js';
+import renderer, { clearOutlet, templates } from './renderer.js';
 
 import {
-  scrollSectionIntoView,
+  scrollNextSectionIntoView,
+  scrollPreviousSectionIntoView,
   playSectionFadeInAnimation,
+  playSectionsFadeOutAnimation,
   toggleLoadingIndicator,
+  setFixedHeight,
+  removeFixedHeight,
 } from './transition.js';
 
 import elements, { ATTR } from '../elements/elements.js';
@@ -23,23 +21,22 @@ import { CUSTOM_ATTR, CUSTOM_TAG } from '../components/chat-link/config.js';
 
 // called onpopstate/onpushstate via renderer.update()
 export async function renderChat() {
-  if (isInitialRender) {
+  // remove page / incorrect sections
+  // plays fade out animation
+  // set isInitialRender
+  await removeSections();
+
+  if (renderer.isInitialRender) {
     // @todo on first render
     // @todo hide app
     // @todo show app when last element was rendered
-    console.log('first render');
+    console.log('initial render');
   }
 
-  // remove incorrect sections
-  if (elements.outlet.children.length > 0) {
-    // @todo fadeOut animation
-    filterOutlet();
-  }
-
+  // compare router query [intern, option-a, ...]
+  // with the ids of the rendered sections
+  // get prev, current and next key
   for (let step = 0, steps = router.keys.length; step < steps; step += 1) {
-    // compare router query [intern, option-a, ...]
-    // with the ids of the rendered sections
-    // get prev, current and next key
     const keys = [step - 1, step, step + 1].map(
       (step) => router.keys[step] || null
     );
@@ -60,39 +57,36 @@ export async function renderChat() {
       continue;
     }
 
-    // get contents
-    const file = getPathToChatFile(keys[1]);
-    const { error, data } = await fetchData(file);
-
-    // create elements 'content', 'options'
-    // handle error
-    // visiblity of 'options' is handled by
-    // custom element in connectedCallback
-    appendChatSection(data, ...keys);
+    const { error, elt: newSection } = await renderChatSection(step, keys);
 
     if (error) {
-      console.error(`Error: ${error}`);
-      // scrollChatSectionIntoView();
+      scrollNextSectionIntoView(newSection);
       return;
     }
 
-    // no need to show an animation
-    // when the appended section is not the last one
     if (keys[2] !== null) continue;
 
     toggleLoadingIndicator();
 
-    section = elements.outlet.lastElementChild;
+    // set fixed height of current section links wrap
+    // required to smoothen scroll animation
+    setFixedHeight(newSection.lastElementChild);
 
-    scrollSectionIntoView(section);
-    await playSectionFadeInAnimation(section);
+    scrollNextSectionIntoView(newSection);
+    await playSectionFadeInAnimation(newSection);
 
     toggleLoadingIndicator();
   }
 }
 
-function appendChatSection(data, prevKey, key, nextKey) {
-  // create Element
+async function renderChatSection(step, keys) {
+  const [prevKey, key, nextKey] = keys;
+
+  // get contents
+  const file = getPathToChatFile(key);
+  const { error, data } = await fetchData(file);
+
+  // create section element
   const elt = document.createElement('section');
   elt.setAttribute(ATTR.SECTION_KEY, key);
 
@@ -107,11 +101,25 @@ function appendChatSection(data, prevKey, key, nextKey) {
     // handle error
     elt.innerHTML = templates.getErrorTemplate();
     elements.outlet.append(fragment);
-    return;
+    return {
+      error,
+      elt,
+    };
   }
 
   renderContent(elt, data, prevKey);
   elements.outlet.append(fragment);
+
+  // remove fixed height of prev section links wrap
+  if (prevKey !== null) {
+    const prevLinksRow = elements.outlet.children[step - 1].lastElementChild;
+    removeFixedHeight(prevLinksRow);
+  }
+
+  return {
+    error,
+    elt,
+  };
 }
 
 function renderContent(section, data, prevKey) {
@@ -181,7 +189,7 @@ function updateChatSection(elt, ...keys) {
     elt.setAttribute(ATTR.SELECTED_KEY, nextKey);
   }
 
-  if (nextKey === null && selectedKey) {
+  if (!nextKey && selectedKey) {
     // make sure to show all options
     elt.removeAttribute(ATTR.SELECTED_KEY);
   }
@@ -189,5 +197,58 @@ function updateChatSection(elt, ...keys) {
   // update links
   for (const link of elt.lastElementChild.children) {
     link.update();
+  }
+}
+
+// #############################
+
+function filterChatSections() {
+  let i = 0;
+
+  while (i < router.keys.length) {
+    // compare router keys
+    // with the keys of the rendered sections
+    const section = elements.outlet.children[i];
+
+    // there are less sections rendered than required
+    // no need to remove any sections
+    if (!section) return [-1, null];
+
+    const currentKey = router.keys[i];
+    const sectionKey = section.getAttribute(ATTR.SECTION_KEY);
+
+    // break if there's an incorrect section
+    if (currentKey !== sectionKey) break;
+
+    i += 1;
+  }
+
+  return [i - 1, [...elements.outlet.children].slice(i)];
+}
+
+async function removeSections() {
+  if (elements.outlet.children.length === 0) return;
+
+  const firstSection = elements.outlet.children[0];
+
+  if (firstSection.getAttribute(ATTR.SECTION_KEY) !== router.keys[0]) {
+    renderer.isInitialRender = true;
+    clearOutlet();
+    return;
+  }
+
+  const [index, filtered] = filterChatSections();
+
+  if (filtered === null) return;
+
+  const lastSection = elements.outlet.children[index];
+
+  updateChatSection(lastSection, []);
+
+  scrollPreviousSectionIntoView(lastSection);
+  await playSectionsFadeOutAnimation(filtered);
+
+  for (const section of filtered) {
+    section.remove();
   }
 }
