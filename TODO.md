@@ -7,6 +7,7 @@
 
 ### Contents
 
+- [ ] cache contents to reduce requests (?)
 - [ ] chat
 
   - [ ] ChatContactItem component
@@ -25,6 +26,10 @@
 
 ### Animation
 
-- [ ] initialRender [@](src/renderer/render.chat.js) [@](src/renderer/renderer.js#7)
+- [x] fadeIn
+- [ ] fadeOut [@](src/renderer/render.chat.js#31)
+- [ ] calculate scrollTop instead of using scrollIntoView bc header overlaps section when section height is greater than 100 vh
+- [ ] initialRender [@](src/renderer/render.chat.js#22) [@](src/renderer/renderer.js#7)
 - [ ] loading spinner [@](src/renderer/utils.js#38)
+- [ ] is writing indicator
 - [ ] ChatLink [@](src/components/chat-link/component.js#110) [@](src/renderer/render.chat.js#86)
