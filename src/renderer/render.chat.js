@@ -11,7 +11,6 @@ import templates, {
   renderChatTemplates,
 } from '../templates/templates.js';
 import elements from '../elements.js';
-<<<<<<< HEAD
 
 import {
   isInitialRender,
@@ -20,8 +19,6 @@ import {
   appendLoadingIndicator,
   removeLoadingIndicator,
 } from './renderer.js';
-=======
->>>>>>> e43155d (feat: view route, svg icons)
 
 import {
   scrollNextSectionIntoView,
@@ -66,8 +63,6 @@ export async function renderChat() {
 
     let section = elements.outlet.children[step];
 
-    let section = elements.outlet.children[step];
-
     // section is rendered or
     // wasn't removed in filterOutlet()
     if (section) {
@@ -87,11 +82,7 @@ export async function renderChat() {
     if (error) {
       scrollNextSectionIntoView(newSection);
       newSection.previousElementSibling &&
-<<<<<<< HEAD
-        removeFixedHeight(newSection.previousElementSibling.lastElementChild);
-=======
-        removeFixedHeight(newSection.previousElementSibling);
->>>>>>> e43155d (feat: view route, svg icons)
+      removeFixedHeight(newSection.previousElementSibling.lastElementChild);
       return;
     }
 
