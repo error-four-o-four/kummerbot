@@ -1,5 +1,5 @@
 import { KEYS, routes } from './config.js';
-import { ATTR } from '../elements/elements.js';
+import { validate } from './utils.js';
 
 export { KEYS };
 
@@ -26,7 +26,7 @@ class Router {
   }
 
   get isViewRoute() {
-    return this.path.startsWith(routes[KEYS.VIEW]);
+    return this.path.startsWith(routes.view);
   }
 
   get isAboutRoute() {
@@ -62,41 +62,6 @@ class Router {
     window.history.pushState({ href }, '', href);
     this.update();
 
-    // // return error route by default
-    // let route = '/error';
-
-    // // e = e || new Event('route');
-    // // e.preventDefault();
-
-    // if (Object.values(KEYS).includes(key)) {
-    //   // handle special cases
-    //   if (key === KEYS.BACK) {
-    //     // this.update() is called in popstate event
-    //     window.history.back();
-    //     return;
-    //   }
-
-    //   if (key === KEYS.RESET) {
-    //     const choice = e.target.nextElementSibling.getAttribute(ATTR.ROUTE);
-    //     const index = this.steps.indexOf(choice);
-    //     route = '/' + this.steps.slice(0, index).join('/');
-    //   }
-
-    //   if (key === KEYS.ROOT) {
-    //     route = routes[key];
-    //   }
-
-    //   if (key === KEYS.SHARE) {
-    //     route = this.path + '/' + key;
-    //   }
-
-    //   if (key === KEYS.VIEW) {
-    //     const choice = this.steps[this.steps.length - 2];
-    //     const index = this.steps.indexOf(choice);
-    //     route = routes[key] + '/' + index + '/' + choice;
-    //   }
-    // }
-
     // if (!Object.values(KEYS).includes(key) && !key.startsWith('/')) {
     //   // chat route
     //   route = this.path + '/' + key;
@@ -123,6 +88,10 @@ class Router {
       pathname = pathname.slice(0, -1);
     }
 
+    if (!validate(pathname)) {
+      pathname = routes.error;
+    }
+
     if (pathname !== window.location.pathname) {
       const href = this.root + pathname;
       window.history.replaceState({ href }, '', href);
@@ -135,8 +104,6 @@ class Router {
         .split('/')
         .filter((key) => key),
     ];
-
-    // console.log(this);
   }
 }
 

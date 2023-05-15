@@ -1,4 +1,4 @@
-import { ATTR } from '../../elements/elements.js';
+import { ATTR } from '../../templates/templates.js';
 
 import {
   CUSTOM_ATTR,

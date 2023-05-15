@@ -1,5 +1,4 @@
 import router from '../../router/router.js';
-import elements from '../../elements/elements.js';
 
 import { TEXT } from './config.js';
 
@@ -35,8 +34,6 @@ export class AboutLink extends HTMLAnchorElement {
     anchor.innerHTML = this.displayedText;
 
     this.appendChild(anchor);
-
-    elements.aboutLink = this;
   }
 
   update(prevPathname) {

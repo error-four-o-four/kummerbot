@@ -1,4 +1,5 @@
 @import './theme.css';
+@import './header.css';
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -24,6 +25,20 @@ a {
   cursor: pointer;
 }
 
+a.has-icon {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+a.has-icon svg {
+  position: absolute;
+  display: inline-block;
+  width: 1.375rem;
+  height: 1.375rem;
+  left: 0;
+  top: 0;
+}
+
 html {
   overflow-y: scroll;
 }
@@ -46,25 +61,6 @@ body {
   padding: 0;
 }
 
-header {
-  display: flex;
-  align-items: center;
-
-  position: sticky;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 0 1rem;
-
-  & h1 {
-    font-size: 1.25rem;
-  }
-
-  & about-link {
-    margin-left: auto;
-  }
-}
-
 main {
   padding: 2rem 1rem 2rem;
 }
@@ -73,6 +69,11 @@ main > section {
   display: flex;
   flex-direction: column;
   padding: 1rem 0 0;
+
+  &:last-of-type {
+    /* min-height: 50vh; */
+    min-height: calc(100vh - 8rem);
+  }
 }
 
 .content {
@@ -84,15 +85,6 @@ main > section {
 
   /* border-radius: 0.625rem; */
   border-radius: 0 1.25rem 1.25rem 0.875rem;
-
-  /* @todo */
-  & ol {
-    padding-left: 1.25rem;
-
-    & li {
-      padding-bottom: 0.5rem;
-    }
-  }
 }
 
 .links {

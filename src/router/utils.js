@@ -1,19 +1,40 @@
 import router from './router.js';
-import { KEYS } from './config.js';
+import { KEYS, routes } from './config.js';
 
 export const fetchData = async (file) => {
-  const data = await fetch(file);
-  if (data.ok) {
+  let data = null;
+  let error = null;
+  try {
+    data = await fetch(file);
+
+    if (data.ok) {
+      return {
+        error,
+        data: await data.text(),
+      };
+    }
+
     return {
-      error: null,
-      data: await data.text(),
+      error: `Unable to fetch data from ${file}`,
+      data,
+    };
+  } catch (error) {
+    return {
+      error,
+      data,
     };
   }
+};
 
-  return {
-    error: `Unable to fetch data from ${file}`,
-    data: null,
-  };
+export const validate = (pathname) => {
+  const requested = '/' + pathname.substring(1).split('/')[0];
+
+  if (requested === '/') return true;
+
+  return Object.values(routes).reduce(
+    (matched, valid) => (valid === requested ? true : matched),
+    false
+  );
 };
 
 export const getPathToChatFile = (key) => {
@@ -33,3 +54,10 @@ export const getPathToViewFile = () => {
 };
 
 export const getKeyOfPageSection = () => router.keys[0];
+
+export const getHrefToViewPage = () => {
+  const key = router.keys.at(-2);
+  const index = router.keys.indexOf(key);
+
+  return `${router.root}${routes.view}/${index}/${key}`;
+};
