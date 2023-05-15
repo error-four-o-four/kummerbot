@@ -7,6 +7,8 @@ const aboutLink = document.querySelector('about-link');
 
 const outlet = document.getElementById('outlet');
 
+// @todo svgs
+
 export default {
   app,
   header: {
@@ -17,5 +19,3 @@ export default {
   },
   outlet,
 };
-
-export * from './config.js';

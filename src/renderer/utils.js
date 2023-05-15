@@ -1,4 +1,4 @@
-import elements, { ATTR } from '../elements/elements.js';
+import elements from '../elements.js';
 
 export function clearOutlet() {
   elements.outlet.innerHTML = '';

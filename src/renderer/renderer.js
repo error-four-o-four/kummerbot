@@ -1,5 +1,5 @@
 import router from '../router/router.js';
-import elements from '../elements/elements.js';
+import elements from '../elements.js';
 
 import { renderChat } from './render.chat.js';
 import { renderPage } from './render.page.js';
@@ -39,5 +39,4 @@ export default {
   },
 };
 
-export * from './templates.js';
 export * from './utils.js';

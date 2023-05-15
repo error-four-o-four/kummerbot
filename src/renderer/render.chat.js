@@ -4,7 +4,13 @@ import router, {
   getPathToChatFile,
 } from '../router/router.js';
 
-import renderer, { clearOutlet, templates } from './renderer.js';
+import renderer, { clearOutlet } from './renderer.js';
+import templates, {
+  ATTR,
+  createTemplateElement,
+  renderChatTemplates,
+} from '../templates/templates.js';
+import elements from '../elements.js';
 
 import {
   scrollNextSectionIntoView,
@@ -16,9 +22,7 @@ import {
   removeFixedHeight,
 } from './transition.js';
 
-import elements, { ATTR } from '../elements/elements.js';
 import { CUSTOM_ATTR, CUSTOM_TAG } from '../components/chat-link/config.js';
-import { getContact } from '../data/index.js';
 
 // called onpopstate/onpushstate via renderer.update()
 export async function renderChat() {
@@ -58,10 +62,12 @@ export async function renderChat() {
       continue;
     }
 
-    const { error, elt: newSection } = await renderChatSection(step, keys);
+    const { error, elt: newSection } = await renderChatSection(keys);
 
     if (error) {
       scrollNextSectionIntoView(newSection);
+      newSection.previousElementSibling &&
+        removeFixedHeight(newSection.previousElementSibling);
       return;
     }
 
@@ -80,7 +86,7 @@ export async function renderChat() {
   }
 }
 
-async function renderChatSection(step, keys) {
+async function renderChatSection(keys) {
   const [prevKey, key, nextKey] = keys;
 
   // get contents
@@ -98,10 +104,13 @@ async function renderChatSection(step, keys) {
   const fragment = document.createDocumentFragment();
   fragment.append(elt);
 
-  if (!data) {
+  if (error) {
+    // @todo
     // handle error
     elt.innerHTML = templates.getErrorTemplate();
     elements.outlet.append(fragment);
+
+    elt.previousElementSibling && removeFixedHeight(elt.previousElementSibling);
     return {
       error,
       elt,
@@ -112,9 +121,10 @@ async function renderChatSection(step, keys) {
   elements.outlet.append(fragment);
 
   // remove fixed height of prev section links wrap
-  if (prevKey !== null) {
-    const prevLinksRow = elements.outlet.children[step - 1].lastElementChild;
-    removeFixedHeight(prevLinksRow);
+  if (prevKey !== null && elt.previousElementSibling) {
+    removeFixedHeight(elt.previousElementSibling);
+    // const prevLinksRow = elements.outlet.children[step - 1].lastElementChild;
+    // removeFixedHeight(prevLinksRow);
   }
 
   return {
@@ -123,9 +133,9 @@ async function renderChatSection(step, keys) {
   };
 }
 
+// @todo should also used in view route
 function renderContent(section, data, prevKey) {
-  const template = document.createElement('template');
-  template.innerHTML = data;
+  const template = createTemplateElement(data);
 
   // data has two template elements
   // the first one renders content rows
@@ -139,7 +149,7 @@ function renderContent(section, data, prevKey) {
   for (const contentRow of clonedContentRows) {
     contentRow.classList.add('row', 'content');
 
-    renderTemplates(contentRow);
+    renderChatTemplates(contentRow);
   }
 
   const linksRow = document.createElement('div');
@@ -166,38 +176,6 @@ function renderContent(section, data, prevKey) {
   link.setAttribute(CUSTOM_ATTR.TEXT, templates.text[KEYS.BACK]);
 
   linksRow.insertBefore(link, links[position]);
-}
-
-async function renderTemplates(element) {
-  // insert templates if necessary
-  // for (const attr of [ATTR.INFO]) {
-  //   if (contentRow.hasAttribute(attr)) {
-  //     contentRow.innerHTML = templates[attr];
-  //   }
-  // }
-  if (element.hasAttribute(ATTR.INFO)) {
-    element.innerHTML = templates[ATTR.INFO];
-    return;
-  }
-
-  // @todo special case: all contacts (!)
-  // update and convert contact links if possible
-  if (element.hasAttribute(ATTR.LIST)) {
-    for (const child of element.children) {
-      // refactor get single contact
-      const key = child.innerHTML;
-      const contact = await getContact(key);
-
-      console.log(contact);
-    }
-    // const contacts = await getContacts(keys);
-    // console.log(contacts);
-    // const keys = [...element.children].map((child) => child.innerText);
-    // element.innerHTML = '<p>Lädt ...</p>';
-
-    // const contacts = await getContacts(keys);
-    // console.log(contacts);
-  }
 }
 
 function updateChatSection(elt, ...keys) {

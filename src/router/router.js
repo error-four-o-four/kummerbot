@@ -26,7 +26,7 @@ class Router {
   }
 
   get isViewRoute() {
-    return this.path.startsWith(routes[KEYS.VIEW]);
+    return this.path.startsWith(routes.view);
   }
 
   get isAboutRoute() {

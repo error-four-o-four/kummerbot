@@ -9,13 +9,14 @@ export const KEYS = {
   ROOT: 'root',
   BACK: 'popstate',
   RESET: 'resetstate',
-  VIEW: 'view',
   SHARE: 'share',
+  COPY: 'copy',
+  CODE: 'code',
 };
 
 export const routes = {
   [KEYS.ROOT]: '/chat',
-  [KEYS.VIEW]: '/view',
+  view: '/view',
   about: '/about',
   code: '/code',
   contact: '/contact',

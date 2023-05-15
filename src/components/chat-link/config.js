@@ -1,4 +1,4 @@
-import { templates } from '../../renderer/templates.js';
+import templates from '../../templates/templates.js';
 import router, { KEYS } from '../../router/router.js';
 
 import css from './style.css?inline';
@@ -29,10 +29,10 @@ const htmlWrap = `
 const htmlLink = `
 <a id="${IDS.targetLink}"></a>`;
 
-const getType = (key) =>
-  !Object.values(KEYS)
-    .filter((key) => key !== KEYS.SHARE)
-    .includes(key);
+const getType = (key) => ![KEYS.ROOT, KEYS.BACK, KEYS.RESET].includes(key);
+// !Object.values(KEYS)
+//   .filter((key) => key !== KEYS.SHARE )
+//   .includes(key);
 
 // special cases: root, back, view !!
 // no need to render resetLinkWrap
@@ -40,9 +40,10 @@ const getType = (key) =>
 const getTemplate = (type) => `${htmlStyle}${type ? htmlWrap : ''}${htmlLink}`;
 
 // and attribute 'text' will not be set
-// bc the text is defined in elements/templates.js
+// bc the text is defined in templates.js
 const getText = (type, elt) =>
-  type && elt.keyOfTarget !== KEYS.SHARE
+  // @todo wat?
+  type && !Object.values(KEYS).includes(elt.keyOfTarget)
     ? elt.getAttribute(CUSTOM_ATTR.TEXT)
     : templates.text[elt.keyOfTarget];
 
@@ -61,8 +62,6 @@ const getHref = (key) => {
   if (key === KEYS.BACK) {
     return '/' + router.keys.slice(0, keyIndex).join('/');
   }
-
-  // @todo case VIEW
 };
 
 export { CUSTOM_ATTR, CUSTOM_TAG, IDS, getType, getTemplate, getText, getHref };

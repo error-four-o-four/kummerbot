@@ -1,4 +1,9 @@
-import elements, { ATTR } from '../elements/elements.js';
+import {
+  ATTR,
+  createTemplateElement,
+  renderChatTemplates,
+} from '../templates/templates.js';
+import elements from '../elements.js';
 
 import router, {
   fetchData,
@@ -34,6 +39,24 @@ export async function renderPage() {
   const key = getKeyOfPageSection();
   const elt = document.createElement('section');
   elt.setAttribute(ATTR.SECTION_KEY, key);
-  elt.innerHTML = data;
+
+  if (router.isViewRoute) {
+    // @todo wat
+    // @todo refactor !!!
+    // @todo similar to renderContent in renderer.chat
+    // @todo move to renderer utils
+    const clonedContentRows = createTemplateElement(data)
+      .content.cloneNode(true)
+      .children[0].content.cloneNode(true).children;
+
+    for (const contentRow of clonedContentRows) {
+      contentRow.classList.add('row', 'content');
+      renderChatTemplates(contentRow);
+      elt.append(contentRow);
+    }
+  } else {
+    elt.innerHTML = data;
+  }
+
   elements.outlet.append(elt);
 }
