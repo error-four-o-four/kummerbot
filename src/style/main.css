@@ -85,15 +85,6 @@ main > section {
 
   /* border-radius: 0.625rem; */
   border-radius: 0 1.25rem 1.25rem 0.875rem;
-
-  /* @todo */
-  & ol {
-    padding-left: 1.25rem;
-
-    & li {
-      padding-bottom: 0.5rem;
-    }
-  }
 }
 
 .links {

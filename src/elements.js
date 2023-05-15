@@ -7,7 +7,7 @@ const aboutLink = document.querySelector('about-link');
 
 const outlet = document.getElementById('outlet');
 
-// @todo svgs
+// @todo svgs ?
 
 export default {
   app,

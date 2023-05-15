@@ -40,7 +40,6 @@ export async function renderChatTemplates(element) {
     element.append(content);
   }
 
-  // @todo custom element
   // @todo special case: all contacts (!)
   // update and convert contact links if possible
   if (element.hasAttribute(ATTR.LIST)) {

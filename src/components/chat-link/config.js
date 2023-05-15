@@ -42,7 +42,6 @@ const getTemplate = (type) => `${htmlStyle}${type ? htmlWrap : ''}${htmlLink}`;
 // and attribute 'text' will not be set
 // bc the text is defined in templates.js
 const getText = (type, elt) =>
-  // @todo wat?
   type && !Object.values(KEYS).includes(elt.keyOfTarget)
     ? elt.getAttribute(CUSTOM_ATTR.TEXT)
     : templates.text[elt.keyOfTarget];
