@@ -67,7 +67,7 @@ export async function renderChat() {
     if (error) {
       scrollNextSectionIntoView(newSection);
       newSection.previousElementSibling &&
-        removeFixedHeight(newSection.previousElementSibling);
+        removeFixedHeight(newSection.previousElementSibling.lastElementChild);
       return;
     }
 
@@ -122,7 +122,7 @@ async function renderChatSection(keys) {
 
   // remove fixed height of prev section links wrap
   if (prevKey !== null && elt.previousElementSibling) {
-    removeFixedHeight(elt.previousElementSibling);
+    removeFixedHeight(elt.previousElementSibling.lastElementChild);
     // const prevLinksRow = elements.outlet.children[step - 1].lastElementChild;
     // removeFixedHeight(prevLinksRow);
   }
