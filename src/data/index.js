@@ -30,8 +30,4 @@ export async function getContact(key) {
 // 	}
 
 // 	return contacts.filter(filter);
-<<<<<<< HEAD
 // }
-=======
-// }
->>>>>>> d909d69 (wip: contacts list)
