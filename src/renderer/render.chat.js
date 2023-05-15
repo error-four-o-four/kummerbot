@@ -32,6 +32,7 @@ import {
 
 import elements, { ATTR } from '../elements/elements.js';
 import { CUSTOM_ATTR, CUSTOM_TAG } from '../components/chat-link/config.js';
+import { getContact } from '../data/index.js';
 
 // called onpopstate/onpushstate via renderer.update()
 export async function renderChat() {
@@ -194,6 +195,38 @@ function renderContent(section, data, prevKey) {
   link.setAttribute(CUSTOM_ATTR.TEXT, templates.text[KEYS.BACK]);
 
   linksRow.insertBefore(link, links[position]);
+}
+
+async function renderTemplates(element) {
+  // insert templates if necessary
+  // for (const attr of [ATTR.INFO]) {
+  //   if (contentRow.hasAttribute(attr)) {
+  //     contentRow.innerHTML = templates[attr];
+  //   }
+  // }
+  if (element.hasAttribute(ATTR.INFO)) {
+    element.innerHTML = templates[ATTR.INFO];
+    return;
+  }
+
+  // @todo special case: all contacts (!)
+  // update and convert contact links if possible
+  if (element.hasAttribute(ATTR.LIST)) {
+    for (const child of element.children) {
+      // refactor get single contact
+      const key = child.innerHTML;
+      const contact = await getContact(key);
+
+      console.log(contact);
+    }
+    // const contacts = await getContacts(keys);
+    // console.log(contacts);
+    // const keys = [...element.children].map((child) => child.innerText);
+    // element.innerHTML = '<p>Lädt ...</p>';
+
+    // const contacts = await getContacts(keys);
+    // console.log(contacts);
+  }
 }
 
 function updateChatSection(elt, ...keys) {
