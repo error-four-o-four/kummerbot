@@ -9,7 +9,7 @@ chat-module {
   }
 }
 
-.chat-message {
+chat-message {
   width: fit-content;
   /* min-width: 256px; */
   max-width: 80%;

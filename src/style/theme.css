@@ -92,7 +92,7 @@
   box-shadow: 0 0 1rem var(--wrap-shadow);
 }
 
-.chat-message {
+chat-message {
   background-color: var(--content-fill);
   border: 1px solid var(--content-border);
 }

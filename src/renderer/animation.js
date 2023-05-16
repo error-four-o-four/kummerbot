@@ -1,5 +1,5 @@
-import elements from '../elements.js';
-import templates from '../templates/contents.js';
+import elements from '../elements/elements.js';
+import templates from './templates.js';
 
 export function toggleLoadingIndicator() {
   const header = elements.header.elt;

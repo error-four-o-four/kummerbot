@@ -1,4 +1,6 @@
 import router from '../../router/router.js';
+
+import { MESSAGE_TAG } from '../chat-message/index.js';
 import { LINK_TAG } from '../chat-link/index.js';
 
 const CUSTOM_ATTR = 'selected';
@@ -15,12 +17,15 @@ export class ChatModule extends HTMLElement {
   }
 
   get messages() {
-    // @todo templates/utils.js#injectChatMessagesContents()
-    return [...this.querySelectorAll('.chat-message')];
+    return [...this.querySelectorAll(MESSAGE_TAG)];
   }
 
   get links() {
     return [...this.querySelectorAll(LINK_TAG)];
+  }
+
+  setKey(key) {
+    this.key = key;
   }
 
   setKeyToNextModule(next) {

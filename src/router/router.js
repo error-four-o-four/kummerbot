@@ -1,9 +1,8 @@
 import { KEYS, routes } from './config.js';
 import { validate } from './utils.js';
 
-export { KEYS };
-
-export * from './utils.js';
+export { KEYS } from './config.js';
+export { fetchData } from './utils.js';
 
 class Router {
   constructor() {
@@ -49,6 +48,31 @@ class Router {
   getHref(value) {
     const index = typeof value === 'string' ? this.getIndex(value) : value;
     return this.origin + '/' + this.keys.slice(0, index + 1).join('/');
+  }
+
+  getHrefToViewPage = () => {
+    const key = this.keys.at(-2);
+    const index = this.keys.indexOf(key);
+
+    return `${this.origin}${routes.view}/${index}/${key}`;
+  };
+
+  getPathToChatFile(key) {
+    const step = this.keys.indexOf(key);
+
+    // return first section or share section
+    return step === 0 || key === KEYS.SHARE
+      ? '/views/chat/' + key + '.html'
+      : '/views/chat-' + step + '/' + key + '.html';
+  }
+
+  getPathToPageFile() {
+    return '/views' + this.path + '.html';
+  }
+
+  getPathToViewFile() {
+    const [, index, file] = this.keys;
+    return '/views/chat-' + index + '/' + file + '.html';
   }
 
   setLocation(route) {

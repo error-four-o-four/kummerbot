@@ -1,8 +1,4 @@
 import { KEYS } from '../router/router.js';
-import { createTemplateElement } from './utils.js';
-
-export * from './config.js';
-export * from './utils.js';
 
 export const TMPL_ATTR = {
   SHARE: 'data-share-link',
@@ -37,6 +33,14 @@ const displayedText = {
     waiting: 'Online',
   },
 };
+
+function createTemplateElement(html = null) {
+  const elt = document.createElement('template');
+
+  if (html) elt.innerHTML = html;
+
+  return elt;
+}
 
 // @todo [ATTR.ERROR]
 function getErrorTemplate() {

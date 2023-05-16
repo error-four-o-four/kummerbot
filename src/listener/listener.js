@@ -1,10 +1,10 @@
-import renderer from '../renderer/renderer.js';
+import elements from '../elements/elements.js';
 import router, { KEYS } from '../router/router.js';
 
 function init() {
   window.addEventListener('popstate', (_) => {
     router.update();
-    renderer.update();
+    elements.update();
   });
 
   window.addEventListener('keypress', handleKeypress);
@@ -24,7 +24,7 @@ function handle(e) {
     //   }
 
     router.handle(e);
-    renderer.update(prevPathname);
+    elements.update(prevPathname);
   }
 }
 
