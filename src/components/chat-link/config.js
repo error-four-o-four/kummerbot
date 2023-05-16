@@ -1,4 +1,4 @@
-import templates from '../../templates/templates.js';
+import templates from '../../templates/contents.js';
 import router, { KEYS } from '../../router/router.js';
 
 import css from './style.css?inline';
@@ -63,4 +63,12 @@ const getHref = (key) => {
   }
 };
 
-export { CUSTOM_ATTR, CUSTOM_TAG, IDS, getType, getTemplate, getText, getHref };
+export {
+  CUSTOM_ATTR,
+  CUSTOM_TAG,
+  IDS,
+  getType,
+  getTemplate,
+  getText,
+  getHref,
+};

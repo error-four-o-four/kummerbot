@@ -2,7 +2,7 @@ import {
   ATTR,
   createTemplateElement,
   renderChatTemplates,
-} from '../templates/templates.js';
+} from '../templates/contents.js';
 import elements from '../elements.js';
 
 import router, {
