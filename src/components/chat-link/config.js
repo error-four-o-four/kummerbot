@@ -1,74 +1,41 @@
-import templates from '../../templates/contents.js';
-import router, { KEYS } from '../../router/router.js';
-
+import { KEYS } from '../../router/router.js';
 import css from './style.css?inline';
 
-const CUSTOM_ATTR = {
+export const CUSTOM_ATTR = {
   REJECTED: 'rejected',
   SELECTED: 'selected',
   TARGET_KEY: 'target',
   TEXT: 'text',
 };
 
-const CUSTOM_TAG = 'chat-link';
+export const CUSTOM_TAG = 'chat-link';
 
-const IDS = {
-  sectionLink: 'section-link',
+export const IDS = {
+  parentLink: 'parent-link',
   targetLink: 'target-link',
 };
 
-const htmlStyle = `
-<style>${css}</style>`;
-
-const htmlWrap = `
+const getParentLinkHtml = (text) => `
 <div>
-  <a id="${IDS.sectionLink}">✖</a>
-  <span><span>
+<a id="${IDS.parentLink}">✖</a>
+<span>${text}<span>
 </div>`;
 
-const htmlLink = `
-<a id="${IDS.targetLink}"></a>`;
+const getTargetLinkHtml = (text) => `
+<a id="${IDS.targetLink}">${text}</a>
+`;
 
-const getType = (key) => ![KEYS.ROOT, KEYS.BACK, KEYS.RESET].includes(key);
-// !Object.values(KEYS)
-//   .filter((key) => key !== KEYS.SHARE )
-//   .includes(key);
+export function createTemplate(key, text) {
+  const template = document.createElement('template');
+  template.innerHTML = `<style>${css}</style>`;
 
-// special cases: root, back, view !!
-// no need to render resetLinkWrap
-// bc there will be no subsequent chat sections
-const getTemplate = (type) => `${htmlStyle}${type ? htmlWrap : ''}${htmlLink}`;
-
-// and attribute 'text' will not be set
-// bc the text is defined in templates.js
-const getText = (type, elt) =>
-  type && !Object.values(KEYS).includes(elt.keyOfTarget)
-    ? elt.getAttribute(CUSTOM_ATTR.TEXT)
-    : templates.text[elt.keyOfTarget];
-
-const getHref = (key) => {
-  const hasSubsequentRoute = getType(key);
-  const keyIndex = router.keys.indexOf(key);
-
-  if (hasSubsequentRoute) {
-    return '/' + router.keys.slice(0, keyIndex + 1).join('/');
+  // special cases: root, back, code !!
+  // no need to render link to parent
+  // bc there will be no subsequent chat modules
+  if (![KEYS.ROOT, KEYS.BACK, KEYS.CODE].includes(key)) {
+    template.innerHTML += getParentLinkHtml(text);
   }
+  template.innerHTML += getTargetLinkHtml(text);
 
-  if (key === KEYS.ROOT) {
-    return router.routes[key];
-  }
-
-  if (key === KEYS.BACK) {
-    return '/' + router.keys.slice(0, keyIndex).join('/');
-  }
-};
-
-export {
-  CUSTOM_ATTR,
-  CUSTOM_TAG,
-  IDS,
-  getType,
-  getTemplate,
-  getText,
-  getHref,
-};
+  return template;
+}

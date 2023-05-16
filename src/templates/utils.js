@@ -27,7 +27,6 @@ export const createTemplateId = (type, prevKey, key) =>
     ? [key, prevKey, type, 'tmpl'].join('-')
     : [key, type, 'tmpl'].join('-');
 
-
 export function injectChatMessagesContents(template) {
   for (const messageElement of template.content.children) {
     messageElement.classList.add('chat-message');
@@ -74,15 +73,14 @@ export function injectChatMessagesContents(template) {
 }
 
 export function injectChatLinksContents(template, prevKey, key) {
-  for (const linkElement of template.content.children) {
-    const nextKey = linkElement.getAttribute(LINK_ATTR.TARGET_KEY);
+  // @consider
+  // for (const linkElement of template.content.children) {
+  //   const nextKey = linkElement.getAttribute(LINK_ATTR.TARGET_KEY);
 
-    linkElement.classList.add('chat-link');
-
-    if (nextKey in templates.text) {
-      linkElement.setAttribute(LINK_ATTR.TEXT, templates.text[nextKey]);
-    }
-  }
+  //   if (nextKey in templates.text) {
+  //     linkElement.setAttribute(LINK_ATTR.TEXT, templates.text[nextKey]);
+  //   }
+  // }
 
   if (!prevKey) return;
 
@@ -96,9 +94,10 @@ export function injectChatLinksContents(template, prevKey, key) {
       ? 1
       : 0;
 
+  // creates a back button by default
   const link = document.createElement(LINK_TAG);
-  link.setAttribute(LINK_ATTR.TARGET_KEY, KEYS.BACK);
-  link.setAttribute(LINK_ATTR.TEXT, templates.text[KEYS.BACK]);
+  // link.setAttribute(LINK_ATTR.TARGET_KEY, KEYS.BACK);
+  // link.setAttribute(LINK_ATTR.TEXT, templates.text[KEYS.BACK]);
 
   template.content.insertBefore(link, template.content.children[position]);
 }

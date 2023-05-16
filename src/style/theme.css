@@ -92,7 +92,46 @@
   box-shadow: 0 0 1rem var(--wrap-shadow);
 }
 
-.content {
+.chat-message {
   background-color: var(--content-fill);
   border: 1px solid var(--content-border);
+}
+
+/* @todo refactor*/
+chat-link {
+  color: var(--powder-blue);
+  background: var(--rich-black);
+  border: 1px solid var(--powder-blue);
+}
+
+chat-link:not([selected]):hover {
+  color: var(--lavender);
+  background: var(--oxford-blue);
+  border-color: var(--lavender);
+}
+
+chat-link[selected] {
+  color: var(--shade-88);
+  background: var(--neon-blue);
+  border-color: var(--powder-blue);
+}
+
+@media (prefers-color-scheme: light) {
+  chat-link {
+    color: var(--true-blue);
+    background-color: hsl(220, 90%, 94%);
+    border-color: var(--true-blue);
+  }
+
+  chat-link:not([selected]):hover {
+    color: hsl(210, 100%, 32%);
+    background-color: hsl(220, 76%, 86%);
+    border-color: hsl(210, 100%, 32%);
+  }
+
+  chat-link[selected] {
+    color: var(--shade-92);
+    background-color: var(true-blue);
+    border-color: var(--powder-blue);
+  }
 }

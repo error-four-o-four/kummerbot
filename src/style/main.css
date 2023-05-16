@@ -1,5 +1,6 @@
 @import './theme.css';
 @import './header.css';
+@import './chat-elements.css';
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -63,47 +64,6 @@ body {
 
 main {
   padding: 1rem 1rem 2rem;
-}
-
-main > section {
-  display: flex;
-  flex-direction: column;
-  padding: 1rem 0 0;
-
-  &:last-of-type {
-    /* min-height: 50vh; */
-    min-height: calc(100vh - 8rem);
-  }
-}
-
-.content {
-  width: fit-content;
-  /* min-width: 256px; */
-  max-width: 80%;
-  padding: 0 0.625rem;
-  margin: 0 0 1rem;
-
-  /* border-radius: 0.625rem; */
-  border-radius: 0 1.25rem 1.25rem 0.875rem;
-}
-
-.links {
-  display: flex;
-  align-self: flex-end;
-
-  flex-direction: column;
-  align-items: flex-end;
-  max-width: 80%;
-
-  margin-bottom: 1rem;
-
-  & > chat-link {
-    margin: 0 0 0.5rem;
-  }
-
-  & > chat-link:last-of-type {
-    margin: 0;
-  }
 }
 
 button {

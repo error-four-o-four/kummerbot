@@ -13,9 +13,9 @@ class Controller {
     this.cachedIds = {};
   }
 
-	createTemplateId([prevKey, key]) {
-		return (key === KEYS.SHARE) ? `${key}-${prevKey}` : key;
-	}
+  createTemplateId([prevKey, key]) {
+    return key === KEYS.SHARE ? `${key}-${prevKey}` : key;
+  }
 
   isCached(wrapperId) {
     return wrapperId in this.cachedIds;
@@ -43,14 +43,18 @@ class Controller {
   cloneMessages(wrapperId) {
     const wrapper = this.container.children[wrapperId];
     const messagesId = this.cachedIds[wrapperId].messages;
-    return wrapper.children[messagesId].content.cloneNode(true);
+    return [...wrapper.children[messagesId].content.children].map((child) =>
+      child.cloneNode(true)
+    );
   }
 
   cloneLinks(wrapperId) {
-		const wrapper = this.container.children[wrapperId];
-		const linksId = this.cachedIds[wrapperId].links;
-		return wrapper.children[linksId].content.cloneNode(true);
-	}
+    const wrapper = this.container.children[wrapperId];
+    const linksId = this.cachedIds[wrapperId].links;
+    return [...wrapper.children[linksId].content.children].map((child) =>
+      child.cloneNode(true)
+    );
+  }
 }
 
 export default new Controller();

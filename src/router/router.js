@@ -7,7 +7,7 @@ export * from './utils.js';
 
 class Router {
   constructor() {
-    this.root = window.location.origin;
+    this.origin = window.location.origin;
     this.path = null;
     this.keys = null;
 
@@ -16,7 +16,7 @@ class Router {
     // on page load
     // redirect from '/' to '/chat'
     if (window.history.state === null && window.location.pathname === '/') {
-      const href = this.root + routes.root;
+      const href = this.origin + routes.root;
       window.history.replaceState({ href }, '', href);
     }
   }
@@ -37,8 +37,18 @@ class Router {
   //   return this.path.startsWith(route);
   // }
 
-  isRouterLink({ href }) {
-    return href && href.startsWith(this.root);
+  isRouterLink(link) {
+    const href = link.href;
+    return href && href.startsWith(this.origin);
+  }
+
+  getIndex(key) {
+    return this.keys.indexOf(key);
+  }
+
+  getHref(value) {
+    const index = typeof value === 'string' ? this.getIndex(value) : value;
+    return this.origin + '/' + this.keys.slice(0, index + 1).join('/');
   }
 
   setLocation(route) {
@@ -93,7 +103,7 @@ class Router {
     }
 
     if (pathname !== window.location.pathname) {
-      const href = this.root + pathname;
+      const href = this.origin + pathname;
       window.history.replaceState({ href }, '', href);
     }
 
