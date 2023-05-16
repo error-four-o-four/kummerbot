@@ -1,11 +1,11 @@
 import { KEYS } from '../router/config.js';
-import { createTemplateContainerChild } from './contents.js';
+import { createTemplateContainerChild } from './cache-utils.js';
 
 import {
   createTemplateId,
   injectChatLinksContents,
   injectChatMessagesContents,
-} from './utils.js';
+} from './cache-utils.js';
 
 class Controller {
   constructor() {

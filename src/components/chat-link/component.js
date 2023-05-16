@@ -1,6 +1,6 @@
 import { KEYS } from '../../router/config.js';
 import router from '../../router/router.js';
-import contents from '../../templates/contents.js';
+import templates from '../../renderer/templates.js';
 
 import { CUSTOM_ATTR, IDS, createTemplate } from './config.js';
 
@@ -15,7 +15,7 @@ export class ChatLink extends HTMLElement {
     // create back ChatLink component by default
     this.key = this.getAttribute(CUSTOM_ATTR.TARGET_KEY) || KEYS.BACK;
 
-    const text = !!this.innerText ? this.innerText : contents.text[this.key];
+    const text = !!this.innerText ? this.innerText : templates.text[this.key];
     this.innerHTML = '';
 
     this.attachShadow({ mode: 'open' });

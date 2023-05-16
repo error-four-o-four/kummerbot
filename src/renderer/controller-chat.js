@@ -1,11 +1,11 @@
 import router, { fetchData, getPathToChatFile } from '../router/router.js';
 
-import renderer, { clearOutlet } from './renderer.js';
+import renderer, { clearOutlet } from './cache-controller.js';
 
 import templates from '../templates/templates.js';
 import contents from '../templates/contents.js';
 
-import elements, { MODULE_ATTR } from '../elements.js';
+import elements from '../elements.js';
 
 import {
   isInitialRender,
@@ -23,7 +23,8 @@ import {
   toggleLoadingIndicator,
   setFixedHeight,
   removeFixedHeight,
-} from './transition.js';
+} from './animation.js';
+
 import { MODULE_TAG } from '../components/chat-module/index.js';
 
 // called onpopstate/onpushstate via renderer.update()
@@ -31,7 +32,7 @@ export async function renderChat() {
   // remove page / incorrect sections
   // plays fade out animation
   // set isInitialRender
-  await removeModules();
+  await removeChatModules();
 
   if (renderer.isInitialRender) {
     // @todo on first render
@@ -79,7 +80,7 @@ export async function renderChat() {
 
     // create a new ChatModule element
     // fetch data and cache contents
-    const { error, module } = await getChatModule(keys);
+    const { error, module } = await createChatModule(keys);
 
     if (error) {
       elements.outlet.append(module);
@@ -123,7 +124,7 @@ export async function renderChat() {
   }
 }
 
-async function getChatModule(keys) {
+async function createChatModule(keys) {
   const module = document.createElement(MODULE_TAG);
 
   // get data with current key of the module
@@ -150,13 +151,12 @@ async function getChatModule(keys) {
   // inject contents
   if (!templates.isCached(templateId)) {
     templates.cache(templateId, keys, data);
+  } else {
+    console.log('loaded cached');
   }
 
   // order matters
   module.key = keys[1];
-  // module.messages = templates.cloneMessages(templateId);
-  // module.links = templates.cloneLinks(templateId);
-  // module.setAttribute(MODULE_ATTR.KEY, keys[1]);
   module.append(...templates.cloneMessages(templateId));
   module.append(...templates.cloneLinks(templateId));
 
@@ -168,28 +168,7 @@ async function getChatModule(keys) {
 
 // #############################
 
-function filterChatModules() {
-  let i = 0;
-
-  while (i < router.keys.length) {
-    // compare router keys
-    // with the keys of the rendered sections
-    const module = elements.outlet.children[i];
-
-    // there are less sections rendered than required
-    // no need to remove any sections
-    if (!module) return [-1, null];
-
-    // break if there's an incorrect section
-    if (router.keys[i] !== module.key) break;
-
-    i += 1;
-  }
-
-  return [i - 1, [...elements.outlet.children].slice(i)];
-}
-
-async function removeModules() {
+async function removeChatModules() {
   if (elements.outlet.children.length === 0) return;
 
   if (elements.outlet.children[0].key !== router.keys[0]) {
@@ -212,4 +191,25 @@ async function removeModules() {
   for (const section of filteredModules) {
     section.remove();
   }
+}
+
+function filterChatModules() {
+  let i = 0;
+
+  while (i < router.keys.length) {
+    // compare router keys
+    // with the keys of the rendered sections
+    const module = elements.outlet.children[i];
+
+    // there are less sections rendered than required
+    // no need to remove any sections
+    if (!module) return [-1, null];
+
+    // break if there's an incorrect section
+    if (router.keys[i] !== module.key) break;
+
+    i += 1;
+  }
+
+  return [i - 1, [...elements.outlet.children].slice(i)];
 }

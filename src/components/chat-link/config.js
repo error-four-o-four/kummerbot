@@ -32,7 +32,7 @@ export function createTemplate(key, text) {
   // special cases: root, back, code !!
   // no need to render link to parent
   // bc there will be no subsequent chat modules
-  if (![KEYS.ROOT, KEYS.BACK, KEYS.CODE].includes(key)) {
+  if (![KEYS.ROOT, KEYS.BACK].includes(key)) {
     template.innerHTML += getParentLinkHtml(text);
   }
   template.innerHTML += getTargetLinkHtml(text);
