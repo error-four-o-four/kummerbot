@@ -59,5 +59,5 @@ export const getHrefToViewPage = () => {
   const key = router.keys.at(-2);
   const index = router.keys.indexOf(key);
 
-  return `${router.root}${routes.view}/${index}/${key}`;
+  return `${router.origin}${routes.view}/${index}/${key}`;
 };

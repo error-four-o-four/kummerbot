@@ -8,7 +8,7 @@ export const TMPL_ATTR = {
   SHARE: 'data-share-link',
   INFO: 'data-contacts-info',
   LIST: 'data-contacts-list',
-}
+};
 
 // @todo getContactInfoTemplate()
 const info = `

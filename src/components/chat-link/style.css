@@ -1,68 +1,24 @@
 :host {
   display: inline-block;
+  align-self: flex-end;
   text-align: right;
 
-  color: var(--powder-blue);
-  background: var(--rich-black);
-  border: 1px solid var(--powder-blue);
-}
-
-:host(:not([selected])) {
-  cursor: pointer;
-}
-
-:host(:not([selected]):hover) {
-  color: var(--lavender);
-  background: var(--oxford-blue);
-  border-color: var(--lavender);
-}
-
-a,
-a:hover,
-a:active,
-a:visited {
-  text-decoration: none;
-  color: unset;
-  background-color: unset;
-}
-
-:host > div {
-  display: none;
-}
-
-:host,
-:host > a {
-  display: inline-block;
-}
-
-:host,
-:host > a {
-  border-radius: 1.25rem 0.875rem 0 1.25rem;
-}
-
-:host > div,
-:host > a {
+  margin: 0 0 0.5rem;
   padding: 0.625rem 0.625rem;
   border-radius: 1.25rem 0.875rem 0 1.25rem;
-}
 
-:host([rejected]) {
-  display: none;
-}
+  cursor: pointer;
 
-:host([selected]) {
-  cursor: auto;
-
-  color: var(--shade-88);
-  background: var(--neon-blue);
-  border-color: var(--powder-blue);
-
-  & > a {
-    display: none;
+  & a,
+  & a:hover,
+  & a:active {
+    color: unset;
+    background-color: unset;
+    text-decoration: none;
   }
 
   & > div {
-    display: inline-flex;
+    display: none;
 
     & > span {
       align-self: center;
@@ -72,7 +28,8 @@ a:visited {
     & > a {
       align-self: flex-start;
       flex: 0 0 2rem;
-      display: inline-flex;
+
+      display: flex;
       justify-content: center;
       align-items: center;
 
@@ -92,26 +49,18 @@ a:visited {
   }
 }
 
-@media (prefers-color-scheme: light) {
-  :host {
-    color: var(--true-blue);
-    background-color: hsl(220, 90%, 94%);
-    border-color: var(--true-blue);
+:host([rejected]) {
+  display: none;
+}
+
+:host([selected]) {
+  cursor: auto;
+
+  & > a {
+    display: none;
   }
 
-  :host(:not([selected]):hover) {
-    color: hsl(210, 100%, 32%);
-    background-color: hsl(220, 76%, 86%);
-    border-color: hsl(210, 100%, 32%);
-  }
-
-  :host([selected]) {
-    color: var(--shade-92);
-    background-color: var(true-blue);
-    border-color: var(--powder-blue);
-
-    /*
-		--chosen-btn-color: var(--shade-88);
-		--chosen-btn-color-hover: #fff; */
+  & > div {
+    display: inline-flex;
   }
 }

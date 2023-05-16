@@ -38,7 +38,7 @@ export function scrollNextSectionIntoView(section) {
   });
 }
 
-export function scrollPreviousSectionIntoView(section) {
+export function scrollToPreviousModule(section) {
   section.scrollIntoView({
     block: 'end',
     inline: 'nearest',

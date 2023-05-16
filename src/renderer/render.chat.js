@@ -1,7 +1,4 @@
-import router, {
-  fetchData,
-  getPathToChatFile,
-} from '../router/router.js';
+import router, { fetchData, getPathToChatFile } from '../router/router.js';
 
 import renderer, { clearOutlet } from './renderer.js';
 
@@ -20,20 +17,21 @@ import {
 
 import {
   scrollNextSectionIntoView,
-  scrollPreviousSectionIntoView,
+  scrollToPreviousModule,
   playSectionFadeInAnimation,
   playSectionsFadeOutAnimation,
   toggleLoadingIndicator,
   setFixedHeight,
   removeFixedHeight,
 } from './transition.js';
+import { MODULE_TAG } from '../components/chat-module/index.js';
 
 // called onpopstate/onpushstate via renderer.update()
 export async function renderChat() {
   // remove page / incorrect sections
   // plays fade out animation
   // set isInitialRender
-  await removeSections();
+  await removeModules();
 
   if (renderer.isInitialRender) {
     // @todo on first render
@@ -57,32 +55,35 @@ export async function renderChat() {
       (step) => router.keys[step] || null
     );
 
-    const moduleIsRendered = !!elements.outlet.children[step];
+    const renderedModule = elements.outlet.children[step];
 
-    // section is rendered or
+    // module is rendered or
     // wasn't removed in filterOutlet()
-    if (moduleIsRendered) {
-      const module = elements.outlet.children[step];
-      updateChatModule(module, keys[2]);
-
-      if (keys[2] !== null) continue;
-
-      // @todo animation !!
-
-      // cases: isInitialRender or isLastSection
-      // scrollChatSectionIntoView();
-      // await animateChatOptions();
-
+    if (!!renderedModule && keys[2] !== null) {
+      // updates children / links
+      // skips animation
+      // @todo cases: isInitialRender or isLastSection
+      renderedModule.setKeyToNextModule(keys[2]);
       continue;
     }
 
-    // fetch data
-    // cache contents
-    // set MODUL_ATTR.KEY (attribute isn't observed)
+    // is last module in outlet
+    if (renderedModule && keys[2] === null) {
+      // @todo cases: isInitialRender or isLastSection
+      renderedModule.setKeyToNextModule(keys[2]);
+      // @todo animation !!
+      // scrollChatSectionIntoView();
+      // await animateChatOptions();
+      continue;
+    }
+
+    // create a new ChatModule element
+    // fetch data and cache contents
     const { error, module } = await getChatModule(keys);
 
     if (error) {
       elements.outlet.append(module);
+      // @todo animation
       // scrollNextSectionIntoView(newModule);
       // module.previousElementSibling &&
       //   removeFixedHeight(module.previousElementSibling);
@@ -91,15 +92,14 @@ export async function renderChat() {
       return;
     }
 
-    // set attribute MODUL_ATTR.NEXT
-    // updates ChatLinks
-    // via onConnectedCallback()
-    updateChatModule(module, keys[2]);
     elements.outlet.append(module);
 
-    if (keys[2] !== null) continue;
+    // @wat?
+    // these methods don't work in connectedCallback of ChatModule
+    module.setHrefOfLinks();
+    module.setKeyToNextModule(keys[2]);
 
-    console.log(module);
+    if (keys[2] !== null) continue;
 
     // @todo animation !!
 
@@ -124,8 +124,7 @@ export async function renderChat() {
 }
 
 async function getChatModule(keys) {
-  const module = document.createElement('div');
-  module.classList.add('chat-module');
+  const module = document.createElement(MODULE_TAG);
 
   // get data with current key of the module
   const path = getPathToChatFile(keys[1]);
@@ -134,6 +133,7 @@ async function getChatModule(keys) {
   if (error) {
     // @todo
     // handle / display error
+    module.key = 'error';
     module.innerHTML = contents.getErrorTemplate();
 
     return {
@@ -152,9 +152,13 @@ async function getChatModule(keys) {
     templates.cache(templateId, keys, data);
   }
 
-  module.setAttribute(MODULE_ATTR.KEY, keys[1]);
-  module.append(templates.cloneMessages(templateId));
-  module.append(templates.cloneLinks(templateId));
+  // order matters
+  module.key = keys[1];
+  // module.messages = templates.cloneMessages(templateId);
+  // module.links = templates.cloneLinks(templateId);
+  // module.setAttribute(MODULE_ATTR.KEY, keys[1]);
+  module.append(...templates.cloneMessages(templateId));
+  module.append(...templates.cloneLinks(templateId));
 
   return {
     error,
@@ -162,47 +166,22 @@ async function getChatModule(keys) {
   };
 }
 
-function updateChatModule(module, nextKey) {
-  const selectedKey = module.getAttribute(MODULE_ATTR.NEXT);
-
-  if (nextKey === selectedKey) {
-    return;
-  }
-
-  if (nextKey && !selectedKey) {
-    // section was rendered incorrectely
-    module.setAttribute(MODULE_ATTR.NEXT, nextKey);
-  }
-
-  if (!nextKey && selectedKey) {
-    // make sure to show all options
-    module.removeAttribute(MODULE_ATTR.NEXT);
-  }
-
-  for (const link of module.lastElementChild.children) {
-    link.update();
-  }
-}
-
 // #############################
 
-function filterChatSections() {
+function filterChatModules() {
   let i = 0;
 
   while (i < router.keys.length) {
     // compare router keys
     // with the keys of the rendered sections
-    const section = elements.outlet.children[i];
+    const module = elements.outlet.children[i];
 
     // there are less sections rendered than required
     // no need to remove any sections
-    if (!section) return [-1, null];
-
-    const currentKey = router.keys[i];
-    const sectionKey = section.getAttribute(MODULE_ATTR.KEY);
+    if (!module) return [-1, null];
 
     // break if there's an incorrect section
-    if (currentKey !== sectionKey) break;
+    if (router.keys[i] !== module.key) break;
 
     i += 1;
   }
@@ -210,29 +189,27 @@ function filterChatSections() {
   return [i - 1, [...elements.outlet.children].slice(i)];
 }
 
-async function removeSections() {
+async function removeModules() {
   if (elements.outlet.children.length === 0) return;
 
-  const firstSection = elements.outlet.children[0];
-
-  if (firstSection.getAttribute(MODULE_ATTR.KEY) !== router.keys[0]) {
+  if (elements.outlet.children[0].key !== router.keys[0]) {
     renderer.isInitialRender = true;
     clearOutlet();
+    console.log('cleared');
     return;
   }
 
-  const [index, filtered] = filterChatSections();
+  const [lastModuleIndex, filteredModules] = filterChatModules();
 
-  if (filtered === null) return;
+  if (filteredModules === null) return;
 
-  const lastSection = elements.outlet.children[index];
+  const lastModule = elements.outlet.children[lastModuleIndex];
+  lastModule.key = null;
 
-  updateChatModule(lastSection, []);
+  scrollToPreviousModule(lastModule);
+  await playSectionsFadeOutAnimation(filteredModules);
 
-  scrollPreviousSectionIntoView(lastSection);
-  await playSectionsFadeOutAnimation(filtered);
-
-  for (const section of filtered) {
+  for (const section of filteredModules) {
     section.remove();
   }
 }
