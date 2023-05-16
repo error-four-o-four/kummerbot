@@ -1,62 +1,56 @@
-import { KEYS } from '../router/router.js';
-import { ATTR } from './config.js';
-import { createTemplateElement } from './utils.js';
+import { KEYS } from '../router/config.js';
+import { createTemplateContainerChild } from './contents.js';
 
-export * from './config.js';
-export * from './utils.js';
+import {
+  createTemplateId,
+  injectChatLinksContents,
+  injectChatMessagesContents,
+} from './utils.js';
 
-// @todo getContactInfoTemplate()
-const info = `
-<p>
-  Du kannst auf den gew&uuml;nschten Kontakt klicken, um zu einem anonymen
-  Kontaktformular zu gelangen oder<br />du kopierst dir die gew&uuml;nschte
-  E&dash;Mail&dash;Adresse in deine Ablage.
-</p>
-<p>Wer diese Ansprechpartner sind, siehst du, indem du auf den weiterführenden Link klickst.</p>`;
+class Controller {
+  constructor() {
+    this.container = document.getElementById('templates-container');
+    this.cachedIds = {};
+  }
 
-const share = `
-<p>
-  Wenn du m&ouml;chtest kann ich du dir diesen Link <a></a> in deiner Zwischenablage speichern oder einen QRCode erstellen.
-</p>
-`;
+	createTemplateId([prevKey, key]) {
+		return (key === KEYS.SHARE) ? `${key}-${prevKey}` : key;
+	}
 
-const displayedText = {
-  error: '&#x26A0; Da hat etwas nicht funktioniert ...',
-  [KEYS.BACK]: 'Ich m&ouml;chte einen Schritt zur&uuml;ck',
-  [KEYS.ROOT]: 'Ich m&ouml;chte zur&uuml;ck zum Anfang',
-  [KEYS.SHARE]: 'Ich m&ouml;chte diese Informationen teilen',
-  [KEYS.COPY]: 'Ich m&ouml;chte den Link in der Zwischenablage speichern.',
-  [KEYS.CODE]: 'Bitte erstelle mir einen QRCode.',
-  indicator: {
-    pending: 'Schreibt ...',
-    waiting: 'Online',
-  },
-};
+  isCached(wrapperId) {
+    return wrapperId in this.cachedIds;
+  }
 
-// @todo [ATTR.ERROR]
-function getErrorTemplate() {
-  return `
-<div class="row content">
-	<p>${displayedText.error}</p>
-</div>`;
+  cache(wrapperId, [prevKey, key], html) {
+    const templatesWrapper = createTemplateContainerChild(html);
+
+    const chatMessagesTemplate = templatesWrapper.firstElementChild;
+    chatMessagesTemplate.id = createTemplateId('message', prevKey, key);
+    injectChatMessagesContents(chatMessagesTemplate);
+
+    const chatLinksTemplate = templatesWrapper.lastElementChild;
+    chatLinksTemplate.id = createTemplateId('links', prevKey, key);
+    injectChatLinksContents(chatLinksTemplate, prevKey, key);
+
+    templatesWrapper.id = wrapperId;
+    this.cachedIds[templatesWrapper.id] = {
+      messages: chatMessagesTemplate.id,
+      links: chatLinksTemplate.id,
+    };
+    this.container.appendChild(templatesWrapper);
+  }
+
+  cloneMessages(wrapperId) {
+    const wrapper = this.container.children[wrapperId];
+    const messagesId = this.cachedIds[wrapperId].messages;
+    return wrapper.children[messagesId].content.cloneNode(true);
+  }
+
+  cloneLinks(wrapperId) {
+		const wrapper = this.container.children[wrapperId];
+		const linksId = this.cachedIds[wrapperId].links;
+		return wrapper.children[linksId].content.cloneNode(true);
+	}
 }
 
-function getShareLinkTemplate(href) {
-  const template = createTemplateElement(share);
-  const anchor = template.content.querySelector('a');
-
-  anchor.href = href;
-  // anchor.innerText = href;
-
-  anchor.classList.add('has-icon');
-  anchor.innerHTML = `${href}<svg><use href="#icon-share"></use></svg>`;
-
-  return template.content.cloneNode(true);
-}
-
-export default {
-  [ATTR.INFO]: info,
-  text: displayedText,
-  getErrorTemplate,
-  getShareLinkTemplate,
-};
+export default new Controller();

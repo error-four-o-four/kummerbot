@@ -7,7 +7,7 @@
 
 ### Contents
 
-- [ ] cache contents to reduce requests (?)
+- [x] cache contents to reduce requests (?)
 - [ ] chat
 
   - [ ] ChatContactItem component

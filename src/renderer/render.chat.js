@@ -1,16 +1,14 @@
 import router, {
-  KEYS,
   fetchData,
   getPathToChatFile,
 } from '../router/router.js';
 
 import renderer, { clearOutlet } from './renderer.js';
-import templates, {
-  ATTR,
-  createTemplateElement,
-  renderChatTemplates,
-} from '../templates/templates.js';
-import elements from '../elements.js';
+
+import templates from '../templates/templates.js';
+import contents from '../templates/contents.js';
+
+import elements, { MODULE_ATTR } from '../elements.js';
 
 import {
   isInitialRender,
@@ -29,8 +27,6 @@ import {
   setFixedHeight,
   removeFixedHeight,
 } from './transition.js';
-
-import { CUSTOM_ATTR, CUSTOM_TAG } from '../components/chat-link/config.js';
 
 // called onpopstate/onpushstate via renderer.update()
 export async function renderChat() {
@@ -61,12 +57,15 @@ export async function renderChat() {
       (step) => router.keys[step] || null
     );
 
-    let section = elements.outlet.children[step];
+    const moduleIsRendered = !!elements.outlet.children[step];
 
     // section is rendered or
     // wasn't removed in filterOutlet()
-    if (section) {
-      updateChatSection(section, ...keys);
+    if (moduleIsRendered) {
+      const module = elements.outlet.children[step];
+      updateChatModule(module, keys[2]);
+
+      if (keys[2] !== null) continue;
 
       // @todo animation !!
 
@@ -77,143 +76,110 @@ export async function renderChat() {
       continue;
     }
 
-    const { error, elt: newSection } = await renderChatSection(keys);
+    // fetch data
+    // cache contents
+    // set MODUL_ATTR.KEY (attribute isn't observed)
+    const { error, module } = await getChatModule(keys);
 
     if (error) {
-      scrollNextSectionIntoView(newSection);
-      newSection.previousElementSibling &&
-      removeFixedHeight(newSection.previousElementSibling.lastElementChild);
+      elements.outlet.append(module);
+      // scrollNextSectionIntoView(newModule);
+      // module.previousElementSibling &&
+      //   removeFixedHeight(module.previousElementSibling);
+      // newModule.previousElementSibling &&
+      //   removeFixedHeight(newModule.previousElementSibling.lastElementChild);
       return;
     }
 
+    // set attribute MODUL_ATTR.NEXT
+    // updates ChatLinks
+    // via onConnectedCallback()
+    updateChatModule(module, keys[2]);
+    elements.outlet.append(module);
+
     if (keys[2] !== null) continue;
 
-    toggleLoadingIndicator();
+    console.log(module);
 
-    // set fixed height of current section links wrap
-    // required to smoothen scroll animation
-    setFixedHeight(newSection.lastElementChild);
+    // @todo animation !!
 
-    scrollNextSectionIntoView(newSection);
-    await playSectionFadeInAnimation(newSection);
+    // remove fixed height of prev section links wrap
+    // if (prevKey !== null && module.previousElementSibling) {
+    //   removeFixedHeight(module.previousElementSibling.lastElementChild);
+    //   // const prevLinksRow = elements.outlet.children[step - 1].lastElementChild;
+    //   // removeFixedHeight(prevLinksRow);
+    // }
 
-    toggleLoadingIndicator();
+    // toggleLoadingIndicator();
+
+    // // set fixed height of current section links wrap
+    // // required to smoothen scroll animation
+    // setFixedHeight(newModule.lastElementChild);
+
+    // scrollNextSectionIntoView(newModule);
+    // await playSectionFadeInAnimation(newModule);
+
+    // toggleLoadingIndicator();
   }
 }
 
-async function renderChatSection(keys) {
-  const [prevKey, key, nextKey] = keys;
+async function getChatModule(keys) {
+  const module = document.createElement('div');
+  module.classList.add('chat-module');
 
-  // get contents
-  const file = getPathToChatFile(key);
-  const { error, data } = await fetchData(file);
-
-  // create section element
-  const elt = document.createElement('section');
-  elt.setAttribute(ATTR.SECTION_KEY, key);
-
-  if (nextKey) {
-    elt.setAttribute(ATTR.SELECTED_KEY, nextKey);
-  }
-
-  const fragment = document.createDocumentFragment();
-  fragment.append(elt);
+  // get data with current key of the module
+  const path = getPathToChatFile(keys[1]);
+  const { error, data } = await fetchData(path);
 
   if (error) {
     // @todo
-    // handle error
-    elt.innerHTML = templates.getErrorTemplate();
-    elements.outlet.append(fragment);
+    // handle / display error
+    module.innerHTML = contents.getErrorTemplate();
 
-    elt.previousElementSibling && removeFixedHeight(elt.previousElementSibling);
     return {
       error,
-      elt,
+      module,
     };
   }
 
-  renderContent(elt, data, prevKey);
-  elements.outlet.append(fragment);
+  // when key equals KEYS.SHARE
+  // the id contains the prevKey too
+  const templateId = templates.createTemplateId(keys);
 
-  // remove fixed height of prev section links wrap
-  if (prevKey !== null && elt.previousElementSibling) {
-    removeFixedHeight(elt.previousElementSibling.lastElementChild);
-    // const prevLinksRow = elements.outlet.children[step - 1].lastElementChild;
-    // removeFixedHeight(prevLinksRow);
+  // cache template key
+  // inject contents
+  if (!templates.isCached(templateId)) {
+    templates.cache(templateId, keys, data);
   }
+
+  module.setAttribute(MODULE_ATTR.KEY, keys[1]);
+  module.append(templates.cloneMessages(templateId));
+  module.append(templates.cloneLinks(templateId));
 
   return {
     error,
-    elt,
+    module,
   };
 }
 
-// @todo should also used in view route
-function renderContent(section, data, prevKey) {
-  const template = createTemplateElement(data);
+function updateChatModule(module, nextKey) {
+  const selectedKey = module.getAttribute(MODULE_ATTR.NEXT);
 
-  // data has two template elements
-  // the first one renders content rows
-  // the second one renders the possible answers / links
-  const [clonedContentRows, clonedLinks] = [
-    ...template.content.cloneNode(true).children,
-  ]
-    .map((template) => template.content.cloneNode(true))
-    .map((cloned) => [...cloned.children]);
-
-  for (const contentRow of clonedContentRows) {
-    contentRow.classList.add('row', 'content');
-
-    renderChatTemplates(contentRow);
-  }
-
-  const linksRow = document.createElement('div');
-  linksRow.classList.add('row', 'links');
-
-  for (const link of clonedLinks) {
-    linksRow.appendChild(link);
-  }
-
-  section.append(...clonedContentRows, linksRow);
-
-  if (!prevKey) return;
-  // insert back anchor if necessary
-  // after the anchor /home
-  // before other options
-
-  const links = linksRow.children;
-
-  const position =
-    links[0]?.getAttribute(CUSTOM_ATTR.TARGET_KEY) === KEYS.ROOT ? 1 : 0;
-
-  const link = document.createElement(CUSTOM_TAG);
-  link.setAttribute(CUSTOM_ATTR.TARGET_KEY, KEYS.BACK);
-  link.setAttribute(CUSTOM_ATTR.TEXT, templates.text[KEYS.BACK]);
-
-  linksRow.insertBefore(link, links[position]);
-}
-
-function updateChatSection(elt, ...keys) {
-  const selectedKey = elt.getAttribute(ATTR.SELECTED_KEY);
-  const nextKey = keys[2]; // @todo refactor
-
-  if (nextKey && selectedKey && nextKey === selectedKey) {
-    // section was rendered correctely
+  if (nextKey === selectedKey) {
     return;
   }
 
-  if (nextKey && nextKey !== selectedKey) {
+  if (nextKey && !selectedKey) {
     // section was rendered incorrectely
-    elt.setAttribute(ATTR.SELECTED_KEY, nextKey);
+    module.setAttribute(MODULE_ATTR.NEXT, nextKey);
   }
 
   if (!nextKey && selectedKey) {
     // make sure to show all options
-    elt.removeAttribute(ATTR.SELECTED_KEY);
+    module.removeAttribute(MODULE_ATTR.NEXT);
   }
 
-  // update links
-  for (const link of elt.lastElementChild.children) {
+  for (const link of module.lastElementChild.children) {
     link.update();
   }
 }
@@ -233,7 +199,7 @@ function filterChatSections() {
     if (!section) return [-1, null];
 
     const currentKey = router.keys[i];
-    const sectionKey = section.getAttribute(ATTR.SECTION_KEY);
+    const sectionKey = section.getAttribute(MODULE_ATTR.KEY);
 
     // break if there's an incorrect section
     if (currentKey !== sectionKey) break;
@@ -249,7 +215,7 @@ async function removeSections() {
 
   const firstSection = elements.outlet.children[0];
 
-  if (firstSection.getAttribute(ATTR.SECTION_KEY) !== router.keys[0]) {
+  if (firstSection.getAttribute(MODULE_ATTR.KEY) !== router.keys[0]) {
     renderer.isInitialRender = true;
     clearOutlet();
     return;
@@ -261,7 +227,7 @@ async function removeSections() {
 
   const lastSection = elements.outlet.children[index];
 
-  updateChatSection(lastSection, []);
+  updateChatModule(lastSection, []);
 
   scrollPreviousSectionIntoView(lastSection);
   await playSectionsFadeOutAnimation(filtered);
