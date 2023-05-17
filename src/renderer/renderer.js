@@ -1,8 +1,12 @@
 import { MODULE_TAG } from '../components/chat-module/index.js';
 
 import router, { fetchData } from '../router/router.js';
-
 import controller from './cache-controller.js';
+
+import {
+  injectChatLinksContents,
+  injectChatMessagesContents,
+} from './renderer-utils.js';
 import templates from './templates.js';
 
 class Renderer {
@@ -12,6 +16,19 @@ class Renderer {
   }
 
   async createChatModule(keys) {
+    // when key equals KEYS.SHARE
+    // the id contains the prevKey too
+    const templateId = controller.createTemplateId(keys);
+    if (controller.isCached(templateId)) {
+      // clone cached template
+      console.log('load cached');
+      const cachedTemplate = controller.container.children[templateId];
+      return {
+        error: null,
+        module: cachedTemplate.content.firstElementChild.cloneNode(true),
+      };
+    }
+
     const module = document.createElement(MODULE_TAG);
 
     // get data with current key of the module
@@ -30,22 +47,14 @@ class Renderer {
       };
     }
 
-    // when key equals KEYS.SHARE
-    // the id contains the prevKey too
-    const templateId = controller.createTemplateId(keys);
-
-    // cache template key
-    // inject contents
-    if (!controller.isCached(templateId)) {
-      controller.cache(templateId, keys, data);
-    } else {
-      console.log('loaded cached');
-    }
-
     // order matters
     module.key = keys[1];
-    module.append(...controller.cloneMessages(templateId));
-    module.append(...controller.cloneLinks(templateId));
+    module.innerHTML = data;
+
+    injectChatMessagesContents(module);
+    injectChatLinksContents(module, ...keys);
+
+    controller.cache(templateId, module);
 
     return {
       error,
