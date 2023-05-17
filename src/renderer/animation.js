@@ -1,45 +1,30 @@
 import elements from '../elements/elements.js';
 import templates from './templates.js';
 
-export function toggleLoadingIndicator() {
-  const header = elements.header.elt;
-  const element = elements.header.span;
-  const { pending, waiting } = templates.text.indicator;
-  const isWaiting = element.innerText === waiting;
+const { pending, waiting } = templates.text.indicator;
 
-  if (isWaiting) {
-    element.innerText = pending;
-    header.classList.add('pending');
-    return;
-  }
+export function setIndicatorPending() {
+  elements.header.span.innerText = pending;
+  elements.header.elt.classList.add('pending');
+}
 
-  element.innerText = waiting;
-  header.classList.remove('pending');
+export function setIndicatorWaiting() {
+  elements.header.span.innerText = waiting;
+  elements.header.elt.classList.remove('pending');
 }
 
 // #####################################
 
-export function setFixedHeight(element) {
-  element.style.height = element.scrollHeight + 'px';
-}
-
-// remove fixed height when next section was appended
-export function removeFixedHeight(element) {
-  element.removeAttribute('style');
-}
-
-// #####################################
-
-export function scrollNextSectionIntoView(section) {
-  section.scrollIntoView({
+export function scrollToNextModule(element) {
+  element.scrollIntoView({
     block: 'start',
     inline: 'nearest',
     behavior: 'smooth',
   });
 }
 
-export function scrollToPreviousModule(section) {
-  section.scrollIntoView({
+export function scrollToPreviousModule(elements) {
+  elements.scrollIntoView({
     block: 'end',
     inline: 'nearest',
     behavior: 'smooth',
@@ -48,7 +33,7 @@ export function scrollToPreviousModule(section) {
 
 // #####################################
 
-function animateTo(elt, keyframes, options) {
+function animateTo(elt, keyframes, options, callback = null) {
   const animation = elt.animate(keyframes, {
     ...options,
     fill: 'forwards',
@@ -60,6 +45,7 @@ function animateTo(elt, keyframes, options) {
         animation.commitStyles();
       }
       animation.cancel();
+      callback && callback();
       resolve(animation);
     });
   });
@@ -98,72 +84,72 @@ const keyframesBounceIn = [
   },
 ];
 
-function getAnimatedElements(section) {
-  return [
-    [...section.children].slice(0, -1),
-    [...section.lastElementChild.children],
-  ];
+const keyframeOptions = { duration: 300, easing: 'ease-out' };
+
+async function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function rowsDelayReducer(result, row, i) {
-  const prev = result[i - 1] || 0;
-  result.push(prev + 5 * row.innerText.length);
-  return result;
+export function hideChatMessages(module) {
+  for (const message of module.messages) {
+    message.classList.add('is-transparent');
+  }
 }
 
-function linksDelayReducer(result, link, i) {
-  result.push(i * 200);
-  return result;
+export function hideChatLinks(module) {
+  for (const link of module.links) {
+    link.classList.add('is-transparent');
+  }
 }
 
-// @todo refactor
-// thenable sequence
-function playChainedAnimation(
-  elements,
-  keyframes,
-  { duration, delays, easing }
-) {
-  const promises = elements.map((child, i) => {
-    const options = {
-      duration,
-      delay: delays[i],
-      easing,
-    };
-    const promise = animateTo(child, keyframes, options);
-
-    promise.then(() => {
-      child.classList.remove('is-transparent');
-      child.removeAttribute('style');
-    });
-
-    return promise;
-  });
-
-  return promises.at(-1);
-}
-
-export async function playSectionFadeInAnimation(section) {
-  const [rows, links] = getAnimatedElements(section);
-
-  // instantely hide rows and links
-  for (const row of rows) row.classList.add('is-transparent');
-  for (const link of links) link.classList.add('is-transparent');
-
-  const keyframeOptions = {
-    duration: 300,
-    delays: rows.reduce(rowsDelayReducer, []),
-    easing: 'ease-out',
+export async function fadeChatMessagesIn(module) {
+  const onfinish = (message) => {
+    message.classList.remove('is-transparent');
+    message.removeAttribute('style');
   };
 
-  await playChainedAnimation(rows, keyframesBounceIn, keyframeOptions);
+  const reducer = async (chain, message) => {
+    await chain;
+    await delay(5 * message.innerText.length);
+    return animateTo(
+      message,
+      keyframesBounceIn,
+      keyframeOptions,
+      onfinish.bind(null, message)
+    );
+  };
 
-  keyframeOptions.duration = 200;
-  keyframeOptions.delays = links.reduce(linksDelayReducer, []);
-
-  await playChainedAnimation(links, keyframesFadeIn, keyframeOptions);
+  return module.messages.reduce(reducer, Promise.resolve());
 }
 
-export async function playSectionsFadeOutAnimation(sections) {
+export async function fadeChatLinksIn(module) {
+  const onfinish = (link) => {
+    link.classList.remove('is-transparent');
+    link.removeAttribute('style');
+  };
+
+  const reducer = async (chain, link) => {
+    await chain;
+    return animateTo(
+      link,
+      keyframesFadeIn,
+      keyframeOptions,
+      onfinish.bind(null, link)
+    );
+  };
+  return module.links.reduce(reducer, Promise.resolve());
+}
+
+export async function fadeLastChatModuleIn(module) {
+  hideChatMessages(module);
+  hideChatLinks(module);
+  scrollToNextModule(module);
+
+  await fadeChatMessagesIn(module);
+  await fadeChatLinksIn(module);
+}
+
+export async function fadeChatModulesOut(modules) {
   const keyframeOptions = {
     // needs to be a bit longer than
     // scroll animation to make it smooth
@@ -171,7 +157,7 @@ export async function playSectionsFadeOutAnimation(sections) {
     easing: 'ease-out',
   };
 
-  const promises = sections.map((child) => {
+  const promises = modules.map((child) => {
     const promise = animateTo(child, keyframesFadeOut, keyframeOptions);
 
     promise.then(() => {
@@ -182,7 +168,5 @@ export async function playSectionsFadeOutAnimation(sections) {
     return promise;
   });
 
-  return new Promise((res) => {
-    Promise.all(promises).then(() => res());
-  });
+  await Promise.all(promises);
 }

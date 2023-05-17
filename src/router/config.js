@@ -12,6 +12,7 @@ export const KEYS = {
   SHARE: 'share',
   COPY: 'copy',
   CODE: 'code',
+  // ERROR: 'error'
 };
 
 export const routes = {
@@ -21,4 +22,5 @@ export const routes = {
   code: '/code',
   contact: '/contact',
   error: '/error',
+  // [KEYS.ERROR]: '/error',
 };

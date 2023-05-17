@@ -19,7 +19,9 @@ export class ChatLink extends HTMLElement {
     const text = !!this.innerText
       ? this.innerText
       : templates.text[this.keyToTarget];
-    this.innerHTML = '';
+
+    // @todo affects cached template!
+    // this.innerHTML = '';
 
     this.attachShadow({ mode: 'open' });
 

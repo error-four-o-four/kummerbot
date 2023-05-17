@@ -11,12 +11,11 @@ export function injectChatMessagesContents(module) {
 
   for (const messageElement of module.querySelectorAll(MESSAGE_TAG)) {
     if (messageElement.hasAttribute(TMPL_ATTR.INFO)) {
-      messageElement.innerHTML = templates[TMPL_ATTR.INFO];
+      // messageElement.innerHTML = templates[TMPL_ATTR.INFO];
       return;
     }
 
     if (messageElement.hasAttribute(TMPL_ATTR.SHARE)) {
-      const href = router.getHrefToViewPage();
       // @todo error handling
       // @todo listener and router should be responsible
       // and pass error messages to the renderer
@@ -27,8 +26,8 @@ export function injectChatMessagesContents(module) {
       //   console.error('Failed to copy: ', err);
       // }
 
-      const content = templates.getShareLinkTemplate(href);
-      messageElement.append(content);
+      // const content = templates.getShareLinkTemplate(href);
+      // messageElement.append(content);
       return;
     }
 
@@ -51,19 +50,15 @@ export function injectChatMessagesContents(module) {
   }
 }
 
-export function injectChatLinksContents(module, prevKey) {
-  // @consider
-  // for (const linkElement of template.content.children) {
-  //   const nextKey = linkElement.getAttribute(LINK_ATTR.TARGET_KEY);
+// reminder
+// functions are called before components connected callback
 
-  //   if (nextKey in templates.text) {
-  //     linkElement.setAttribute(LINK_ATTR.TEXT, templates.text[nextKey]);
-  //   }
-  // }
+// @todo
+export function createErrorChatMessage() {}
 
+export function insertChatLinkToPreviousModule(module, prevKey) {
   if (!prevKey) return;
 
-  // insert back anchor if necessary
   // after the anchor /home
   // before other options
   const firstLinkElement = module.querySelector(LINK_TAG);
