@@ -6,7 +6,8 @@ import templates, { TMPL_ATTR } from './templates.js';
 import router from '../router/router.js';
 
 export function injectChatMessagesContents(module) {
-  // @test module.messages
+  // @todo test module.messages
+  // shouldn't work bc isConnected === false
 
   for (const messageElement of module.querySelectorAll(MESSAGE_TAG)) {
     if (messageElement.hasAttribute(TMPL_ATTR.INFO)) {
@@ -50,7 +51,7 @@ export function injectChatMessagesContents(module) {
   }
 }
 
-export function injectChatLinksContents(module, prevKey, key) {
+export function injectChatLinksContents(module, prevKey) {
   // @consider
   // for (const linkElement of template.content.children) {
   //   const nextKey = linkElement.getAttribute(LINK_ATTR.TARGET_KEY);

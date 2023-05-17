@@ -1,19 +1,35 @@
-import router from '../../router/router.js';
-
 import { MESSAGE_TAG } from '../chat-message/index.js';
 import { LINK_TAG } from '../chat-link/index.js';
 
-const CUSTOM_ATTR = 'selected';
+const CUSTOM_ATTR = {
+  KEY: 'key',
+  NEXT: 'next',
+};
 
 export class ChatModule extends HTMLElement {
   static get observedAttributes() {
-    return [CUSTOM_ATTR];
+    return [CUSTOM_ATTR.NEXT];
   }
+  static setter(inst, attr, value) {
+    !!value ? inst.setAttribute(attr, value) : inst.removeAttribute(attr);
+  }
+
   constructor() {
     super();
+  }
 
-    this.key = null;
-    this.next = null;
+  set key(value) {
+    ChatModule.setter(this, CUSTOM_ATTR.KEY, value);
+  }
+  get key() {
+    return this.getAttribute(CUSTOM_ATTR.KEY);
+  }
+
+  set next(value) {
+    ChatModule.setter(this, CUSTOM_ATTR.NEXT, value);
+  }
+  get next() {
+    return this.getAttribute(CUSTOM_ATTR.NEXT);
   }
 
   get messages() {
@@ -24,44 +40,29 @@ export class ChatModule extends HTMLElement {
     return [...this.querySelectorAll(LINK_TAG)];
   }
 
-  setKey(key) {
-    this.key = key;
+  connectedCallback() {
+    if (!this.next) return;
+
+    this.updateLinks(this.next);
   }
 
-  setKeyToNextModule(next) {
-    if (this.next === next) return;
+  attributeChangedCallback(name, _, next) {
+    if (name !== CUSTOM_ATTR.NEXT) return;
 
-    this.next = next;
-
-    if (this.next) {
-      this.setAttribute(CUSTOM_ATTR, this.next);
-    } else {
-      this.removeAttribute(CUSTOM_ATTR);
-    }
+    this.updateLinks(next);
   }
 
-  setHrefOfLinks() {
-    const href = router.getHref(this.key);
-    for (const link of this.links) {
-      link.setHref(href);
-    }
-  }
-
-  attributeChangedCallback(name, prev, next) {
-    // unnecessary
-    if (name !== CUSTOM_ATTR) return;
-
+  updateLinks(next) {
     if (next === null) {
       for (const link of this.links) {
         link.rejected = false;
         link.selected = false;
       }
-      console.log('reset links');
       return;
     }
 
     for (const link of this.links) {
-      if (link.key === next) {
+      if (link.keyToTarget === next) {
         link.rejected = false;
         link.selected = true;
         continue;
