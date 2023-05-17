@@ -1,24 +1,14 @@
 import { KEYS } from '../router/config.js';
 import { LINK_TAG, LINK_ATTR } from '../components/chat-link/index.js';
+import { MESSAGE_TAG } from '../components/chat-message/index.js';
 
 import templates, { TMPL_ATTR } from './templates.js';
 import router from '../router/router.js';
 
-export function createTemplateContainerChild(html = null) {
-  const elt = document.createElement('div');
+export function injectChatMessagesContents(module) {
+  // @test module.messages
 
-  if (html) elt.innerHTML = html;
-
-  return elt;
-}
-
-export const createTemplateId = (type, prevKey, key) =>
-  key === KEYS.SHARE
-    ? [key, prevKey, type, 'tmpl'].join('-')
-    : [key, type, 'tmpl'].join('-');
-
-export function injectChatMessagesContents(template) {
-  for (const messageElement of template.content.children) {
+  for (const messageElement of module.querySelectorAll(MESSAGE_TAG)) {
     if (messageElement.hasAttribute(TMPL_ATTR.INFO)) {
       messageElement.innerHTML = templates[TMPL_ATTR.INFO];
       return;
@@ -60,7 +50,7 @@ export function injectChatMessagesContents(template) {
   }
 }
 
-export function injectChatLinksContents(template, prevKey, key) {
+export function injectChatLinksContents(module, prevKey, key) {
   // @consider
   // for (const linkElement of template.content.children) {
   //   const nextKey = linkElement.getAttribute(LINK_ATTR.TARGET_KEY);
@@ -75,14 +65,12 @@ export function injectChatLinksContents(template, prevKey, key) {
   // insert back anchor if necessary
   // after the anchor /home
   // before other options
+  const firstLinkElement = module.querySelector(LINK_TAG);
+  const backLinkElement = document.createElement(LINK_TAG);
 
-  const position =
-    template.content.children[0].getAttribute(LINK_ATTR.TARGET_KEY) ===
-    KEYS.ROOT
-      ? 1
-      : 0;
-
-  // creates a back button by default
-  const link = document.createElement(LINK_TAG);
-  template.content.insertBefore(link, template.content.children[position]);
+  if (firstLinkElement.getAttribute(LINK_ATTR.TARGET_KEY) === KEYS.ROOT) {
+    firstLinkElement.after(backLinkElement);
+  } else {
+    firstLinkElement.before(backLinkElement);
+  }
 }
