@@ -1,3 +1,4 @@
+import { LINK_ATTR, LINK_TAG } from '../components/chat-link/index.js';
 import { KEYS, routes } from './config.js';
 import { validate } from './utils.js';
 
@@ -90,23 +91,21 @@ class Router {
   handle(e) {
     // called on event
     // adds a history state
+    e.preventDefault();
+
+    // @todo doublecheck
+    if (
+      e.target.localName === LINK_TAG &&
+      e.target.hasAttribute(LINK_ATTR.SELECTED) &&
+      e.composedPath()[0].localName === 'span'
+    ) {
+      console.log('nop');
+      return;
+    }
 
     const { href } = e.target;
-    e.preventDefault();
     window.history.pushState({ href }, '', href);
     this.update();
-
-    // if (!Object.values(KEYS).includes(key) && !key.startsWith('/')) {
-    //   // chat route
-    //   route = this.path + '/' + key;
-    //   console.log(route);
-    // }
-
-    // if (Object.values(routes).includes(key) && key.startsWith('/')) {
-    //   // value is a route to another view
-    //   // compare pathname with valid routes
-    //   route = key;
-    // }
   }
 
   update() {

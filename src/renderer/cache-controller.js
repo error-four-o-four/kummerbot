@@ -1,52 +1,46 @@
 import { KEYS } from '../router/config.js';
 
-import {
-  injectChatLinksContents,
-  injectChatMessagesContents,
-} from './renderer-utils.js';
-
 class Controller {
   constructor() {
     this.container = document.getElementById('templates-container');
     this.cachedIds = [];
   }
 
-  createTemplateId([prevKey, key]) {
+  getTemplateId([prevKey, key]) {
     return key === KEYS.SHARE
       ? [key, prevKey, 'tmpl'].join('-')
       : [key, 'tmpl'].join('-');
   }
 
-  // createTemplateId([prevKey, key]) {
-  //   return key === KEYS.SHARE ? `${key}-${prevKey}` : key;
-  // }
-
   isCached(templateId) {
     return this.cachedIds.includes(templateId);
   }
 
-  cache(templateId, module) {
+  get(templateId) {
+    // console.log('cloning cached', templateId);
+    const cachedTemplate = this.container.children[templateId];
+    return cachedTemplate.content.firstElementChild.cloneNode(true);
+  }
+
+  set(templateId, module) {
+    // const wrapper = document.createElement('div');
+    // wrapper.id = moduleWrapperId;
+    // wrapper.appendChild(module.cloneNode(true));
+
     const template = document.createElement('template');
     template.id = templateId;
     template.content.appendChild(module.cloneNode(true));
 
     this.cachedIds.push(templateId);
+    // this.container.appendChild(wrapper);
     this.container.appendChild(template);
   }
 
-  cloneMessages(templateId) {
-    console.log('clone messages');
-    // const wrapper = this.container.children[templateId];
-    // const messagesId = this.cachedIds[templateId].messages;
-    // return [...wrapper.children[messagesId].content.children].map((child) =>
-    //   child.cloneNode(true)
-    // );
-  }
-
-  // cloneLinks(wrapperId) {
-  //   const wrapper = this.container.children[wrapperId];
-  //   const linksId = this.cachedIds[wrapperId].links;
-  //   return [...wrapper.children[linksId].content.children].map((child) =>
+  // cloneMessages(templateId) {
+  //   console.log('clone messages');
+  //   const wrapper = this.container.children[templateId];
+  //   const messagesId = this.cachedIds[templateId].messages;
+  //   return [...wrapper.children[messagesId].content.children].map((child) =>
   //     child.cloneNode(true)
   //   );
   // }
