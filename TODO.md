@@ -4,6 +4,7 @@
 
 - [x] view
 - [ ] contact
+- [ ] doublecheck [guard case](src/router/router.js)
 
 ### Contents
 
@@ -16,35 +17,37 @@
 - [ ] about
 - [ ] error
 
-  - [ ] handle error messages in Chat [@](src/renderer/render.chat.js#108)
-  - [ ] handle error messages in Page [@](src/renderer/render.page.js#30)
+  - [ ] handle error messages in [Chat](src/renderer/renderer-utils.js#56) [renderer](src/renderer/renderer.js#36) [@](src/renderer/templates.js#31)
+  - [ ] handle error messages in [Page](src/elements/controller-page.js#29)
 
 - [ ] contact
 - [ ] share - restructure or rewrite
   - [x] remove link to preview from options and add it as a chat message
   - [ ] add QRCode image - add npm pkg
-  - [ ] Share API - navigator.canShare - Permissions (!) [@](src/listener/listener.js#31) [@](src/templates/utils.js#28)
+  - [ ] Share API - navigator.canShare - Permissions (!) [listener.js](src/listener/listener.js#31)
 
 ### Templates
 
-- [ ] add svgs to './elements.js' (?)
-- [ ] restructure functions which are used by renderer.chat.js AND renderer.page.js [@](src/renderer/render.chat.js#136) [@](src/renderer/render.page.js#44)
-- [ ] inconsistent [@](src/templates/templates.js#8) [@](src/templates/templates.js#36)
+- [ ] add svgs to ['./elements.js'](src/elements/elements.js#18) (?)
+- [ ] clearify [TMPL_ATTR](src/components/chat-message/component.js#11)
+- [ ] restructure functions which are used by renderer.chat.js AND renderer.page.js [@](src/elements/controller-page.js#44)
 
 ### Animation
 
 - [x] fadeIn
-- [x] fadeOut [@](src/renderer/render.chat.js#31)
+- [x] fadeOut
 - [x] ~~calculate scrollTop instead of using scrollIntoView bc header overlaps section when section height is greater than 100 vh~~ smooth scroll
-- [ ] initialRender [@](src/renderer/render.chat.js#35)
-- [x] ~~loading spinner [@](src/renderer/utils.js#38)~~
+- [ ] [@](src/elements/controller-chat.js#52) move all fade animations to removeChatModules()
+- [ ] [initialRender](src/elements/controller-chat.js#26)
+- [ ] [pending indicator](src/components/chat-module/component.js#18)
+- [ ] [Error Message](src/elements/controller-chat.js#73)
 - [x] is writing indicator
-- [x] ~~ChatLink [@](src/components/chat-link/component.js#110) [@](src/renderer/render.chat.js#86)~~
-- [ ] Loading Indicator on Page [@](src/renderer/utils.js#10)
-- [ ] ChatLink component should be responsible (?)
-- [ ] Animation when Back / Reset ChatLink was clicked [@](src/renderer/render.chat.js#56)
+- [x] ~~ChatLink component should be responsible (?)~~
+- [ ] Loading Indicator on Page
+- [ ] Animation when Back / Reset ChatLink was clicked
 
 ### Refactor
 
-- [ ] [@](src/renderer/render.chat.js)
-- [ ] chained animation promises [@](src/renderer/transition.js)
+- [x] chained animation promises
+- [ ] thems [css](src/style/theme.css#100)
+

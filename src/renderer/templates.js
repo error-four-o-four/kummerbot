@@ -6,7 +6,6 @@ export const TMPL_ATTR = {
   LIST: 'contacts-list',
 };
 
-// @todo getContactInfoTemplate()
 const info = `
 <p>
   Du kannst auf den gew&uuml;nschten Kontakt klicken, um zu einem anonymen
