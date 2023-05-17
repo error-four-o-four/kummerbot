@@ -1,9 +1,9 @@
 import { KEYS } from '../router/router.js';
 
 export const TMPL_ATTR = {
-  SHARE: 'data-share-link',
-  INFO: 'data-contacts-info',
-  LIST: 'data-contacts-list',
+  SHARE: 'inject-share-link',
+  INFO: 'contacts-info',
+  LIST: 'contacts-list',
 };
 
 // @todo getContactInfoTemplate()
@@ -15,14 +15,9 @@ const info = `
 </p>
 <p>Wer diese Ansprechpartner sind, siehst du, indem du auf den weiterführenden Link klickst.</p>`;
 
-const share = `
-<p>
-  Wenn du m&ouml;chtest kann ich du dir diesen Link <a></a> in deiner Zwischenablage speichern oder einen QRCode erstellen.
-</p>
-`;
+const code = ``;
 
 const displayedText = {
-  error: '&#x26A0; Da hat etwas nicht funktioniert ...',
   [KEYS.BACK]: 'Ich m&ouml;chte einen Schritt zur&uuml;ck',
   [KEYS.ROOT]: 'Ich m&ouml;chte zur&uuml;ck zum Anfang',
   [KEYS.SHARE]: 'Ich m&ouml;chte diese Informationen teilen',
@@ -34,38 +29,18 @@ const displayedText = {
   },
 };
 
-function createTemplateElement(html = null) {
-  const elt = document.createElement('template');
-
-  if (html) elt.innerHTML = html;
-
-  return elt;
-}
-
-// @todo [ATTR.ERROR]
-function getErrorTemplate() {
+function getErrorTemplate(error) {
+  console.log(error);
   return `
-<div class="row content">
-	<p>${displayedText.error}</p>
-</div>`;
-}
-
-function getShareLinkTemplate(href) {
-  const template = createTemplateElement(share);
-  const anchor = template.content.querySelector('a');
-
-  anchor.href = href;
-  // anchor.innerText = href;
-
-  anchor.classList.add('has-icon');
-  anchor.innerHTML = `${href}<svg><use href="#icon-share"></use></svg>`;
-
-  return template.content.cloneNode(true);
+<chat-message>
+	<p>$&#x26A0; Da hat etwas nicht funktioniert ...</p>
+  <p>Hier erscheint eine Fehlermeldung</p>
+  <p>Und hier ist der Link zur <a>Startseite</a>
+</chat-message>`;
 }
 
 export default {
-  [TMPL_ATTR.INFO]: info,
   text: displayedText,
+  [TMPL_ATTR.INFO]: info,
   getErrorTemplate,
-  getShareLinkTemplate,
 };

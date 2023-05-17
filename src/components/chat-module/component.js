@@ -6,6 +6,24 @@ const CUSTOM_ATTR = {
   NEXT: 'next',
 };
 
+const svgPendingHtml = `
+<svg viewBox="0 0 90 90">
+  <g fill="currentColor">
+    <circle cx="15" cy="45" r="10" />
+    <circle cx="45" cy="45" r="10" />
+    <circle cx="75" cy="45" r="10" />
+  </g>
+</svg>`;
+
+// @todo
+function createPendingIndicator() {
+  const elt = document.createElement('span');
+  // elt.classList.add('is-hidden');
+  elt.id = 'pending-indicator';
+  elt.innerHTML = svgPendingHtml;
+  return elt;
+}
+
 export class ChatModule extends HTMLElement {
   static get observedAttributes() {
     return [CUSTOM_ATTR.NEXT];

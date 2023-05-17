@@ -4,13 +4,12 @@ import renderer from '../renderer/renderer.js';
 import elements from './elements.js';
 
 import {
-  scrollNextSectionIntoView,
+  scrollToNextModule,
   scrollToPreviousModule,
-  playSectionFadeInAnimation,
-  playSectionsFadeOutAnimation,
-  toggleLoadingIndicator,
-  setFixedHeight,
-  removeFixedHeight,
+  fadeLastChatModuleIn,
+  fadeChatModulesOut,
+  setIndicatorPending,
+  setIndicatorWaiting,
 } from '../renderer/animation.js';
 
 // called onpopstate/onpushstate via elements.update()
@@ -50,16 +49,19 @@ export async function updateChatElements() {
       continue;
     }
 
+    // @todo => remove chat elements
     // if it's the last module in outlet
     if (renderedModule && keys[2] === null) {
-      // @todo cases: isInitialRender or isLastSection
+      // @todo renderer.initial
       // make sure to reset ChatLink componenrts
       renderedModule.next = keys[2];
       // @todo animation !!
-      // scrollChatSectionIntoView();
+      scrollToNextModule(renderedModule);
       // await animateChatOptions();
       continue;
     }
+
+    setIndicatorPending();
 
     // if there isn't rendered module
     // create a new one
@@ -69,11 +71,7 @@ export async function updateChatElements() {
     if (error) {
       elements.outlet.append(module);
       // @todo animation
-      // scrollNextSectionIntoView(newModule);
-      // module.previousElementSibling &&
-      //   removeFixedHeight(module.previousElementSibling);
-      // newModule.previousElementSibling &&
-      //   removeFixedHeight(newModule.previousElementSibling.lastElementChild);
+      scrollToNextModule(module);
       return;
     }
 
@@ -97,25 +95,8 @@ export async function updateChatElements() {
 
     if (keys[2] !== null) continue;
 
-    // @todo animation !!
-
-    // remove fixed height of prev section links wrap
-    // if (prevKey !== null && module.previousElementSibling) {
-    //   removeFixedHeight(module.previousElementSibling.lastElementChild);
-    //   // const prevLinksRow = elements.outlet.children[step - 1].lastElementChild;
-    //   // removeFixedHeight(prevLinksRow);
-    // }
-
-    // toggleLoadingIndicator();
-
-    // // set fixed height of current section links wrap
-    // // required to smoothen scroll animation
-    // setFixedHeight(newModule.lastElementChild);
-
-    // scrollNextSectionIntoView(newModule);
-    // await playSectionFadeInAnimation(newModule);
-
-    // toggleLoadingIndicator();
+    await fadeLastChatModuleIn(module);
+    setIndicatorWaiting();
   }
 }
 
@@ -140,16 +121,17 @@ async function removeChatModules() {
 
   // @consider animation timeline (?)
   // make sure to update the appearance
-  if (lastModuleIndex >= 0) {
-    const lastModule = elements.outlet.children[lastModuleIndex];
-    lastModule.next = null;
-  }
+  // if (lastModuleIndex >= 0) {
+  // }
 
   // skip if there are no modules
   if (filteredModules === null) return;
 
+  const lastModule = elements.outlet.children[lastModuleIndex];
+  lastModule.next = null;
+
   scrollToPreviousModule(lastModule);
-  await playSectionsFadeOutAnimation(filteredModules);
+  await fadeChatModulesOut(filteredModules);
 
   // remove elements after animation
   for (const section of filteredModules) {
@@ -161,7 +143,6 @@ function filterChatModules() {
   let i = 0;
 
   while (i < router.keys.length) {
-
     const module = elements.outlet.children[i];
 
     // there are less sections rendered than required

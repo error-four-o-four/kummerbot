@@ -1,36 +1,11 @@
 import { MODULE_TAG } from '../components/chat-module/index.js';
 
 import router, { fetchData } from '../router/router.js';
+
 import cache from './cache-controller.js';
-
-import {
-  injectChatLinksContents,
-  injectChatMessagesContents,
-} from './renderer-utils.js';
-
 import templates from './templates.js';
 
-// import elements from '../elements.js';
-
-// const loadingIndicatorId = 'loading-indicator';
-
-// export function appendLoadingIndicator() {
-//   // @todo animated spinner
-//   const elt = document.createElement('div');
-//   elt.id = loadingIndicatorId;
-//   elt.innerHTML = 'Loading ...';
-
-//   elements.outlet.append(elt);
-// }
-
-// export function removeLoadingIndicator() {
-//   const elt = document.getElementById(loadingIndicatorId);
-
-//   if (!elt) return;
-
-//   elt.remove();
-// }
-
+import { insertChatLinkToPreviousModule } from './renderer-utils.js';
 
 class Renderer {
   constructor() {
@@ -60,8 +35,11 @@ class Renderer {
     if (error) {
       // @todo
       // handle / display error
+      // renderer-utils createErrorChatMessage()
+      // @consider
+      // document.createElement(ChatMessage) (?)
       module.key = 'error';
-      module.innerHTML = templates.getErrorTemplate();
+      module.innerHTML = templates.getErrorTemplate(error);
 
       return {
         error,
@@ -75,8 +53,8 @@ class Renderer {
     // @todo @consider
     // who should be responsible
     // renderer or component ?
-    injectChatMessagesContents(module);
-    injectChatLinksContents(module, ...keys);
+    // injectChatMessagesContents(module); // => utils.js
+    insertChatLinkToPreviousModule(module, keys[0]);
 
     cache.set(templateId, module);
 
