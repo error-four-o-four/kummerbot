@@ -1,4 +1,4 @@
-import router from '../router/router.js';
+import router, { KEYS } from '../router/router.js';
 import renderer from '../renderer/renderer.js';
 
 import elements from './elements.js';
@@ -10,23 +10,48 @@ import {
   fadeChatModulesOut,
   setIndicatorPending,
   setIndicatorWaiting,
+  fadeChatLinksIn,
+  hideChatLinks,
 } from '../renderer/animation.js';
+
+// #############################
+// @todo on first render
+// @todo hide app
+// @todo show app when last element was rendered
+// improves UX
 
 // called onpopstate/onpushstate via elements.update()
 export async function updateChatElements() {
-  // if necessary, set renderer.initial
-  // (onpopstate/pre route wasn't chat route)
-  // compares router query [intern, option-a, ...]
-  // with the attr 'key' of the rendered sections
-  // removes page / incorrect modules
-  // plays fade out animation
-  await removeChatModules();
+  // remove incorrect elements
+  // when back or reset button was clicked
+  // router.keys.length will always be greater than 0
+  // if this conitidion is fullfilled
+  // elements.outlet.children.length will always be greater than 1
+  if (elements.outlet.children.length > router.keys.length) {
+    // get the last correct ChatModule component
+    // and the modules which will be removed
+    const [lastModuleIndex, filteredModules] = filterChatModules();
+    const lastModule = elements.outlet.children[lastModuleIndex];
+
+    // order matters to achieve a smooth scroll animation
+
+    // make sure to update the appearance
+    // set rejected / selected attributes
+    hideChatLinks(lastModule);
+    lastModule.next = null;
+
+    scrollToPreviousModule(lastModule);
+    fadeChatModulesOut(filteredModules);
+    await fadeChatLinksIn(lastModule);
+
+    // remove elements after animation
+    for (const module of filteredModules) {
+      module.remove();
+    }
+  }
 
   if (renderer.initial) {
-    // @todo on first render
-    // @todo hide app
-    // @todo show app when last element was rendered
-    console.log('initial render');
+    // console.log('initial render');
   }
 
   for (let step = 0, steps = router.keys.length; step < steps; step += 1) {
@@ -49,21 +74,14 @@ export async function updateChatElements() {
       continue;
     }
 
-    // @todo => remove chat elements
-    // if it's the last module in outlet
-    if (renderedModule && keys[2] === null) {
-      // @todo renderer.initial
-      // make sure to reset ChatLink componenrts
-      renderedModule.next = keys[2];
-      // @todo animation !!
-      scrollToNextModule(renderedModule);
-      // await animateChatOptions();
+    if (!!renderedModule && keys[2] === null) {
+      // was cleared in removeChatModules
       continue;
     }
 
     setIndicatorPending();
 
-    // if there isn't rendered module
+    // if there isn't a rendered module
     // create a new one
     // fetch data and cache contents
     const { error, module } = await renderer.createChatModule(keys);
@@ -79,7 +97,6 @@ export async function updateChatElements() {
     // updating / setting href attributes of the children
     // doesn't work in connectedCallback()
     // when module is a cloned element from the cached <template>s
-
     elements.outlet.append(module);
 
     // explicitly set href attributes
@@ -100,54 +117,11 @@ export async function updateChatElements() {
   }
 }
 
-// #############################
-
-async function removeChatModules() {
-  if (elements.outlet.children.length === 0) return;
-
-  // clear outlet when coming from a page
-  if (elements.outlet.children[0].key !== router.keys[0]) {
-    renderer.initial = true;
-    elements.clearOutlet();
-    // console.log('cleared');
-    return;
-  }
-
-  // compares router keys
-  // with the keys of the rendered modules
-  // returns the index of the last correctly rendered module
-  // and the modules which will be removed
-  const [lastModuleIndex, filteredModules] = filterChatModules();
-
-  // @consider animation timeline (?)
-  // make sure to update the appearance
-  // if (lastModuleIndex >= 0) {
-  // }
-
-  // skip if there are no modules
-  if (filteredModules === null) return;
-
-  const lastModule = elements.outlet.children[lastModuleIndex];
-  lastModule.next = null;
-
-  scrollToPreviousModule(lastModule);
-  await fadeChatModulesOut(filteredModules);
-
-  // remove elements after animation
-  for (const section of filteredModules) {
-    section.remove();
-  }
-}
-
 function filterChatModules() {
   let i = 0;
 
   while (i < router.keys.length) {
     const module = elements.outlet.children[i];
-
-    // there are less sections rendered than required
-    // no need to remove any sections
-    if (!module) return [i - 1, null];
 
     // break if there's an incorrect section
     if (router.keys[i] !== module.key) break;

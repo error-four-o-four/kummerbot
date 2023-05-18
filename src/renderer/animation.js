@@ -90,7 +90,7 @@ async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function hideChatMessages(module) {
+function hideChatMessages(module) {
   for (const message of module.messages) {
     message.classList.add('is-transparent');
   }
@@ -102,7 +102,7 @@ export function hideChatLinks(module) {
   }
 }
 
-export async function fadeChatMessagesIn(module) {
+async function fadeChatMessagesIn(module) {
   const onfinish = (message) => {
     message.classList.remove('is-transparent');
     message.removeAttribute('style');
@@ -153,7 +153,7 @@ export async function fadeChatModulesOut(modules) {
   const keyframeOptions = {
     // needs to be a bit longer than
     // scroll animation to make it smooth
-    duration: 350,
+    duration: 200,
     easing: 'ease-out',
   };
 

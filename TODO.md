@@ -44,10 +44,9 @@
 - [x] is writing indicator
 - [x] ~~ChatLink component should be responsible (?)~~
 - [ ] Loading Indicator on Page
-- [ ] Animation when Back / Reset ChatLink was clicked
+- [x] Animation when Back / Reset ChatLink was clicked
 
 ### Refactor
 
 - [x] chained animation promises
 - [ ] thems [css](src/style/theme.css#100)
-

@@ -1,5 +1,5 @@
 import renderer from '../renderer/renderer.js';
-import router from '../router/router.js';
+import router, { KEYS } from '../router/router.js';
 
 import { updateChatElements } from './controller-chat.js';
 import { updatePageElements } from './controller-page.js';
@@ -18,15 +18,26 @@ const outlet = document.getElementById('outlet');
 // @todo svgs ?
 
 async function update(prevPathname = null) {
-  if (router.isChatRoute) {
-    renderer.transition = true;
-    await updateChatElements();
-    renderer.transition = false;
+  renderer.transition = true;
 
-    if (renderer.initial) renderer.initial = false;
+  if (router.isChatRoute) {
+    // clear outlet when previous route wasn't chat route
+    if (
+      prevPathname &&
+      !prevPathname.startsWith(router.routes[KEYS.ROOT])
+    ) {
+      clearOutlet();
+      renderer.initial = true;
+    }
+
+    await updateChatElements();
   } else {
+    renderer.clearOutlet();
     updatePageElements();
   }
+  renderer.transition = false;
+
+  if (renderer.initial) renderer.initial = false;
 
   if (prevPathname !== null) {
     header.link.update(prevPathname);
