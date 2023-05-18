@@ -15,8 +15,6 @@ function handleKeypress(e) {}
 
 function handle(e) {
   if (router.isRouterLink(e.target)) {
-    const prevPathname = router.path;
-
     //   if (key === KEYS.SHARE) {
     //     console.log(navigator.canShare);
     //     // clipBoard etc
@@ -24,7 +22,7 @@ function handle(e) {
     //   }
 
     router.handle(e);
-    elements.update(prevPathname);
+    elements.update();
   }
 }
 

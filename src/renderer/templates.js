@@ -26,6 +26,10 @@ const displayedText = {
     pending: 'Schreibt ...',
     waiting: 'Online',
   },
+  about: {
+    inactive: 'Details',
+    active: 'zur&uuml;ck',
+  },
 };
 
 function getErrorTemplate(error) {
