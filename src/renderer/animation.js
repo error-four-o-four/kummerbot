@@ -90,6 +90,11 @@ function onFadeInFinished(element) {
   element.removeAttribute('style');
 }
 
+function onFadeOutFinished(element) {
+  element.classList.add('is-transparent');
+  element.removeAttribute('style');
+}
+
 async function fadeChatMessagesIn(module) {
   const reducer = async (chain, message) => {
     await chain;
@@ -143,7 +148,7 @@ async function fadeFilteredChatModulesOut(modules) {
         module,
         keyframesFadeOut,
         keyframeOptions,
-        onFadeInFinished.bind(null, module)
+        onFadeOutFinished.bind(null, module)
       )
     )
   );

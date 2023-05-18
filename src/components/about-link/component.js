@@ -1,23 +1,27 @@
-import router from '../../router/router.js';
+import router, { KEYS } from '../../router/router.js';
+import templates from '../../renderer/templates.js';
 
-import { TEXT } from './config.js';
+const CUSTOM_ATTR = 'active';
 
-export class AboutLink extends HTMLAnchorElement {
+export class AboutLink extends HTMLElement {
+  static get observedAttributes() {
+    return [CUSTOM_ATTR];
+  }
   constructor() {
     super();
 
-    this.active = false;
-    this.prevPathname = router.routes.root;
+    this.child = null;
   }
 
   get href() {
-    return this.active
-      ? router.root + this.prevPathname
-      : router.root + router.routes.about;
+    return this.child.href;
   }
 
-  get displayedText() {
-    return this.active ? TEXT.BACK : TEXT.ABOUT;
+  set active(value) {
+    this.toggleAttribute(CUSTOM_ATTR, !!value);
+  }
+  get active() {
+    return this.hasAttribute(CUSTOM_ATTR);
   }
 
   connectedCallback() {
@@ -25,27 +29,25 @@ export class AboutLink extends HTMLAnchorElement {
       router.routes.about
     );
 
+    this.child = document.createElement('a');
+    this.child.href = router.routes.about;
+    this.child.innerHTML = templates.text.about.inactive;
+
+    this.appendChild(this.child);
+
     if (isAboutRoute) {
       this.active = true;
     }
-
-    const anchor = document.createElement('a');
-    anchor.href = this.href;
-    anchor.innerHTML = this.displayedText;
-
-    this.appendChild(anchor);
   }
 
-  update(prevPathname) {
-    if (this.active && router.isAboutRoute) return;
+  attributeChangedCallback(_, prev, next) {
+    if (prev === null && typeof next === 'string') {
+      this.child.href = router.prev ? router.prev : router.routes[KEYS.ROOT];
+      this.child.innerHTML = templates.text.about.active;
+      return;
+    }
 
-    if (!this.active && !router.isAboutRoute) return;
-
-    this.active = !this.active;
-    this.prevPathname = prevPathname;
-
-    const anchor = this.querySelector('a');
-    anchor.href = this.href;
-    anchor.innerHTML = this.displayedText;
+    this.child.href = router.routes.about;
+    this.child.innerHTML = templates.text.about.inactive;
   }
 }

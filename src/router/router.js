@@ -9,6 +9,7 @@ class Router {
   constructor() {
     this.origin = window.location.origin;
     this.path = null;
+    this.prev = null;
     this.keys = null;
 
     this.routes = routes;
@@ -130,6 +131,7 @@ class Router {
       window.history.replaceState({ href }, '', href);
     }
 
+    this.prev = this.path;
     this.path = pathname;
     this.keys = [
       ...this.path
