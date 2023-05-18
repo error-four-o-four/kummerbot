@@ -85,20 +85,22 @@ function hideChatLinks(module) {
   }
 }
 
-async function fadeChatMessagesIn(module) {
-  const onfinish = (message) => {
-    message.classList.remove('is-transparent');
-    message.removeAttribute('style');
-  };
+function onFadeInFinished(element) {
+  element.classList.remove('is-transparent');
+  element.removeAttribute('style');
+}
 
+async function fadeChatMessagesIn(module) {
   const reducer = async (chain, message) => {
     await chain;
-    await delay(5 * message.innerText.length);
+    message.pending = true;
+    await delay(6 * message.innerText.length);
+    message.pending = false;
     return animateTo(
       message,
       keyframesBounceIn,
       keyframeOptions,
-      onfinish.bind(null, message)
+      onFadeInFinished.bind(null, message)
     );
   };
 
@@ -106,18 +108,13 @@ async function fadeChatMessagesIn(module) {
 }
 
 async function fadeChatLinksIn(module) {
-  const onfinish = (link) => {
-    link.classList.remove('is-transparent');
-    link.removeAttribute('style');
-  };
-
   const reducer = async (chain, link) => {
     await chain;
     return animateTo(
       link,
       keyframesFadeIn,
       keyframeOptions,
-      onfinish.bind(null, link)
+      onFadeInFinished.bind(null, link)
     );
   };
   return module.links.reduce(reducer, Promise.resolve());
@@ -140,18 +137,16 @@ async function fadeFilteredChatModulesOut(modules) {
     easing: 'ease-out',
   };
 
-  const promises = modules.map((child) => {
-    const promise = animateTo(child, keyframesFadeOut, keyframeOptions);
-
-    promise.then(() => {
-      child.classList.add('is-transparent');
-      child.removeAttribute('style');
-    });
-
-    return promise;
-  });
-
-  await Promise.all(promises);
+  await Promise.all(
+    modules.map((module) =>
+      animateTo(
+        module,
+        keyframesFadeOut,
+        keyframeOptions,
+        onFadeInFinished.bind(null, module)
+      )
+    )
+  );
 }
 
 export default {
