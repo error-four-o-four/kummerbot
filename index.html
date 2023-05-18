@@ -44,8 +44,45 @@
       aria-hidden="true"></div>
 
     <!-- reusable svg icons <use xlink:href="id"></use> -->
-    <svg id="icons-container" style="display: none" aria-hidden="true">
+    <svg
+      id="icons-container"
+      style="display: none"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg">
       <symbol viewBox="0 0 64 64" id="default"></symbol>
+      <symbol viewBox="0 0 64 64" id="message-pending">
+        <g fill="currentColor">
+          <circle cx="8" cy="32" r="8">
+            <animate
+              attributeName="cy"
+              repeatCount="indefinite"
+              dur="800ms"
+              values="32; 12; 48; 32; 32"
+              keyTimes="0; 0.1; 0.3; 0.5; 1"
+              calcMode="spline" />
+          </circle>
+          <circle cx="32" cy="32" r="8">
+            <animate
+              attributeName="cy"
+              repeatCount="indefinite"
+              dur="800ms"
+              begin="100ms"
+              values="32; 12; 48; 32; 32"
+              keyTimes="0; 0.1; 0.3; 0.5; 1"
+              calcMode="spline" />
+          </circle>
+          <circle cx="56" cy="32" r="8">
+            <animate
+              attributeName="cy"
+              repeatCount="indefinite"
+              dur="800ms"
+              begin="200ms"
+              values="32; 12; 48; 32; 32"
+              keyTimes="0; 0.1; 0.3; 0.5; 1"
+              calcMode="spline" />
+          </circle>
+        </g>
+      </symbol>
       <symbol viewBox="0 0 24 24" id="icon-share">
         <path
           fill="currentColor"

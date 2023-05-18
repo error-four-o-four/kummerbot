@@ -37,9 +37,9 @@
 - [x] fadeIn
 - [x] fadeOut
 - [x] ~~calculate scrollTop instead of using scrollIntoView bc header overlaps section when section height is greater than 100 vh~~ smooth scroll
-- [ ] [@](src/elements/controller-chat.js#52) move all fade animations to removeChatModules()
+- [y] move all fade animations to removeChatModules()
 - [ ] [initialRender](src/elements/controller-chat.js#26)
-- [ ] [pending indicator](src/components/chat-module/component.js#18)
+- [x] pending indicator
 - [ ] [Error Message](src/elements/controller-chat.js#73)
 - [x] is writing indicator
 - [x] ~~ChatLink component should be responsible (?)~~
