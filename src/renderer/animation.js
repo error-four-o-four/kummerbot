@@ -1,21 +1,4 @@
-import elements from '../elements/elements.js';
-import templates from './templates.js';
-
-const { pending, waiting } = templates.text.indicator;
-
-export function setIndicatorPending() {
-  elements.header.span.innerText = pending;
-  elements.header.elt.classList.add('pending');
-}
-
-export function setIndicatorWaiting() {
-  elements.header.span.innerText = waiting;
-  elements.header.elt.classList.remove('pending');
-}
-
-// #####################################
-
-export function scrollToNextModule(element) {
+function scrollToNextModule(element) {
   element.scrollIntoView({
     block: 'start',
     inline: 'nearest',
@@ -23,7 +6,7 @@ export function scrollToNextModule(element) {
   });
 }
 
-export function scrollToPreviousModule(elements) {
+function scrollToPreviousModule(elements) {
   elements.scrollIntoView({
     block: 'end',
     inline: 'nearest',
@@ -96,7 +79,7 @@ function hideChatMessages(module) {
   }
 }
 
-export function hideChatLinks(module) {
+function hideChatLinks(module) {
   for (const link of module.links) {
     link.classList.add('is-transparent');
   }
@@ -122,7 +105,7 @@ async function fadeChatMessagesIn(module) {
   return module.messages.reduce(reducer, Promise.resolve());
 }
 
-export async function fadeChatLinksIn(module) {
+async function fadeChatLinksIn(module) {
   const onfinish = (link) => {
     link.classList.remove('is-transparent');
     link.removeAttribute('style');
@@ -140,7 +123,7 @@ export async function fadeChatLinksIn(module) {
   return module.links.reduce(reducer, Promise.resolve());
 }
 
-export async function fadeLastChatModuleIn(module) {
+async function fadeLastChatModuleIn(module) {
   hideChatMessages(module);
   hideChatLinks(module);
   scrollToNextModule(module);
@@ -149,7 +132,7 @@ export async function fadeLastChatModuleIn(module) {
   await fadeChatLinksIn(module);
 }
 
-export async function fadeChatModulesOut(modules) {
+async function fadeFilteredChatModulesOut(modules) {
   const keyframeOptions = {
     // needs to be a bit longer than
     // scroll animation to make it smooth
@@ -170,3 +153,12 @@ export async function fadeChatModulesOut(modules) {
 
   await Promise.all(promises);
 }
+
+export default {
+  scrollToNextModule,
+  scrollToPreviousModule,
+  hideChatLinks,
+  fadeChatLinksIn,
+  fadeLastChatModuleIn,
+  fadeFilteredChatModulesOut,
+};

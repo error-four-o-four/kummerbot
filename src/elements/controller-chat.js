@@ -1,18 +1,8 @@
-import router, { KEYS } from '../router/router.js';
+import router from '../router/router.js';
 import renderer from '../renderer/renderer.js';
+import animation from '../renderer/animation.js';
 
 import elements from './elements.js';
-
-import {
-  scrollToNextModule,
-  scrollToPreviousModule,
-  fadeLastChatModuleIn,
-  fadeChatModulesOut,
-  setIndicatorPending,
-  setIndicatorWaiting,
-  fadeChatLinksIn,
-  hideChatLinks,
-} from '../renderer/animation.js';
 
 // #############################
 // @todo on first render
@@ -37,12 +27,12 @@ export async function updateChatElements() {
 
     // make sure to update the appearance
     // set rejected / selected attributes
-    hideChatLinks(lastModule);
+    animation.hideChatLinks(lastModule);
     lastModule.next = null;
 
-    scrollToPreviousModule(lastModule);
-    fadeChatModulesOut(filteredModules);
-    await fadeChatLinksIn(lastModule);
+    animation.scrollToPreviousModule(lastModule);
+    animation.fadeFilteredChatModulesOut(filteredModules);
+    await animation.fadeChatLinksIn(lastModule);
 
     // remove elements after animation
     for (const module of filteredModules) {
@@ -64,22 +54,16 @@ export async function updateChatElements() {
     // for the currently iterated part of the pathname (router.keys)
     const renderedModule = elements.outlet.children[step];
 
-    // if there are subsequent modules
-    if (!!renderedModule && keys[2] !== null) {
-      // update ChatLink components
-      // at ChatModule.attributedChangedCallback()
-      // skip animation
+    // module exists
+    if (!!renderedModule) {
+      // if there are subsequent modules
+      // make sure to update ChatLink appearance
+      if (renderedModule.next !== keys[2]) renderedModule.next = keys[2];
       // @todo renderer.initial
-      renderedModule.next = keys[2];
       continue;
     }
 
-    if (!!renderedModule && keys[2] === null) {
-      // was cleared in removeChatModules
-      continue;
-    }
-
-    setIndicatorPending();
+    elements.header.setIndicatorPending();
 
     // if there isn't a rendered module
     // create a new one
@@ -89,7 +73,8 @@ export async function updateChatElements() {
     if (error) {
       elements.outlet.append(module);
       // @todo animation
-      scrollToNextModule(module);
+      // when error module has ChatLinks
+      animation.scrollToNextModule(module);
       return;
     }
 
@@ -112,8 +97,8 @@ export async function updateChatElements() {
 
     if (keys[2] !== null) continue;
 
-    await fadeLastChatModuleIn(module);
-    setIndicatorWaiting();
+    await animation.fadeLastChatModuleIn(module);
+    elements.header.setIndicatorWaiting();
   }
 }
 
