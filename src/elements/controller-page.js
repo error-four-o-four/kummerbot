@@ -16,7 +16,6 @@ import elements from './elements.js';
 // } from './utils.js';
 
 export async function updatePageElements() {
-  renderer.clearOutlet();
   // appendLoadingIndicator();
 
   // get contents
