@@ -1,28 +1,11 @@
 import { MESSAGE_TAG } from '../chat-message/index.js';
+import { CONTACT_TAG } from '../contact-item/index.js';
 import { LINK_TAG } from '../chat-link/index.js';
 
 const CUSTOM_ATTR = {
   KEY: 'key',
   NEXT: 'next',
 };
-
-const svgPendingHtml = `
-<svg viewBox="0 0 90 90">
-  <g fill="currentColor">
-    <circle cx="15" cy="45" r="10" />
-    <circle cx="45" cy="45" r="10" />
-    <circle cx="75" cy="45" r="10" />
-  </g>
-</svg>`;
-
-// @todo
-function createPendingIndicator() {
-  const elt = document.createElement('span');
-  // elt.classList.add('is-hidden');
-  elt.id = 'pending-indicator';
-  elt.innerHTML = svgPendingHtml;
-  return elt;
-}
 
 export class ChatModule extends HTMLElement {
   static get observedAttributes() {
@@ -51,7 +34,7 @@ export class ChatModule extends HTMLElement {
   }
 
   get messages() {
-    return [...this.querySelectorAll(MESSAGE_TAG)];
+    return [...this.querySelectorAll(`${MESSAGE_TAG}, ${CONTACT_TAG}`)];
   }
 
   get links() {
@@ -59,6 +42,7 @@ export class ChatModule extends HTMLElement {
   }
 
   connectedCallback() {
+    // @todo get rid of renderer.js !
     if (!this.next) return;
 
     this.updateLinks(this.next);

@@ -1,59 +1,43 @@
-// import {
-//   ATTR,
-//   createTemplateElement,
-//   renderChatTemplates,
-// } from '../templates/contents.js';
-
 import router, { fetchData } from '../router/router.js';
 
+import cache from '../renderer/cache-controller.js';
 import renderer from '../renderer/renderer.js';
-import elements from './elements.js';
 
-// import {
-//   clearOutlet,
-//   appendLoadingIndicator,
-//   removeLoadingIndicator,
-// } from './utils.js';
+import elements from './elements.js';
+import { KEYS } from '../router/config.js';
 
 export async function updatePageElements() {
-  // appendLoadingIndicator();
+  elements.outlet.append(renderer.createPageLoadingIndicator());
 
-  // get contents
-  const file = router.isViewRoute
-    ? router.getPathToViewFile()
-    : router.getPathToPageFile();
-  const { error, data } = await fetchData(file);
-
-  if (error) {
-    // @todo pass error message / wrong url as params
-    console.error(`Error: ${error}`);
-    router.setLocation(router.routes.error);
-    return;
-  }
-
-  // removeLoadingIndicator();
-
-  // create section element
-  const key = router.keys[0];
-  const elt = document.createElement('section');
-  // elt.setAttribute(ATTR.SECTION_KEY, key);
+  // if (error) {
+  //   // @todo pass error message / wrong url as params
+  //   console.error(`Error: ${error}`);
+  //   router.setLocation(router.routes.error);
+  //   return;
+  // }
 
   if (router.isViewRoute) {
-    // @todo wat
-    // @todo refactor !!!
-    // @todo similar to renderContent in renderer.chat
-    // @todo move to renderer utils
-    // const clonedContentRows = createTemplateElement(data)
-    //   .content.cloneNode(true)
-    //   .children[0].content.cloneNode(true).children;
-    // for (const contentRow of clonedContentRows) {
-    //   contentRow.classList.add('row', 'content');
-    //   // renderChatTemplates(contentRow);
-    //   elt.append(contentRow);
-    // }
-  } else {
-    elt.innerHTML = data;
-  }
+    // will always be redirected from share ChatModule
+    const key = router.keys.at(-1);
+    const templateId = cache.getTemplateId([key, KEYS.SHARE]);
 
-  elements.outlet.append(elt);
+    if (cache.isCached(templateId)) {
+      console.log('loading cached', templateId);
+      return;
+    }
+
+    const template = document.createElement('template');
+
+    // @todo error handling
+    const path = router.getPathToViewFile();
+    const { error, data } = await fetchData(path);
+
+    template.innerHTML = data;
+  } else {
+    // @todo error handling
+    const path = router.getPathToPageFile();
+    const { error, data } = await fetchData(path);
+
+    elements.outlet.innerHTML = data;
+  }
 }

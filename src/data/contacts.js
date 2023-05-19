@@ -1,18 +1,20 @@
 export default [
   {
-    title: 'Geschäftsführung',
-    html: 'Gesch&auml;ftsf&uuml;hrung',
+    key: 'Geschäftsführung',
+    // html: 'Gesch&auml;ftsf&uuml;hrung',
+    description: 'Harald Lüschow',
+    phone: '000',
+    mail: 'morp',
+    page: 'gnaa',
+  },
+  {
+    key: 'Qualitätsmanagement',
+    // html: 'Qualit&auml;tsmanagement',
     mail: null,
     page: null,
   },
   {
-    title: 'Qualitätsmanagement',
-    html: 'Qualit&auml;tsmanagement',
-    mail: null,
-    page: null,
-  },
-  {
-    title: 'Bereichsleitung',
+    key: 'Bereichsleitung',
     mail: null,
     page: null,
   },

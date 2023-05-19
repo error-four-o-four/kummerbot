@@ -37,11 +37,12 @@ async function update() {
     if (router.prev && !router.prev.startsWith(router.routes[KEYS.ROOT])) {
       clearOutlet();
       renderer.initial = true;
-    }
-
-    if (router.prev && router.prev.startsWith(router.routes.about)) {
       header.link.active = false;
     }
+
+    // if (router.prev && router.prev.startsWith(router.routes.about)) {
+    //   header.link.active = false;
+    // }
 
     await updateChatElements();
   } else {
@@ -54,7 +55,7 @@ async function update() {
   if (renderer.initial) renderer.initial = false;
 
   if (
-    router.isAboutRoute &&
+    (router.isAboutRoute || router.isViewRoute) &&
     router.prev &&
     !router.prev.startsWith(router.routes.about)
   ) {

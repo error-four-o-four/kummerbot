@@ -1,3 +1,6 @@
+import { MESSAGE_TAG } from '../components/chat-message/index.js';
+import { CONTACT_TAG } from '../components/contact-item/index.js';
+
 function scrollToNextModule(element) {
   element.scrollIntoView({
     block: 'start',
@@ -69,7 +72,8 @@ const keyframesBounceIn = [
 
 const keyframeOptions = { duration: 300, easing: 'ease-out' };
 
-async function delay(ms) {
+// @todo => utils.js
+export async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -98,9 +102,21 @@ function onFadeOutFinished(element) {
 async function fadeChatMessagesIn(module) {
   const reducer = async (chain, message) => {
     await chain;
-    message.pending = true;
-    await delay(6 * message.innerText.length);
-    message.pending = false;
+
+    // ContactItem component starts to fetch data
+    // in constructor
+    // set attribute if data hasn't been loaded yet
+
+    if (message.localName === CONTACT_TAG && message.data === null) {
+      message.loading = true;
+    }
+
+    if (message.localName === MESSAGE_TAG) {
+      message.pending = true;
+      await delay(6 * message.innerText.length);
+      message.pending = false;
+    }
+
     return animateTo(
       message,
       keyframesBounceIn,
