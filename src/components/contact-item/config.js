@@ -81,12 +81,15 @@ const htmlButtons = (data) => `
   }, '')}
 </div>`;
 
+const htmlError = (data) => `
+<div class="contact-error">${data}</div>`;
+
 export const injectData = (component) => {
   const { data } = component;
   const body = component.lastElementChild;
 
   if (typeof data === 'string') {
-    body.innerHTML = data;
+    body.innerHTML = htmlError(data);
     return;
   }
 

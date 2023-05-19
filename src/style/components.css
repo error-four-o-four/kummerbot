@@ -13,6 +13,10 @@ chat-message,
 contact-item {
   margin: 0 0 1rem;
 
+  background-color: var(--fill-primary);
+  border-color: var(--fill-secondary);
+  border-width: 1px;
+  border-style: solid;
   border-radius: 0 1.25rem 1.25rem 0.875rem;
 }
 
@@ -51,13 +55,19 @@ contact-item {
         margin: 0;
       }
     }
+
+    & div.contact-error {
+      padding: 0 0.625rem 0.875rem;
+    }
   }
 
   /* @todo */
   /* missing padding when error is displayed */
 
   & div.contact-buttons {
-    border-top: 1px solid #333;
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: var(--fill-secondary);
 
     display: flex;
     align-items: center;
@@ -65,11 +75,13 @@ contact-item {
     & div.contact-button {
       flex: 1;
 
-      border-right: 1px solid #333;
+      border-right-width: 1px;
+      border-right-style: solid;
+      border-right-color: var(--fill-secondary);
       transition: background-color 300ms;
 
       &:hover {
-        background-color: #404051;
+        background-color: var(--fill-secondary);
       }
 
       & a {
@@ -116,16 +128,16 @@ contact-item[loading] {
 /* @todo colors */
 @keyframes loading {
   0% {
-    background-color: #333;
+    background-color: var(--fill-primary);
   }
   50% {
-    background-color: #333;
+    background-color: var(--fill-primary);
   }
   75% {
-    background-color: #404051;
+    background-color: var(--fill-secondary);
   }
   100% {
-    background-color: #333;
+    background-color: var(--fill-primary);
   }
 }
 
