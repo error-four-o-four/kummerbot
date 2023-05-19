@@ -1,33 +1,38 @@
+import { delay } from '../renderer/animation.js';
 let contacts;
 
-async function resolver(fn) {
+const resolver = async (resolve) => {
   console.log('resolving');
   const data = await import('./contacts.js');
-  fn(data.default);
-}
+  resolve(data.default);
+};
 
-export async function getContact(key) {
-  const filter = (item) => key === item.title;
+const resolveContact = (key) => {
+  const data = contacts.filter((item) => key === item.key)[0] || null;
+  const error = !!data ? null : 'Keine Daten vorhanden.';
+  return {
+    error,
+    data,
+  };
+};
 
+export default async (key) => {
   if (!contacts) {
-    return new Promise(resolver).then((data) => {
-      contacts = data;
-      return data.filter(filter)[0] || null;
-    });
+    await delay(5000);
+    return new Promise(resolver)
+      .then((data) => {
+        contacts = data;
+        return resolveContact(key);
+      })
+      .catch((error) => {
+        console.warn(error);
+        return {
+          error: 'An Error occured. Please try to refresh the page',
+          data: null,
+        };
+      });
+    // fetch again ??
   }
 
-  return contacts.filter(filter)[0] || null;
-}
-
-// export async function getContacts(...keys) {
-// 	const filter = item => keys.includes(item.title);
-
-// 	if (!contacts) {
-// 		return new Promise(resolver).then((data) => {
-// 			contacts = data;
-// 			return data.filter(filter);
-// 		})
-// 	}
-
-// 	return contacts.filter(filter);
-// }
+  return resolveContact(key);
+};

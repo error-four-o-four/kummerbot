@@ -31,8 +31,16 @@ export class ChatMessage extends HTMLElement {
       const anchor = this.querySelector('a');
 
       anchor.href = href;
-      anchor.innerHTML = `${href}<svg><use href="#icon-share"></use></svg>`;
-      anchor.classList.add('has-icon');
+      anchor.innerHTML = href;
+      anchor.innerHTML = `${href}<svg><use href="#icon-share-svg"></use></svg>`;
+      anchor.classList.add('has-icon', 'icon-share');
+
+      // @wat not working
+      // const svg = document.createElement('svg');
+      // svg.classList.add('inline-svg-icon')
+      // svg.innerHTML = `<use href="#icon-share-svg"></use>`
+
+      // anchor.after(svg);
     }
   }
 
@@ -43,7 +51,11 @@ export class ChatMessage extends HTMLElement {
     this.getAttribute(CUSTOM_ATTR);
   }
 
-  attributeChangedCallback(_, prev, next) {
+  attributeChangedCallback(name, prev, next) {
+    // ContactItem component extends ChatMessage
+    // which doesn't use this loading indicator
+    if (name !== CUSTOM_ATTR) return;
+
     if (prev === null && typeof next === 'string') {
       const indicator = document.createElement('span');
       indicator.id = 'message-pending-indicator';

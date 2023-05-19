@@ -68,6 +68,7 @@ export async function updateChatElements() {
     // if there isn't a rendered module
     // create a new one
     // fetch data and cache contents
+    // get data with current key of the module
     const { error, module } = await renderer.createChatModule(keys);
 
     if (error) {

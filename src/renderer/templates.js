@@ -10,7 +10,7 @@ const info = `
 <p>
   Du kannst auf den gew&uuml;nschten Kontakt klicken, um zu einem anonymen
   Kontaktformular zu gelangen oder<br />du kopierst dir die gew&uuml;nschte
-  E&dash;Mail&dash;Adresse in deine Ablage.
+  E&dash;Mail&dash;Adresse in deine Zwischenablage.
 </p>
 <p>Wer diese Ansprechpartner sind, siehst du, indem du auf den weiterführenden Link klickst.</p>`;
 

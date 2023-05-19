@@ -25,19 +25,17 @@ a {
   text-decoration: inherit;
   cursor: pointer;
 }
-
-a.has-icon {
-  position: relative;
-  padding-left: 1.5rem;
+a:visited {
+  color: var(--link-color);
 }
 
 a.has-icon svg {
-  position: absolute;
+  position: relative;
   display: inline-block;
   width: 1.375rem;
   height: 1.375rem;
-  left: 0;
-  top: 0;
+  right: -0.125rem;
+  bottom: -0.25rem;
 }
 
 html {

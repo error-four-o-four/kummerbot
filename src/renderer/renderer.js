@@ -28,7 +28,6 @@ class Renderer {
 
     const module = document.createElement(MODULE_TAG);
 
-    // get data with current key of the module
     const path = router.getPathToChatFile(keys[1]);
     const { error, data } = await fetchData(path);
 
@@ -62,6 +61,18 @@ class Renderer {
       error,
       module,
     };
+  }
+
+  createPageLoadingIndicator() {
+    const indicator = document.createElement('span');
+    indicator.id = 'page-loading-indicator';
+    indicator.innerHTML = `<svg><use xlink:href="#message-pending"></use></svg>`;
+    return indicator;
+  }
+
+  removePageLoadingIndicator() {
+    const indicator = document.getElementById('page-loading-indicator');
+    indicator.remove();
   }
 }
 
