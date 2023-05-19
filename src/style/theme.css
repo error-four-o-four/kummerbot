@@ -1,5 +1,4 @@
 :root {
-  /* accent colors */
   --rich-black: hsl(220, 40%, 12%);
   --neon-blue: hsl(233, 100%, 64%);
   --powder-blue: hsl(230, 84%, 80%);
@@ -7,7 +6,9 @@
   --oxford-blue: hsl(220, 46%, 18%);
   --lavender: hsl(230, 94%, 92%);
 
-  /* shades */
+  --prussian-blue: #213547;
+  --true-blue: hsl(210, 100%, 40%);
+
   --shade-15: hsl(240, 5%, 15%);
   --shade-23: hsl(240, 2%, 23%);
   --shade-30: hsl(0, 0%, 30%);
@@ -15,124 +16,81 @@
   --shade-76: hsl(0, 0%, 76%);
   --shade-88: hsl(0, 0%, 88%);
   --shade-92: hsl(0, 0%, 92%);
+}
 
-  /* main elements */
+/* *** main elements default: dark theme *** */
+
+:root {
   --body-fill: hsl(240, 10%, 5%);
   --body-color: hsl(0, 0%, 88%);
 
   --wrap-fill: hsl(240, 10%, 8%);
   --wrap-shadow: #000;
 
-  --header-fill: hsla(240, 2%, 23%, 0.25);
-  --header-border: var(--shade-30);
-
   --link-color: var(--powder-blue);
   --link-color-hover: var(--lavender);
-
-  --content-fill: var(--shade-15);
-  --content-border: var(--shade-23);
-
-  /* accent elements */
-  --choice-fill: var(--rich-black);
-  --choice-fill-hover: var(--oxford-blue);
-  --choice-color: var(--powder-blue);
-  --choice-color-hover: var(--lavender);
-  --choice-border: var(--powder-blue);
-  --choice-border-hover: var(--lavender);
-
-  --chosen-fill: var(--neon-blue);
-  --chosen-color: var(--shade-88);
-  --chosen-border: var(--powder-blue);
-  --chosen-btn-color: var(--shade-88);
-  --chosen-btn-color-hover: #fff;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    --prussian-blue: #213547;
-    --true-blue: hsl(210, 100%, 40%);
-
-    --body-color: var(--prussian-blue);
     --body-fill: hsl(0, 0%, 97%);
+    --body-color: var(--prussian-blue);
+
     --wrap-fill: hsl(0, 0%, 98%);
     --wrap-shadow: #999;
 
-    --header-fill: hsla(0, 0%, 96%, 0.25);
-    --header-border: var(--shade-88);
-
     --link-color: var(--true-blue);
     --link-color-hover: var(--neon-blue);
-
-    --content-fill: var(--shade-92);
-    --content-border: var(--shade-88);
-
-    --choice-fill: hsl(220, 90%, 94%);
-    --choice-fill-hover: hsl(220, 76%, 86%);
-    --choice-color: var(--true-blue);
-    --choice-color-hover: hsl(210, 100%, 32%);
-    --choice-border: var(--true-blue);
-    --choice-border-hover: hsl(210, 100%, 32%);
-
-    --chosen-fill: var(--true-blue);
-    --chosen-color: var(--shade-92);
-    --chosen-border: var(--powder-blue);
-    --chosen-btn-color: var(--shade-88);
-    --chosen-btn-color-hover: #fff;
   }
 }
 
-:root {
-  color-scheme: dark light;
-  color: var(--body-color);
-  background-color: var(--body-fill);
-}
+/* *** header *** */
 
-.app {
-  background-color: var(--wrap-fill);
-  box-shadow: 0 0 1rem var(--wrap-shadow);
-}
-
-chat-message,
-contact-item {
-  background-color: var(--content-fill);
-  border: 1px solid var(--content-border);
-}
-
-/* @todo refactor*/
-chat-link {
-  color: var(--powder-blue);
-  background: var(--rich-black);
-  border: 1px solid var(--powder-blue);
-}
-
-chat-link:not([selected]):hover {
-  color: var(--lavender);
-  background: var(--oxford-blue);
-  border-color: var(--lavender);
-}
-
-chat-link[selected] {
-  color: var(--shade-88);
-  background: var(--neon-blue);
-  border-color: var(--powder-blue);
+header {
+  --color-fill: hsla(240, 2%, 23%, 0.25);
+  --color-fill-accent: var(--shade-23);
+  --color-stroke: var(--shade-88);
+  --color-avatar: hsl(230, 88%, 72%);
+  /* fill: hsl(230, 84%, 80%); */
 }
 
 @media (prefers-color-scheme: light) {
-  chat-link {
-    color: var(--true-blue);
-    background-color: hsl(220, 90%, 94%);
-    border-color: var(--true-blue);
+  header {
+    --color-fill: hsla(0, 0%, 96%, 0.5);
+    --color-fill-accent: var(--shade-76);
+    --color-stroke: var(--oxford-blue);
+    --color-avatar: hsl(220, 46%, 18%);
   }
+}
 
-  chat-link:not([selected]):hover {
-    color: hsl(210, 100%, 32%);
-    background-color: hsl(220, 76%, 86%);
-    border-color: hsl(210, 100%, 32%);
-  }
+/* *** components *** */
 
-  chat-link[selected] {
-    color: var(--shade-92);
-    background-color: var(true-blue);
-    border-color: var(--powder-blue);
+chat-module {
+  --fill-primary: var(--shade-15);
+  --fill-secondary: var(--shade-23);
+
+  --primary-fill: var(--rich-black);
+  --primary-fill-accent: var(--oxford-blue);
+  --primary-stroke: var(--powder-blue);
+  --primary-stroke-accent: var(--lavender);
+
+  --secondary-fill: var(--neon-blue);
+  --secondary-stroke: var(--shade-88);
+  --secondary-stroke-accent: var(--powder-blue);
+}
+
+@media (prefers-color-scheme: light) {
+  chat-module {
+    --fill-primary: var(--shade-92);
+    --fill-secondary: var(--shade-76);
+
+    --primary-fill: hsl(220, 90%, 94%);
+    --primary-fill-accent: hsl(220, 76%, 86%);
+    --primary-stroke: var(--true-blue);
+    --primary-stroke-accent: hsl(210, 100%, 32%);
+
+    --secondary-fill: var(--true-blue);
+    --secondary-stroke: var(--shade-92);
+    --secondary-stroke-accent: var(--powder-blue);
   }
 }
