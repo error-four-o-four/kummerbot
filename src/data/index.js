@@ -7,22 +7,16 @@ const resolver = async (resolve) => {
   resolve(data.default);
 };
 
-const resolveContact = (key) => {
-  const data = contacts.filter((item) => key === item.key)[0] || null;
-  const error = !!data ? null : 'Keine Daten vorhanden.';
-  return {
-    error,
-    data,
-  };
-};
-
-export default async (key) => {
+export default async () => {
   if (!contacts) {
-    await delay(5000);
+    await delay(3000);
     return new Promise(resolver)
       .then((data) => {
         contacts = data;
-        return resolveContact(key);
+        return {
+          error: null,
+          data,
+        };
       })
       .catch((error) => {
         console.warn(error);
@@ -34,5 +28,5 @@ export default async (key) => {
     // fetch again ??
   }
 
-  return resolveContact(key);
+  return { error: null, data: contacts };
 };

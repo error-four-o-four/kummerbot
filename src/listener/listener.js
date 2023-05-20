@@ -1,4 +1,4 @@
-import elements from '../elements/elements.js';
+import renderer from '../renderer/renderer.js';
 import router, { KEYS } from '../router/router.js';
 
 function init() {
@@ -14,6 +14,16 @@ function init() {
 function handleKeypress(e) {}
 
 function handle(e) {
+  if (
+    e.target.localName === 'button' &&
+    e.target.classList.contains('contact-button')
+  ) {
+    console.log('@todo', e.target);
+  }
+
+  e.preventDefault();
+  console.log(e.target, router.isRouterLink(e.target));
+
   if (router.isRouterLink(e.target)) {
     //   if (key === KEYS.SHARE) {
     //     console.log(navigator.canShare);
@@ -22,7 +32,10 @@ function handle(e) {
     //   }
 
     router.handle(e);
-    elements.update();
+    renderer.update();
+
+    if (e.target.classList.contains('contact-message')) {
+    }
   }
 }
 

@@ -1,13 +1,11 @@
-import router, { fetchData } from '../router/router.js';
-
-import cache from '../renderer/cache-controller.js';
-import renderer from '../renderer/renderer.js';
-
+import router, { KEYS, fetchData } from '../router/router.js';
 import elements from './elements.js';
-import { KEYS } from '../router/config.js';
 
+import cache from './cache-controller.js';
+
+// bound to renderer
 export async function updatePageElements() {
-  elements.outlet.append(renderer.createPageLoadingIndicator());
+  elements.outlet.append(this.createPageLoadingIndicator());
 
   // if (error) {
   //   // @todo pass error message / wrong url as params

@@ -9,6 +9,8 @@
   --prussian-blue: #213547;
   --true-blue: hsl(210, 100%, 40%);
 
+  --cornflower-blue: hsl(230, 86%, 72%);
+
   --shade-15: hsl(240, 5%, 15%);
   --shade-23: hsl(240, 2%, 23%);
   --shade-30: hsl(0, 0%, 30%);
@@ -27,6 +29,7 @@
   --wrap-fill: hsl(240, 10%, 8%);
   --wrap-shadow: #000;
 
+  /* @todo */
   --link-color: var(--powder-blue);
   --link-color-hover: var(--lavender);
 }
@@ -52,6 +55,9 @@ header {
   --color-stroke: var(--shade-88);
   --color-avatar: hsl(230, 88%, 72%);
   /* fill: hsl(230, 84%, 80%); */
+
+  --link-color: var(--powder-blue);
+  --link-color-hover: var(--lavender);
 }
 
 @media (prefers-color-scheme: light) {
@@ -60,6 +66,9 @@ header {
     --color-fill-accent: var(--shade-76);
     --color-stroke: var(--oxford-blue);
     --color-avatar: hsl(220, 46%, 18%);
+
+    --link-color: var(--true-blue);
+    --link-color-hover: var(--neon-blue);
   }
 }
 
