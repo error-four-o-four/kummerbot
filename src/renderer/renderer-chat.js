@@ -1,8 +1,9 @@
 import router from '../router/router.js';
-import renderer from '../renderer/renderer.js';
-import animation from '../renderer/animation.js';
-
 import elements from './elements.js';
+
+import { MODULE_TAG } from '../components/chat-module/index.js';
+
+import animation from './animation.js';
 
 // #############################
 // @todo on first render
@@ -10,6 +11,7 @@ import elements from './elements.js';
 // @todo show app when last element was rendered
 // improves UX
 
+// bound to renderer
 // called onpopstate/onpushstate via elements.update()
 export async function updateChatElements() {
   // remove incorrect elements
@@ -23,6 +25,7 @@ export async function updateChatElements() {
     const [lastModuleIndex, filteredModules] = filterChatModules();
     const lastModule = elements.outlet.children[lastModuleIndex];
 
+    // console.log(lastModuleIndex, lastModule);
     // order matters to achieve a smooth scroll animation
 
     // make sure to update the appearance
@@ -40,7 +43,7 @@ export async function updateChatElements() {
     }
   }
 
-  if (renderer.initial) {
+  if (this.initial) {
     // console.log('initial render');
   }
 
@@ -59,7 +62,8 @@ export async function updateChatElements() {
       // if there are subsequent modules
       // make sure to update ChatLink appearance
       if (renderedModule.next !== keys[2]) renderedModule.next = keys[2];
-      // @todo renderer.initial
+      // @todo this.initial
+      // scroll to last module
       continue;
     }
 
@@ -69,9 +73,10 @@ export async function updateChatElements() {
     // create a new one
     // fetch data and cache contents
     // get data with current key of the module
-    const { error, module } = await renderer.createChatModule(keys);
+    const module = document.createElement(MODULE_TAG);
+    await module.render(keys);
 
-    if (error) {
+    if (module.key === 'error') {
       elements.outlet.append(module);
       // @todo animation
       // when error module has ChatLinks
@@ -79,24 +84,9 @@ export async function updateChatElements() {
       return;
     }
 
-    // @wat
-    // updating / setting href attributes of the children
-    // doesn't work in connectedCallback()
-    // when module is a cloned element from the cached <template>s
     elements.outlet.append(module);
 
-    // explicitly set href attributes
-    // after element was connected
-    const hrefToModule = router.getHref(keys[1]);
-    for (const link of module.links) {
-      link.href = hrefToModule;
-    }
-
-    // handled by attributeChangedCallback()
-    // updates appearance of ChatLink components
-    module.next = keys[2];
-
-    if (keys[2] !== null) continue;
+    if (module.next !== null) continue;
 
     await animation.fadeLastChatModuleIn(module);
     elements.header.setIndicatorWaiting();

@@ -1,11 +1,8 @@
-import { MODULE_TAG } from '../components/chat-module/index.js';
+import router, { KEYS } from '../router/router.js';
+import elements from './elements.js';
 
-import router, { fetchData } from '../router/router.js';
-
-import cache from './cache-controller.js';
-import templates from './templates.js';
-
-import { insertChatLinkToPreviousModule } from './renderer-utils.js';
+import { updateChatElements } from './renderer-chat.js';
+import { updatePageElements } from './renderer-page.js';
 
 class Renderer {
   constructor() {
@@ -13,54 +10,8 @@ class Renderer {
     this.transition = false;
   }
 
-  async createChatModule(keys) {
-    // when key equals KEYS.SHARE
-    // the id contains the prevKey too
-    const templateId = cache.getTemplateId(keys);
-
-    if (cache.isCached(templateId)) {
-      // clone cached template
-      return {
-        error: null,
-        module: cache.get(templateId),
-      };
-    }
-
-    const module = document.createElement(MODULE_TAG);
-
-    const path = router.getPathToChatFile(keys[1]);
-    const { error, data } = await fetchData(path);
-
-    if (error) {
-      // @todo
-      // handle / display error
-      // renderer-utils createErrorChatMessage()
-      // @consider
-      // document.createElement(ChatMessage) (?)
-      module.key = 'error';
-      module.innerHTML = templates.getErrorTemplate(error);
-
-      return {
-        error,
-        module,
-      };
-    }
-
-    module.key = keys[1];
-    module.innerHTML = data;
-
-    // @todo @consider
-    // who should be responsible
-    // renderer or component ?
-    // injectChatMessagesContents(module); // => utils.js
-    insertChatLinkToPreviousModule(module, keys[0]);
-
-    cache.set(templateId, module);
-
-    return {
-      error,
-      module,
-    };
+  clearOutlet() {
+    elements.outlet.innerHTML = '';
   }
 
   createPageLoadingIndicator() {
@@ -73,6 +24,40 @@ class Renderer {
   removePageLoadingIndicator() {
     const indicator = document.getElementById('page-loading-indicator');
     indicator.remove();
+  }
+
+  async update() {
+    this.transition = true;
+
+    if (router.isChatRoute) {
+      // clear outlet when previous route wasn't chat route
+      if (router.prev && !router.prev.startsWith(router.routes[KEYS.ROOT])) {
+        this.clearOutlet();
+        this.initial = true;
+        elements.header.link.active = false;
+      }
+
+      // if (router.prev && router.prev.startsWith(router.routes.about)) {
+      //   header.link.active = false;
+      // }
+
+      await updateChatElements.call(this);
+    } else {
+      // clear outlet by default
+      this.clearOutlet();
+      updatePageElements.call(this);
+    }
+    this.transition = false;
+
+    if (this.initial) this.initial = false;
+
+    if (
+      (router.isAboutRoute || router.isViewRoute) &&
+      router.prev &&
+      !router.prev.startsWith(router.routes.about)
+    ) {
+      elements.header.link.active = true;
+    }
   }
 }
 

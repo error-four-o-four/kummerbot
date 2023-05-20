@@ -1,32 +1,24 @@
 import { ChatMessage } from '../chat-message/component.js';
 
-import { CUSTOM_ATTR, injectData, renderHtml } from './config.js';
+import { renderHtml, injectData, renderError } from './config.js';
+
+export const CUSTOM_ATTR = {
+  KEY: 'key',
+  LOADING: 'loading',
+};
 
 export class ContactItem extends ChatMessage {
   static get observedAttributes() {
-    return [CUSTOM_ATTR.KEY];
+    return [CUSTOM_ATTR.LOADING];
   }
   constructor() {
     super();
 
-    this.data = null;
     this.key = null;
+    this.data = null;
 
-    this.key = this.getAttribute(CUSTOM_ATTR.KEY);
-    this.innerHTML = renderHtml(this.key);
-
-    const onImport = async (module) => {
-      const { error, data } = await module.default(this.key);
-
-      this.data = !!error ? error : data;
-      // @reminder
-      // also injects data to components in template container
-      injectData(this);
-
-      if (this.loading) this.loading = false;
-    };
-
-    import('../../data/index.js').then(onImport);
+    // this.key = this.getAttribute(CUSTOM_ATTR.KEY);
+    // this.innerHTML = renderHtml(this.key);
   }
 
   set loading(value) {
@@ -36,16 +28,29 @@ export class ContactItem extends ChatMessage {
     return this.hasAttribute(CUSTOM_ATTR.LOADING);
   }
 
-  // connectedCallback() {
-  // 	if (this.data !== null) {
-  // 		console.log('cloned', this.data);
-  // 		return;
-  // 	}
-  // }
+  render() {
+    this.key = this.getAttribute(CUSTOM_ATTR.KEY);
+    this.innerHTML = renderHtml(this.key);
+  }
 
-  // attributeChangedCallback(name, prev, next) {
-  // 	// ContactItem component extends ChatMessage
-  //   // which doesn't use this loading indicator
-  //   if (name !== CUSTOM_ATTR.LOADING) return;
-  // }
+  update(error, contacts) {
+    if (error) {
+      // @todo
+      renderError.call(this, error);
+      return;
+    }
+
+    const data = contacts.filter((item) => item.key === this.key)[0];
+
+    if (!data) {
+      renderError.call(this, 'Keine Daten vorhanden');
+      this.data = 'error';
+      return;
+    }
+
+    this.data = data;
+    injectData.call(this);
+
+    // const data = contacts.filter((item) => item.key === this.key)[0];
+  }
 }

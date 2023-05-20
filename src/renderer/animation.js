@@ -106,9 +106,17 @@ async function fadeChatMessagesIn(module) {
     // ContactItem component starts to fetch data
     // in constructor
     // set attribute if data hasn't been loaded yet
-
     if (message.localName === CONTACT_TAG && message.data === null) {
       message.loading = true;
+
+      animateTo(
+        message,
+        keyframesBounceIn,
+        keyframeOptions,
+        onFadeInFinished.bind(null, message)
+      );
+
+      return Promise.resolve();
     }
 
     if (message.localName === MESSAGE_TAG) {

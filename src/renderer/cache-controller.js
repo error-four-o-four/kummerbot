@@ -16,23 +16,18 @@ class Controller {
     return this.cachedIds.includes(templateId);
   }
 
-  get(templateId) {
+  clone(templateId) {
     // console.log('cloning cached', templateId);
     const cachedTemplate = this.container.children[templateId];
     return cachedTemplate.content.firstElementChild.cloneNode(true);
   }
 
   set(templateId, module) {
-    // const wrapper = document.createElement('div');
-    // wrapper.id = moduleWrapperId;
-    // wrapper.appendChild(module.cloneNode(true));
-
     const template = document.createElement('template');
     template.id = templateId;
     template.content.appendChild(module.cloneNode(true));
 
     this.cachedIds.push(templateId);
-    // this.container.appendChild(wrapper);
     this.container.appendChild(template);
   }
 

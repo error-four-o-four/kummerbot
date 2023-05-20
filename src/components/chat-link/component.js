@@ -2,36 +2,36 @@ import { KEYS } from '../../router/config.js';
 import router from '../../router/router.js';
 import templates from '../../renderer/templates.js';
 
-import { CUSTOM_ATTR, IDS, createTemplate } from './config.js';
+export const CUSTOM_ATTR = {
+  REJECTED: 'rejected',
+  SELECTED: 'selected',
+  TARGET_KEY: 'target',
+};
+
+const selector = {
+  parentLink: 'parent-link',
+  targetLink: 'target-link',
+};
+
+const getParentLinkHtml = (text) => `
+<div>
+  <a class="${selector.parentLink}">✖</a>
+  <span>${text}<span>
+</div>`;
+
+const getTargetLinkHtml = (text) => `
+<a class="${selector.targetLink}">${text}</a>`;
 
 export class ChatLink extends HTMLElement {
-  static get observedAttributes() {
-    return [CUSTOM_ATTR.SELECTED];
-  }
-
   constructor() {
     super();
 
-    // create back ChatLink component by default
-    // get default contents in constructor
-    this.keyToTarget = this.getAttribute(CUSTOM_ATTR.TARGET_KEY) || KEYS.BACK;
+    this.linkToParent = null;
+    this.linkToTarget = null;
+  }
 
-    const text = !!this.innerText
-      ? this.innerText
-      : templates.text[this.keyToTarget];
-
-    // @todo affects cached template!
-    // this.innerHTML = '';
-
-    this.attachShadow({ mode: 'open' });
-
-    const template = createTemplate(this.keyToTarget, text);
-    for (const child of template.content.children) {
-      this.shadowRoot.appendChild(child.cloneNode(true));
-    }
-
-    this.linkToParent = this.shadowRoot.getElementById(IDS.parentLink);
-    this.linkToTarget = this.shadowRoot.getElementById(IDS.targetLink);
+  get target() {
+    return this.getAttribute(CUSTOM_ATTR.TARGET_KEY);
   }
 
   set selected(value) {
@@ -77,10 +77,42 @@ export class ChatLink extends HTMLElement {
     return this.selected ? this.linkToParent.href : this.linkToTarget.href;
   }
 
-  connectedCallback() {
-    // not required
-    if (this.keyToTarget === KEYS.BACK) {
-      this.setAttribute(CUSTOM_ATTR.TARGET_KEY, this.keyToTarget);
+  render() {
+    // set by ChatModule
+    // called after constructer
+    const keyToTarget = this.getAttribute(CUSTOM_ATTR.TARGET_KEY);
+    const text = !!this.innerText
+      ? this.innerText
+      : templates.text[keyToTarget];
+    if (![KEYS.ROOT, KEYS.BACK].includes(keyToTarget)) {
+      this.innerHTML = getParentLinkHtml(text);
     }
+    this.innerHTML += getTargetLinkHtml(text);
+
+    this.linkToParent = this.querySelector('.' + selector.parentLink);
+    this.linkToTarget = this.querySelector('.' + selector.targetLink);
+  }
+
+  set(hrefToParent) {
+    const keyToTarget = this.getAttribute(CUSTOM_ATTR.TARGET_KEY);
+
+    if (keyToTarget === KEYS.ROOT) {
+      const href = router.origin + router.routes[KEYS.ROOT];
+      this.linkToTarget.href = href;
+      return;
+    }
+
+    if (keyToTarget === KEYS.BACK) {
+      const keyOfParent = hrefToParent.split('/').at(-1);
+      const indexOfTarget = router.getIndex(keyOfParent) - 1;
+      const href = router.getHref(indexOfTarget);
+      this.linkToTarget.href = href;
+      return;
+    }
+
+    // component has link to parent
+    const hrefToTarget = hrefToParent + '/' + keyToTarget;
+    this.linkToParent.href = hrefToParent;
+    this.linkToTarget.href = hrefToTarget;
   }
 }

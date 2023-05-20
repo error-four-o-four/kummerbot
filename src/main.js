@@ -6,12 +6,12 @@ import './components/chat-message/index.js';
 import './components/chat-module/index.js';
 
 import router from './router/router.js';
-import elements from './elements/elements.js';
+import renderer from './renderer/renderer.js';
 import listener from './listener/listener.js';
 
 router.update();
 
 (async () => {
-  await elements.update();
+  await renderer.update();
   listener.init();
 })();
