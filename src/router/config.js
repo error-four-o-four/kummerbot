@@ -5,22 +5,12 @@
 //     return all;
 //   }, {});
 
-export const KEYS = {
-  ROOT: 'root',
-  BACK: 'popstate',
-  RESET: 'resetstate',
-  SHARE: 'share',
-  COPY: 'copy',
-  CODE: 'code',
-  // ERROR: 'error'
-};
-
 export const routes = {
-  [KEYS.ROOT]: '/chat',
-  view: '/view',
+  home: '/chat',
   about: '/about',
-  code: '/code',
-  contact: '/contact',
+  shared: '/shared',
+  // code: '/code',
+  // contact: '/contact',
+  success: '/success',
   error: '/error',
-  // [KEYS.ERROR]: '/error',
 };

@@ -1,5 +1,9 @@
-import router, { KEYS } from '../../router/router.js';
-import templates from '../../renderer/templates.js';
+import router from '../../router/router.js';
+
+import templates, { HEADER_TMPL_KEY } from '../../renderer/templates.js';
+
+const htmlInactive = templates.html[HEADER_TMPL_KEY.aboutInactive];
+const htmlActive = templates.html[HEADER_TMPL_KEY.aboutActive];
 
 const CUSTOM_ATTR = 'active';
 
@@ -31,7 +35,7 @@ export class AboutLink extends HTMLElement {
 
     this.child = document.createElement('a');
     this.child.href = router.routes.about;
-    this.child.innerHTML = templates.text.about.inactive;
+    this.child.innerHTML = htmlInactive;
 
     this.appendChild(this.child);
 
@@ -42,12 +46,12 @@ export class AboutLink extends HTMLElement {
 
   attributeChangedCallback(_, prev, next) {
     if (prev === null && typeof next === 'string') {
-      this.child.href = router.prev ? router.prev : router.routes[KEYS.ROOT];
-      this.child.innerHTML = templates.text.about.active;
+      this.child.href = router.prev ? router.prev : router.routes.home;
+      this.child.innerHTML = htmlActive;
       return;
     }
 
     this.child.href = router.routes.about;
-    this.child.innerHTML = templates.text.about.inactive;
+    this.child.innerHTML = htmlInactive;
   }
 }

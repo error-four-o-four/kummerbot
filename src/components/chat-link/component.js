@@ -1,6 +1,5 @@
-import { KEYS } from '../../router/config.js';
 import router from '../../router/router.js';
-import templates from '../../renderer/templates.js';
+import templates, { MODULE_KEY } from '../../renderer/templates.js';
 
 export const CUSTOM_ATTR = {
   REJECTED: 'rejected',
@@ -16,7 +15,7 @@ const selector = {
 const getParentLinkHtml = (text) => `
 <div>
   <a class="${selector.parentLink}">✖</a>
-  <span>${text}<span>
+  <span>${text}</span>
 </div>`;
 
 const getTargetLinkHtml = (text) => `
@@ -25,9 +24,6 @@ const getTargetLinkHtml = (text) => `
 export class ChatLink extends HTMLElement {
   constructor() {
     super();
-
-    this.linkToParent = null;
-    this.linkToTarget = null;
   }
 
   get target() {
@@ -52,67 +48,57 @@ export class ChatLink extends HTMLElement {
     return this.hasAttribute(CUSTOM_ATTR.REJECTED);
   }
 
-  set href(hrefToParent) {
-    if (this.keyToTarget === KEYS.ROOT) {
-      const href = router.origin + router.routes[KEYS.ROOT];
-      this.linkToTarget.href = href;
-      return;
-    }
-
-    if (this.keyToTarget === KEYS.BACK) {
-      const indexOfTarget = router.getIndex(this.keyToTarget) - 1;
-      const href = router.getHref(indexOfTarget);
-      this.linkToTarget.href = href;
-      return;
-    }
-
-    // component has link to parent
-    const hrefToTarget = hrefToParent + '/' + this.keyToTarget;
-    this.linkToParent.href = hrefToParent;
-    this.linkToTarget.href = hrefToTarget;
-  }
-
-  get href() {
-    // used by router to check type of link => SPA
-    return this.selected ? this.linkToParent.href : this.linkToTarget.href;
-  }
-
   render() {
-    // set by ChatModule
-    // called after constructer
-    const keyToTarget = this.getAttribute(CUSTOM_ATTR.TARGET_KEY);
+    const keyToTarget = this.target;
     const text = !!this.innerText
       ? this.innerText
-      : templates.text[keyToTarget];
-    if (![KEYS.ROOT, KEYS.BACK].includes(keyToTarget)) {
+      : templates.html[keyToTarget];
+
+    if (![MODULE_KEY.HOME, MODULE_KEY.BACK].includes(keyToTarget)) {
       this.innerHTML = getParentLinkHtml(text);
     }
     this.innerHTML += getTargetLinkHtml(text);
-
-    this.linkToParent = this.querySelector('.' + selector.parentLink);
-    this.linkToTarget = this.querySelector('.' + selector.targetLink);
   }
 
-  set(hrefToParent) {
-    const keyToTarget = this.getAttribute(CUSTOM_ATTR.TARGET_KEY);
+  update(hrefToParent) {
+    const keyToTarget = this.target;
+    const linkToTarget = this.querySelector('.' + selector.targetLink);
 
-    if (keyToTarget === KEYS.ROOT) {
-      const href = router.origin + router.routes[KEYS.ROOT];
-      this.linkToTarget.href = href;
+    // console.log('calling update', hrefToParent, linkToTarget);
+
+    if (keyToTarget === MODULE_KEY.HOME && !linkToTarget.href) {
+      linkToTarget.href = router.origin + router.routes.home;
+      console.log('updated', MODULE_KEY.HOME, linkToTarget.href, this);
       return;
     }
 
-    if (keyToTarget === KEYS.BACK) {
+    // if (keyToTarget === TARGET_KEY.BACK && router.isSharedRoute) {
+    //   this.linkToTarget.href = router.prev ? router.prev : router.origin + router.routes.home;
+    //   return;
+    // }
+
+    // @todo
+    if (keyToTarget === MODULE_KEY.BACK) {
       const keyOfParent = hrefToParent.split('/').at(-1);
       const indexOfTarget = router.getIndex(keyOfParent) - 1;
-      const href = router.getHref(indexOfTarget);
-      this.linkToTarget.href = href;
+      linkToTarget.href = router.getHref(indexOfTarget);
+      // console.log('updated', TARGET_KEY.BACK, linkToTarget.href, this);
       return;
     }
 
     // component has link to parent
-    const hrefToTarget = hrefToParent + '/' + keyToTarget;
-    this.linkToParent.href = hrefToParent;
-    this.linkToTarget.href = hrefToTarget;
+    const linkToParent = this.querySelector('.' + selector.parentLink);
+
+    // @todo
+    if (linkToParent === null) {
+      // console.warn('Missed a case in `update(hrefToParent)`', this);
+      return;
+    }
+
+    if (linkToParent.href === hrefToParent) return;
+
+    linkToParent.href = hrefToParent;
+    linkToTarget.href = hrefToParent + '/' + keyToTarget;
+    // console.log('updated', this.target, linkToTarget.href, this);
   }
 }

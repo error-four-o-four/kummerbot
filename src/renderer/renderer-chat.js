@@ -1,49 +1,16 @@
 import router from '../router/router.js';
-import elements from './elements.js';
 
 import { MODULE_TAG } from '../components/chat-module/index.js';
 
 import animation from './animation.js';
+import elements from './elements.js';
 
-// #############################
-// @todo on first render
-// @todo hide app
-// @todo show app when last element was rendered
-// improves UX
+import { state } from './utils.js';
 
-// bound to renderer
-// called onpopstate/onpushstate via elements.update()
 export async function updateChatElements() {
-  // remove incorrect elements
-  // when back or reset button was clicked
-  // router.keys.length will always be greater than 0
-  // if this conitidion is fullfilled
-  // elements.outlet.children.length will always be greater than 1
-  if (elements.outlet.children.length > router.keys.length) {
-    // get the last correct ChatModule component
-    // and the modules which will be removed
-    const [lastModuleIndex, filteredModules] = filterChatModules();
-    const lastModule = elements.outlet.children[lastModuleIndex];
+  await removeElements();
 
-    // console.log(lastModuleIndex, lastModule);
-    // order matters to achieve a smooth scroll animation
-
-    // make sure to update the appearance
-    // set rejected / selected attributes
-    animation.hideChatLinks(lastModule);
-    lastModule.next = null;
-
-    animation.scrollToPreviousModule(lastModule);
-    animation.fadeFilteredChatModulesOut(filteredModules);
-    await animation.fadeChatLinksIn(lastModule);
-
-    // remove elements after animation
-    for (const module of filteredModules) {
-      module.remove();
-    }
-  }
-
-  if (this.initial) {
+  if (state.initial) {
     // console.log('initial render');
   }
 
@@ -62,7 +29,7 @@ export async function updateChatElements() {
       // if there are subsequent modules
       // make sure to update ChatLink appearance
       if (renderedModule.next !== keys[2]) renderedModule.next = keys[2];
-      // @todo this.initial
+      // @todo state.initial
       // scroll to last module
       continue;
     }
@@ -79,17 +46,52 @@ export async function updateChatElements() {
     if (module.key === 'error') {
       elements.outlet.append(module);
       // @todo animation
+      // @todo error template
       // when error module has ChatLinks
       animation.scrollToNextModule(module);
       return;
     }
 
+    // updates elements
+    // when module was cloned from cache
+    // and prev route wasn't the same
     elements.outlet.append(module);
 
     if (module.next !== null) continue;
 
     await animation.fadeLastChatModuleIn(module);
     elements.header.setIndicatorWaiting();
+  }
+}
+
+async function removeElements() {
+  // remove incorrect elements
+  // when back or reset button was clicked
+  // router.keys.length will always be greater than 0
+  // if this conitidion is fullfilled
+  // elements.outlet.children.length will always be greater than 1
+  if (elements.outlet.children.length <= router.keys.length) return;
+
+  // get the last correct ChatModule component
+  // and the modules which will be removed
+  const [lastModuleIndex, filteredModules] = filterChatModules();
+  const lastModule = elements.outlet.children[lastModuleIndex];
+
+  // console.log(lastModuleIndex, lastModule);
+  // order matters to achieve a smooth scroll animation
+
+  // make sure to update the appearance
+  // set rejected / selected attributes
+  animation.hideChatLinks(lastModule);
+  lastModule.next = null;
+
+  animation.scrollToPreviousModule(lastModule);
+  animation.fadeFilteredChatModulesOut(filteredModules);
+  await animation.fadeChatLinksIn(lastModule);
+
+  // remove elements after animation
+  for (const module of filteredModules) {
+    module.remove();
   }
 }
 

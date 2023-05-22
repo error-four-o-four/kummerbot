@@ -43,8 +43,23 @@ contact-item {
   }
 }
 
+@keyframes loading {
+  0% {
+    background-color: var(--fill-primary);
+  }
+  50% {
+    background-color: var(--fill-primary);
+  }
+  75% {
+    background-color: var(--fill-secondary);
+  }
+  100% {
+    background-color: var(--fill-primary);
+  }
+}
+
 contact-item div.contact-body {
-  & div.contact-description {
+  & div.contact-description-wrap {
     padding: 0 0.625rem 1.125rem;
 
     & p {

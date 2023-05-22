@@ -1,6 +1,7 @@
 import { MESSAGE_TAG } from '../components/chat-message/index.js';
 import { CONTACT_TAG } from '../components/contact-item/index.js';
 
+// @todo scroll-padding
 function scrollToNextModule(element) {
   element.scrollIntoView({
     block: 'start',
@@ -77,6 +78,13 @@ export async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// @todo
+// finish all animations when router.path.length > router.prev.length
+// cancel all animations on history.back()
+
+// @todo
+// deactive animations in /shared route when router.hasChanged
+
 function hideChatMessages(module) {
   for (const message of module.messages) {
     message.classList.add('is-transparent');
@@ -106,15 +114,15 @@ async function fadeChatMessagesIn(module) {
     // ContactItem component starts to fetch data
     // in constructor
     // set attribute if data hasn't been loaded yet
-    if (message.localName === CONTACT_TAG && message.data === null) {
-      message.loading = true;
-
+    if (message.localName === CONTACT_TAG) {
       animateTo(
         message,
         keyframesBounceIn,
         keyframeOptions,
         onFadeInFinished.bind(null, message)
       );
+
+      if (!message.loaded) message.loading = true;
 
       return Promise.resolve();
     }

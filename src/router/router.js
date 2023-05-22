@@ -1,8 +1,9 @@
+import { MODULE_KEY } from '../renderer/templates.js';
 import { LINK_ATTR, LINK_TAG } from '../components/chat-link/index.js';
-import { KEYS, routes } from './config.js';
+
+import { routes } from './config.js';
 import { validate } from './utils.js';
 
-export { KEYS } from './config.js';
 export { fetchData } from './utils.js';
 
 class Router {
@@ -17,26 +18,28 @@ class Router {
     // on page load
     // redirect from '/' to '/chat'
     if (window.history.state === null && window.location.pathname === '/') {
-      const href = this.origin + routes.root;
+      const href = this.origin + routes.home;
       window.history.replaceState({ href }, '', href);
     }
   }
 
   get isChatRoute() {
-    return this.path.startsWith(routes[KEYS.ROOT]);
+    return this.path.startsWith(routes.home);
   }
-
-  get isViewRoute() {
-    return this.path.startsWith(routes.view);
-  }
-
   get isAboutRoute() {
     return this.path.startsWith(routes.about);
   }
+  get isSharedRoute() {
+    return this.path.startsWith(routes.shared);
+  }
+  get isPageRoute() {
+    return !this.isChatRoute && !this.isSharedRoute;
+  }
 
-  // isCurrentRoute(route) {
-  //   return this.path.startsWith(route);
-  // }
+  get hasChanged() {
+    const key = this.path.substring(1).split('/')[0];
+    return !(this.prev && this.prev.includes(key));
+  }
 
   isRouterLink(link) {
     const href = link.href;
@@ -49,32 +52,44 @@ class Router {
 
   getHref(value) {
     const index = typeof value === 'string' ? this.getIndex(value) : value;
-    return this.origin + '/' + this.keys.slice(0, index + 1).join('/');
+    const path = this.keys.slice(0, index + 1).join('/');
+    const shared = this.isSharedRoute
+      ? '/' +
+        this.path
+          .split('/')
+          .filter((key) => !!key)
+          .slice(0, 2)
+          .join('/')
+      : '';
+
+    return this.origin + shared + '/' + path;
   }
 
-  getHrefToViewPage = () => {
-    const key = this.keys.at(-2);
-    const index = this.keys.indexOf(key);
+  getShareUrl = () => {
+    const indexShareKey = this.keys.indexOf(MODULE_KEY.SHARE);
+    const moduleKey = this.keys.at(indexShareKey - 1);
+    const index = this.keys.indexOf(moduleKey);
 
-    return `${this.origin}${routes.view}/${index}/${key}`;
+    return `${this.origin}${routes.shared}/${index}/${moduleKey}`;
   };
 
-  getPathToChatFile(key) {
-    const step = this.keys.indexOf(key);
+  getFileUrl(key) {
+    // @reminder
+    //  errors are handled by renderer
+    if (this.isPageRoute) {
+      return '/views' + this.path + '.html';
+    }
 
-    // return first section or share section
-    return step === 0 || key === KEYS.SHARE
-      ? '/views/chat/' + key + '.html'
-      : '/views/chat-' + step + '/' + key + '.html';
-  }
+    const file = key + '.html';
+    const index = this.isSharedRoute
+      ? this.path.split('/').filter((item) => !!item && !isNaN(item))[0]
+      : this.keys.indexOf(key);
 
-  getPathToPageFile() {
-    return '/views' + this.path + '.html';
-  }
-
-  getPathToViewFile() {
-    const [, index, file] = this.keys;
-    return '/views/chat-' + index + '/' + file + '.html';
+    return (this.isChatRoute && index === 0) ||
+      key === MODULE_KEY.SHARE ||
+      key === MODULE_KEY.MESSAGE
+      ? '/views/chat/' + file
+      : '/views/chat-' + index + '/' + file;
   }
 
   setLocation(route) {
@@ -133,12 +148,15 @@ class Router {
 
     this.prev = this.path;
     this.path = pathname;
-    this.keys = [
+
+    const keys = [
       ...this.path
         .substring(1)
         .split('/')
         .filter((key) => key),
     ];
+
+    this.keys = this.isSharedRoute ? keys.slice(2) : keys;
   }
 }
 

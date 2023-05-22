@@ -1,10 +1,20 @@
 import renderer from '../renderer/renderer.js';
-import router, { KEYS } from '../router/router.js';
+import { state } from '../renderer/utils.js';
+
+import router from '../router/router.js';
 
 function init() {
-  window.addEventListener('popstate', (_) => {
+  window.addEventListener('popstate', (e) => {
+    // @todo
+    // console.log('animating:', state.transition);
+    // abort all animations
+    if (state.transition) {
+      e.preventDefault();
+      return;
+    }
+
     router.update();
-    elements.update();
+    renderer.update();
   });
 
   window.addEventListener('keypress', handleKeypress);
@@ -16,13 +26,20 @@ function handleKeypress(e) {}
 function handle(e) {
   if (
     e.target.localName === 'button' &&
-    e.target.classList.contains('contact-button')
+    e.target.classList.contains('btn-copy')
   ) {
     console.log('@todo', e.target);
   }
 
-  e.preventDefault();
-  console.log(e.target, router.isRouterLink(e.target));
+  if (
+    e.target.localName === 'button' &&
+    e.target.classList.contains('btn-share')
+  ) {
+    console.log('@todo', e.target);
+  }
+
+  // e.preventDefault();
+  // console.log('clicked', router.isRouterLink(e.target));
 
   if (router.isRouterLink(e.target)) {
     //   if (key === KEYS.SHARE) {
