@@ -26,22 +26,6 @@ chat-message {
   padding: 0 0.625rem;
 }
 
-/* @todo colors */
-@keyframes loading {
-  0% {
-    background-color: var(--fill-primary);
-  }
-  50% {
-    background-color: var(--fill-primary);
-  }
-  75% {
-    background-color: var(--fill-secondary);
-  }
-  100% {
-    background-color: var(--fill-primary);
-  }
-}
-
 #message-pending-indicator {
   width: fit-content;
   padding: 0 0 0 0.625rem;

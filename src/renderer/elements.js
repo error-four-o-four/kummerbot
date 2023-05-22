@@ -1,8 +1,9 @@
-import templates from './templates.js';
-
-const { pending, waiting } = templates.text.indicator;
+import templates, { HEADER_TMPL_KEY } from './templates.js';
 
 const app = document.getElementById('app');
+
+const htmlPending = templates.html[HEADER_TMPL_KEY.indicatorPending];
+const htmlWaiting = templates.html[HEADER_TMPL_KEY.indicatorWaiting];
 
 const header = {
   elt: document.querySelector('header'),
@@ -10,11 +11,11 @@ const header = {
   span: document.getElementById('status-indicator'),
   link: document.querySelector('about-link'),
   setIndicatorPending() {
-    this.span.innerText = pending;
+    this.span.innerText = htmlPending;
     this.elt.classList.add('pending');
   },
   setIndicatorWaiting() {
-    this.span.innerText = waiting;
+    this.span.innerText = htmlWaiting;
     this.elt.classList.remove('pending');
   },
 };

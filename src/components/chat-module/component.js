@@ -1,12 +1,12 @@
+import templates, { MESSAGE_TMPL_KEY } from '../../renderer/templates.js';
+import router from '../../router/router.js';
+
 import { MESSAGE_TAG } from '../chat-message/index.js';
 import { CONTACT_TAG } from '../contact-item/index.js';
 import { LINK_TAG } from '../chat-link/index.js';
 
-import cache from '../../renderer/cache-controller.js';
-import templates from '../../renderer/templates.js';
-import router, { fetchData } from '../../router/router.js';
-
-import { renderData } from './config.js';
+import { createModuleFragment } from './render.js';
+import { setAttribute, getData, injectContactsData } from './utils.js';
 
 const CUSTOM_ATTR = {
   KEY: 'key',
@@ -17,23 +17,24 @@ export class ChatModule extends HTMLElement {
   static get observedAttributes() {
     return [CUSTOM_ATTR.NEXT];
   }
-  static setter(inst, attr, value) {
-    !!value ? inst.setAttribute(attr, value) : inst.removeAttribute(attr);
-  }
 
   constructor() {
     super();
+
+    this._href = null;
   }
 
+  // Setters and Getters
+
   set key(value) {
-    ChatModule.setter(this, CUSTOM_ATTR.KEY, value);
+    setAttribute(this, CUSTOM_ATTR.KEY, value);
   }
   get key() {
     return this.getAttribute(CUSTOM_ATTR.KEY);
   }
 
   set next(value) {
-    ChatModule.setter(this, CUSTOM_ATTR.NEXT, value);
+    setAttribute(this, CUSTOM_ATTR.NEXT, value);
   }
   get next() {
     return this.getAttribute(CUSTOM_ATTR.NEXT);
@@ -42,77 +43,55 @@ export class ChatModule extends HTMLElement {
   get messages() {
     return [...this.querySelectorAll(`${MESSAGE_TAG}, ${CONTACT_TAG}`)];
   }
-
+  get contacts() {
+    return [...this.querySelectorAll(CONTACT_TAG)];
+  }
   get links() {
     return [...this.querySelectorAll(LINK_TAG)];
   }
 
+  // methods
+
   async render(keys) {
-    const [prevKey, moduleKey, nextKey] = keys;
+    const [prevKey, componentKey, nextKey] = keys;
+    this._href = router.getHref(componentKey);
 
-    // when key equals KEYS.SHARE
+    // when key equals TARGTE_KEY.SHARE
     // the id contains the prevKey too
-    const templateId = cache.getTemplateId(keys);
+    const templateId = templates.hash(componentKey);
 
-    if (cache.isCached(templateId)) {
-      const cloned = cache.clone(templateId);
-      this.append(...cloned.children);
-      // @todo seems hacky
-      this.querySelectorAll(CONTACT_TAG).forEach(
-        (child) => (child.loading = false)
-      );
-
-      this.key = moduleKey;
-      if (nextKey) {
-        this.next = nextKey;
-      }
-      return;
-    }
-
-    const path = router.getPathToChatFile(moduleKey);
-    const { error, data } = await fetchData(path);
+    // fetch data or get cached data
+    const { error, data, wasCached } = await getData(templateId, componentKey);
 
     if (error) {
-      // @todo
-      // handle / display error
-      // renderer-utils createErrorChatMessage()
-      // @consider
-      // document.createElement(ChatMessage) (?)
+      // @todo error template
+      const element = document.createElement(MESSAGE_TAG);
+      element.setAttribute(MESSAGE_TMPL_KEY.ERROR, '');
+      element.render();
       this.key = 'error';
-      this.innerHTML = templates.getErrorTemplate(error);
 
       return;
     }
 
-    const moduleHref = router.getHref(moduleKey);
+    this.append(
+      createModuleFragment(data, wasCached, prevKey, componentKey, this._href)
+    );
 
-    this.key = moduleKey;
-    this.append(renderData(data, moduleHref, prevKey));
+    this.key = componentKey;
+    this.next = nextKey;
 
-    const contacts = [...this.querySelectorAll(CONTACT_TAG)];
-    // fetch contacts data
-    if (contacts.length > 0) {
-      import('../../data/index.js').then(async (module) => {
-        contacts.forEach((contact) => {
-          if (!contact.data) contact.loading = true;
-        });
+    // console.log('module', this.key, this._href);
 
-        // @todo error handling
-        const { error, data } = await module.default();
-        contacts.forEach((contact) => {
-          contact.update(error, data);
-          contact.loading = false;
-        });
+    if (wasCached) return;
 
-        cache.set(templateId, this);
-      });
-    } else {
-      cache.set(templateId, this);
+    if (this.contacts.length === 0) {
+      templates.set(templateId, this);
+      return;
     }
 
-    if (nextKey) {
-      this.next = nextKey;
-    }
+    injectContactsData(this.contacts, this._href).then(() => {
+      templates.set(templateId, this);
+    });
   }
 
   attributeChangedCallback(name, _, next) {

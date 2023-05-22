@@ -1,29 +1,55 @@
-import templates, { TMPL_ATTR } from '../../renderer/templates.js';
-import router from '../../router/router.js';
+import templates, { MESSAGE_TMPL_KEY } from '../../renderer/templates.js';
 
-// used to handle animation
-const CUSTOM_ATTR = 'pending';
+// used to handle animation and render templates
+export const CUSTOM_ATTR = {
+  PENDING: 'pending',
+};
 
 export class ChatMessage extends HTMLElement {
   static get observedAttributes() {
-    return [CUSTOM_ATTR];
+    return [CUSTOM_ATTR.PENDING];
   }
 
   constructor() {
     super();
   }
 
+  render() {
+    const id = Object.values(MESSAGE_TMPL_KEY).reduce(
+      (result, current) =>
+        !!result ? result : this.hasAttribute(current) ? current : undefined,
+      undefined
+    );
+
+    if (!id) return;
+
+    this.innerHTML = templates.html[id];
+
+    // this.innerHTML = Object.values(TMPL_KEY).reduce(
+    //   (html, key) =>
+    //     html ? html : this.hasAttribute(key) ? templates.html[key] : undefined,
+    //   undefined
+    // );
+
+    // for (const { name } of this.attributes) {
+    //   if (!(name in templates.html)) continue;
+
+    //   this.innerHTML = templates.html[name];
+    //   break;
+    // }
+  }
+
   set pending(value) {
-    this.toggleAttribute(CUSTOM_ATTR, !!value);
+    this.toggleAttribute(CUSTOM_ATTR.PENDING, !!value);
   }
   get pending() {
-    this.getAttribute(CUSTOM_ATTR);
+    this.getAttribute(CUSTOM_ATTR.PENDING);
   }
 
   attributeChangedCallback(name, prev, next) {
     // ContactItem component extends ChatMessage
     // which doesn't use this loading indicator
-    if (name !== CUSTOM_ATTR) return;
+    if (name !== CUSTOM_ATTR.PENDING) return;
 
     if (prev === null && typeof next === 'string') {
       const indicator = document.createElement('span');
@@ -35,31 +61,5 @@ export class ChatMessage extends HTMLElement {
 
     // guard case necessary ?
     this.previousElementSibling.remove();
-  }
-
-  render() {
-    if (this.hasAttribute(TMPL_ATTR.INFO)) {
-      this.innerHTML = templates[TMPL_ATTR.INFO];
-      return;
-    }
-
-    if (this.hasAttribute(TMPL_ATTR.SHARE)) {
-      const href = router.getHrefToViewPage();
-      const anchor = this.querySelector('a');
-
-      anchor.href = href;
-      anchor.innerHTML = href;
-      anchor.innerHTML = `${href}<svg><use href="#icon-share-svg"></use></svg>`;
-      anchor.classList.add('has-icon', 'icon-share');
-
-      // @wat not working
-      // const svg = document.createElement('svg');
-      // svg.classList.add('inline-svg-icon')
-      // svg.innerHTML = `<use href="#icon-share-svg"></use>`
-
-      // anchor.after(svg);
-
-      return;
-    }
   }
 }

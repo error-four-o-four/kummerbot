@@ -45,7 +45,8 @@ a:hover {
 }
 
 /* @todo */
-a.has-icon svg {
+a.has-icon svg,
+button.has-icon svg {
   position: relative;
   display: inline-block;
   width: 1.375rem;

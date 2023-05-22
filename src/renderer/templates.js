@@ -1,49 +1,76 @@
-import { KEYS } from '../router/router.js';
+import text from '../templates.html?raw';
 
-export const TMPL_ATTR = {
-  SHARE: 'inject-share-link',
-  INFO: 'contacts-info',
-  LIST: 'contacts-list',
+// const data = await fetch('/views/templates.html');
+// const text = await data.text();
+
+const parser = new DOMParser();
+const templates = [...parser.parseFromString(text, 'text/html').head.children];
+
+const wrap = document.getElementById('templates-container');
+wrap.append(...templates.slice(9));
+
+// used as ChatLink 'target' attribute value
+export const MODULE_KEY = {
+  HOME: 'home', // has to be key of /chat route
+  BACK: 'back',
+  SHARE: 'share',
+  MESSAGE: 'message',
+  CAPTCHA: undefined,
+  SUCCESS: undefined,
 };
 
-const info = `
-<p>
-  Du kannst auf den gew&uuml;nschten Kontakt klicken, um zu einem anonymen
-  Kontaktformular zu gelangen oder<br />du kopierst dir die gew&uuml;nschte
-  E&dash;Mail&dash;Adresse in deine Zwischenablage.
-</p>
-<p>Wer diese Ansprechpartner sind, siehst du, indem du auf den weiterführenden Link klickst.</p>`;
-
-const code = ``;
-
-const displayedText = {
-  [KEYS.BACK]: 'Ich m&ouml;chte einen Schritt zur&uuml;ck',
-  [KEYS.ROOT]: 'Ich m&ouml;chte zur&uuml;ck zum Anfang',
-  [KEYS.SHARE]: 'Ich m&ouml;chte diese Informationen teilen',
-  [KEYS.COPY]: 'Ich m&ouml;chte den Link in der Zwischenablage speichern.',
-  [KEYS.CODE]: 'Bitte erstelle mir einen QRCode.',
-  indicator: {
-    pending: 'Schreibt ...',
-    waiting: 'Online',
-  },
-  about: {
-    inactive: 'Details',
-    active: 'zur&uuml;ck',
-  },
+// @todo refactor
+export const HEADER_TMPL_KEY = {
+  indicatorPending: templates[0].id,
+  indicatorWaiting: templates[1].id,
+  aboutInactive: templates[2].id,
+  aboutActive: templates[3].id,
 };
 
-function getErrorTemplate(error) {
-  console.log(error);
-  return `
-<chat-message>
-	<p>$&#x26A0; Da hat etwas nicht funktioniert ...</p>
-  <p>Hier erscheint eine Fehlermeldung</p>
-  <p>Und hier ist der Link zur <a>Startseite</a>
-</chat-message>`;
-}
+export const MESSAGE_TMPL_KEY = {
+  CONTACTS: templates[7].id,
+  ERROR: templates[8].id,
+};
+// static contents
+const html = {
+  // Header
+  [HEADER_TMPL_KEY.indicatorPending]: templates[0].innerHTML,
+  [HEADER_TMPL_KEY.indicatorWaiting]: templates[1].innerHTML,
+  [HEADER_TMPL_KEY.aboutInactive]: templates[2].innerHTML,
+  [HEADER_TMPL_KEY.aboutActive]: templates[3].innerHTML,
+  // ChatLink
+  [MODULE_KEY.HOME]: templates[4].innerHTML,
+  [MODULE_KEY.BACK]: templates[5].innerHTML,
+  [MODULE_KEY.SHARE]: templates[6].innerHTML,
+  // ChatMessage
+  [MESSAGE_TMPL_KEY.CONTACTS]: templates[7].innerHTML,
+  [MESSAGE_TMPL_KEY.ERROR]: templates[8].innerHTML,
+};
+
+// dynamic contents
+const cachedIds = [templates[9].id, templates[10].id];
 
 export default {
-  text: displayedText,
-  [TMPL_ATTR.INFO]: info,
-  getErrorTemplate,
+  wrap,
+  html,
+  hash(key) {
+    // matches template ids
+    // tmpl-module-share
+    // tmpl-module-message => send message
+    return ['tmpl-module', key].join('-');
+  },
+  isCached(id) {
+    return cachedIds.includes(id);
+  },
+  get(id) {
+    return wrap.children[id];
+  },
+  set(id, component) {
+    const template = document.createElement('template');
+    template.id = id;
+    template.innerHTML = component.innerHTML;
+
+    wrap.appendChild(template);
+    cachedIds.push(id);
+  },
 };

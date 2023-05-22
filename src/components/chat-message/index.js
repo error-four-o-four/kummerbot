@@ -7,3 +7,5 @@ if (!window.customElements.get(CUSTOM_TAG)) {
 }
 
 export { CUSTOM_TAG as MESSAGE_TAG };
+
+export { CUSTOM_ATTR as MESSAGE_ATTR } from './component.js';

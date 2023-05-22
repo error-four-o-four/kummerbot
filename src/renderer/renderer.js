@@ -1,64 +1,39 @@
-import router, { KEYS } from '../router/router.js';
+import router from '../router/router.js';
 import elements from './elements.js';
 
-import { updateChatElements } from './renderer-chat.js';
 import { updatePageElements } from './renderer-page.js';
+import { updateChatElements } from './renderer-chat.js';
 
-class Renderer {
-  constructor() {
-    this.initial = true;
-    this.transition = false;
+import { state, clearOutlet } from './utils.js';
+
+async function update() {
+  // clear outlet when previous route wasn't chat route
+  if (router.hasChanged) {
+    clearOutlet();
+    state.initial = true;
+    elements.header.link.active = router.isAboutRoute;
   }
 
-  clearOutlet() {
-    elements.outlet.innerHTML = '';
+  // @todo on first render
+  // @todo hide app
+  // @todo show app when last element was rendered
+  // improves UX
+
+  // prevent clicking transparent elements
+  state.transition = true;
+
+  if (router.isChatRoute || router.isSharedRoute) {
+    await updateChatElements();
+  } else {
+    await updatePageElements();
   }
 
-  createPageLoadingIndicator() {
-    const indicator = document.createElement('span');
-    indicator.id = 'page-loading-indicator';
-    indicator.innerHTML = `<svg><use xlink:href="#message-pending"></use></svg>`;
-    return indicator;
-  }
+  state.transition = false;
 
-  removePageLoadingIndicator() {
-    const indicator = document.getElementById('page-loading-indicator');
-    indicator.remove();
-  }
-
-  async update() {
-    this.transition = true;
-
-    if (router.isChatRoute) {
-      // clear outlet when previous route wasn't chat route
-      if (router.prev && !router.prev.startsWith(router.routes[KEYS.ROOT])) {
-        this.clearOutlet();
-        this.initial = true;
-        elements.header.link.active = false;
-      }
-
-      // if (router.prev && router.prev.startsWith(router.routes.about)) {
-      //   header.link.active = false;
-      // }
-
-      await updateChatElements.call(this);
-    } else {
-      // clear outlet by default
-      this.clearOutlet();
-      updatePageElements.call(this);
-    }
-    this.transition = false;
-
-    if (this.initial) this.initial = false;
-
-    if (
-      (router.isAboutRoute || router.isViewRoute) &&
-      router.prev &&
-      !router.prev.startsWith(router.routes.about)
-    ) {
-      elements.header.link.active = true;
-    }
-  }
+  if (state.initial) state.initial = false;
 }
 
-export default new Renderer();
+export default {
+  state,
+  update,
+};
