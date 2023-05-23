@@ -1,11 +1,14 @@
-import router from '../../router/router.js';
-
-import { isMobileDevice } from '../../renderer/utils.js';
+// import { isMobileDevice } from '../../renderer/utils.js';
 
 import { MODULE_KEY } from '../../renderer/templates.js';
 import { MESSAGE_TAG, MESSAGE_ATTR } from '../chat-message/index.js';
 import { CONTACT_TAG, CONTACT_ATTR } from '../contact-item/index.js';
 import { LINK_TAG, LINK_ATTR } from '../chat-link/index.js';
+
+import router from '../../router/router.js';
+import elements from '../../elements/elements.js';
+
+import formHandler from '../../listener/form-handler.js';
 
 export const createModuleFragment = (input, wasCached, prev, key, href) => {
   const output = new DocumentFragment();
@@ -44,6 +47,9 @@ export const createModuleFragment = (input, wasCached, prev, key, href) => {
       continue;
     }
 
+    // @todo
+    // CONTACT && !loaded && nextKey
+
     // ChatLink depends on href of ChatModule
     if (element.localName === LINK_TAG) {
       element.update(href);
@@ -51,6 +57,8 @@ export const createModuleFragment = (input, wasCached, prev, key, href) => {
   }
 
   if (key === MODULE_KEY.SHARE) insertShareLink(output);
+
+  if (key === MODULE_KEY.MESSAGE) insertCaptcha(output);
 
   insertChatLinks(output, prev, key, href);
   removeChatLinks(output, prev, key, href);
@@ -182,7 +190,17 @@ function insertShareLink(output) {
   // type="button"
   // >URL Teilen<svg><use href="#icon-share-svg"></use></svg></button>`;
 
-  const element = output
-    .querySelectorAll(MESSAGE_TAG)[1]
-    .append(paraLink, paraBtns);
+  output.querySelectorAll(MESSAGE_TAG)[1].append(paraLink, paraBtns);
+}
+
+function insertCaptcha(output) {
+  const numA = Math.floor(5 + Math.random() * 9);
+  const numB = Math.floor(1 + Math.random() * 9);
+
+  formHandler.captcha = numA + numB;
+
+  const para = document.createElement('p');
+  para.innerHTML = `${numA} + ${numB} = ${elements.form.createCaptchaHtml()}`;
+
+  output.querySelector(MESSAGE_TAG).append(para);
 }

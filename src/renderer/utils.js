@@ -1,4 +1,4 @@
-import elements from './elements.js';
+import elements from '../elements/elements.js';
 
 // const supportsTouchEvents = () => window && "ontouchstart" in window;
 

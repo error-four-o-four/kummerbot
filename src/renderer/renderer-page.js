@@ -1,5 +1,5 @@
 import router, { fetchData } from '../router/router.js';
-import elements from './elements.js';
+import elements from '../elements/elements.js';
 
 import { createLoadingIndicator } from './utils.js';
 

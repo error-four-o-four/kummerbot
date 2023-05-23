@@ -1,7 +1,7 @@
 import { MODULE_KEY } from '../../renderer/templates.js';
 import { isMobileDevice } from '../../renderer/utils.js';
 
-const eltSelector = {
+export const eltSelector = {
   wrapDescr: 'contact-description-wrap',
   description: 'contact-description',
   page: 'contact-description-page',
@@ -27,7 +27,7 @@ const eltHtml = {
   </p>`,
 };
 
-const btnSelector = {
+export const btnSelector = {
   message: 'contact-btn-message',
   mail: 'contact-btn-mail',
   phone: 'contact-btn-phone',

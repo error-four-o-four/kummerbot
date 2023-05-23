@@ -98,9 +98,11 @@ class Router {
     // const e = new Event('route');
     // e.preventDefault();
 
-    // const href = this.root + route;
-    // window.history.replaceState({ href }, '', href);
-    window.location.replace(route);
+    const href = this.origin + route;
+
+    console.log(href);
+    window.history.replaceState({ href }, '', href);
+    // window.location.replace(route);
     this.update();
   }
 
@@ -108,16 +110,6 @@ class Router {
     // called on event
     // adds a history state
     e.preventDefault();
-
-    // @todo doublecheck
-    if (
-      e.target.localName === LINK_TAG &&
-      e.target.hasAttribute(LINK_ATTR.SELECTED) &&
-      e.composedPath()[0].localName === 'span'
-    ) {
-      console.log('nop');
-      return;
-    }
 
     const { href } = e.target;
     window.history.pushState({ href }, '', href);
@@ -140,6 +132,9 @@ class Router {
     if (!validate(pathname)) {
       pathname = routes.error;
     }
+
+    // @todo
+    // validate footer.email.value is set
 
     if (pathname !== window.location.pathname) {
       const href = this.origin + pathname;

@@ -15,8 +15,7 @@ export const MODULE_KEY = {
   BACK: 'back',
   SHARE: 'share',
   MESSAGE: 'message',
-  CAPTCHA: undefined,
-  SUCCESS: undefined,
+  PROCESSED: 'processed',
 };
 
 // @todo refactor
@@ -48,7 +47,7 @@ const html = {
 };
 
 // dynamic contents
-const cachedIds = [templates[9].id, templates[10].id];
+const cachedIds = [templates[9].id, templates[10].id, templates[11].id];
 
 export default {
   wrap,
