@@ -77,7 +77,7 @@ export class ChatLink extends HTMLElement {
     //   return;
     // }
 
-    // @todo
+    // @todo update condition
     if (keyToTarget === MODULE_KEY.BACK) {
       const keyOfParent = hrefToParent.split('/').at(-1);
       const indexOfTarget = router.getIndex(keyOfParent) - 1;

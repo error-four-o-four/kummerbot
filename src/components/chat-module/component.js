@@ -64,7 +64,7 @@ export class ChatModule extends HTMLElement {
     const { error, data, wasCached } = await getData(templateId, componentKey);
 
     if (error) {
-      // @todo error template
+      // @todo pass error message as argument
       const element = document.createElement(MESSAGE_TAG);
       element.setAttribute(MESSAGE_TMPL_KEY.ERROR, '');
       element.render();
