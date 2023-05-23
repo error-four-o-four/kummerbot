@@ -17,7 +17,6 @@ export function handleButtonEvents(e) {
   }
 }
 
-// @todo
 // button.addEventListener('click', (e) => {
 //   const input = document.createElement('input');
 //   input.style.display = 'none';
