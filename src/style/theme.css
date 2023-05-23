@@ -29,6 +29,9 @@
   --wrap-fill: hsl(240, 10%, 8%);
   --wrap-shadow: #000;
 
+  --fill-primary: var(--shade-15);
+  --fill-secondary: var(--shade-23);
+
   /* @todo */
   --link-color: var(--powder-blue);
   --link-color-hover: var(--lavender);
@@ -41,6 +44,9 @@
 
     --wrap-fill: hsl(0, 0%, 98%);
     --wrap-shadow: #999;
+
+    --fill-primary: var(--shade-92);
+    --fill-secondary: var(--shade-76);
 
     --link-color: var(--true-blue);
     --link-color-hover: var(--neon-blue);
@@ -75,9 +81,6 @@ header {
 /* *** components *** */
 
 chat-module {
-  --fill-primary: var(--shade-15);
-  --fill-secondary: var(--shade-23);
-
   --primary-fill: var(--rich-black);
   --primary-fill-accent: var(--oxford-blue);
   --primary-stroke: var(--powder-blue);
@@ -90,9 +93,6 @@ chat-module {
 
 @media (prefers-color-scheme: light) {
   chat-module {
-    --fill-primary: var(--shade-92);
-    --fill-secondary: var(--shade-76);
-
     --primary-fill: hsl(220, 90%, 94%);
     --primary-fill-accent: hsl(220, 76%, 86%);
     --primary-stroke: var(--true-blue);

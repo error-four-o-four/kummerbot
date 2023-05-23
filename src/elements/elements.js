@@ -1,9 +1,13 @@
-import templates, { HEADER_TMPL_KEY } from './templates.js';
+import templates, { HEADER_TMPL_KEY } from '../renderer/templates.js';
+
+import form from './form.js';
 
 const app = document.getElementById('app');
 
 const htmlPending = templates.html[HEADER_TMPL_KEY.indicatorPending];
 const htmlWaiting = templates.html[HEADER_TMPL_KEY.indicatorWaiting];
+
+const classIndicator = 'pending';
 
 const header = {
   elt: document.querySelector('header'),
@@ -12,11 +16,11 @@ const header = {
   link: document.querySelector('about-link'),
   setIndicatorPending() {
     this.span.innerText = htmlPending;
-    this.elt.classList.add('pending');
+    this.elt.classList.add(classIndicator);
   },
   setIndicatorWaiting() {
     this.span.innerText = htmlWaiting;
-    this.elt.classList.remove('pending');
+    this.elt.classList.remove(classIndicator);
   },
 };
 
@@ -26,4 +30,5 @@ export default {
   app,
   header,
   outlet,
+  form,
 };

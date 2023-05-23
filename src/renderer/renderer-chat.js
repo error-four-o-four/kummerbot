@@ -3,9 +3,10 @@ import router from '../router/router.js';
 import { MODULE_TAG } from '../components/chat-module/index.js';
 
 import animation from './animation.js';
-import elements from './elements.js';
+import elements from '../elements/elements.js';
 
 import { state } from './utils.js';
+// import { MODULE_KEY } from './templates.js';
 
 export async function updateChatElements() {
   await removeElements();
@@ -70,7 +71,7 @@ async function removeElements() {
   // router.keys.length will always be greater than 0
   // if this conitidion is fullfilled
   // elements.outlet.children.length will always be greater than 1
-  if (elements.outlet.children.length <= router.keys.length) return;
+  if (elements.outlet.children.length < router.keys.length) return;
 
   // get the last correct ChatModule component
   // and the modules which will be removed
