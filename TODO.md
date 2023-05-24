@@ -68,7 +68,7 @@
 - [x] fadeIn
 - [x] fadeOut
 - [x] ~~calculate scrollTop instead of using scrollIntoView bc header overlaps section when section height is greater than 100 vh~~ smooth scroll
-- [ ] add css attribute 'scroll-padding' [@](src/renderer/animation.js#4)
+- [x] add css attribute 'scroll-padding' [@](src/renderer/animation.js#4)
 - [x] move all fade animations to removeChatModules()
 - [ ] [initialRender](src/renderer/renderer-chat.js#33)
 - [x] pending indicator

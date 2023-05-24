@@ -49,7 +49,7 @@ export async function updateChatElements() {
       // @todo animation
       // @todo error template
       // when error module has ChatLinks
-      animation.scrollToNextModule(module);
+      animation.scrollToChatModule(module);
       return;
     }
 
@@ -86,7 +86,7 @@ async function removeElements() {
   animation.hideChatLinks(lastModule);
   lastModule.next = null;
 
-  animation.scrollToPreviousModule(lastModule);
+  animation.scrollToChatModule(lastModule);
   animation.fadeFilteredChatModulesOut(filteredModules);
   await animation.fadeChatLinksIn(lastModule);
 

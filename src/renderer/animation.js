@@ -1,18 +1,9 @@
 import { MESSAGE_TAG } from '../components/chat-message/index.js';
 import { CONTACT_TAG } from '../components/contact-item/index.js';
 
-// @todo scroll-padding
-function scrollToNextModule(element) {
+function scrollToChatModule(element) {
   element.scrollIntoView({
     block: 'start',
-    inline: 'nearest',
-    behavior: 'smooth',
-  });
-}
-
-function scrollToPreviousModule(elements) {
-  elements.scrollIntoView({
-    block: 'end',
     inline: 'nearest',
     behavior: 'smooth',
   });
@@ -160,7 +151,7 @@ async function fadeChatLinksIn(module) {
 async function fadeLastChatModuleIn(module) {
   hideChatMessages(module);
   hideChatLinks(module);
-  scrollToNextModule(module);
+  scrollToChatModule(module);
 
   await fadeChatMessagesIn(module);
   await fadeChatLinksIn(module);
@@ -187,8 +178,7 @@ async function fadeFilteredChatModulesOut(modules) {
 }
 
 export default {
-  scrollToNextModule,
-  scrollToPreviousModule,
+  scrollToChatModule,
   hideChatLinks,
   fadeChatLinksIn,
   fadeLastChatModuleIn,
