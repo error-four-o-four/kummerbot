@@ -1,11 +1,10 @@
 chat-module {
   display: flex;
   flex-direction: column;
-  padding: 1rem 0 0;
+  padding: 0.5rem 0 1rem;
 
   &:last-of-type {
-    /* min-height: 50vh; */
-    min-height: calc(100vh - 8rem);
+    min-height: calc(100vh - var(--scroll-padding, 72px));
   }
 }
 

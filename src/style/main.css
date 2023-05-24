@@ -67,6 +67,8 @@ a.has-icon-before svg {
 
 html {
   overflow-y: scroll;
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--scroll-padding, 72px);
 }
 
 body {
@@ -83,7 +85,6 @@ body {
 
 .app {
   max-width: 720px;
-  min-height: 100vh;
   margin: 0 auto;
   padding: 0;
 
@@ -92,7 +93,7 @@ body {
 }
 
 main {
-  padding: 2rem 1rem 2rem;
+  padding: 0.5rem 1rem 2rem;
   z-index: 10;
   /* prevent overlap on bounceIn animation */
 }
