@@ -8,8 +8,8 @@
 - [ ] shared
 
   - [x] load 'message-tmpl-contacts-info' in /shared route when it's the landing page view
-  - [ ] remove attribute class 'is-transparent' from ContactItem when redirected from /chat or clean attributes _before_ (?) caching awaited/promised ContacItem components
-  - [ ] remove all needless elements (e.g. span#message-pending-indicator) _before_ caching promised ContactItem components
+  - [x] remove attribute class 'is-transparent' from ContactItem when redirected from /chat or clean attributes _before_ (?) caching awaited/promised ContacItem components
+  - [x] remove all needless elements (e.g. span#message-pending-indicator) _before_ caching promised ContactItem components
 
 - [x] send user to a new route to send a message and when the message was send. Implies to remove 'renderer-page.js' and use the custom component ChatModule in every route: /chat, /shared, /message, /processed (or url param) and /about.
 
