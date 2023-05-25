@@ -4,6 +4,7 @@ import router from '../../router/router.js';
 import templates from '../../templates/templates.js';
 
 import { TARGET_VAL } from '../components.js';
+import { createShareLinkHtml } from './utils.js';
 
 export class ChatMessage extends HTMLElement {
   static get observedAttributes() {
@@ -25,18 +26,25 @@ export class ChatMessage extends HTMLElement {
       return;
     }
 
-    // if (!moduleWasCached && moduleKey !== TARGET_VAL.SHARE) {
-    // }
+    if (moduleKey === TARGET_VAL.SHARE) {
+      const href = router.getShareUrl();
+      // createLink
+      if (!moduleWasCached) {
+        this.innerHTML += createShareLinkHtml(href);
+        // console.log('created share link');
+        return;
+      }
 
-    if (!moduleWasCached && moduleKey === TARGET_VAL.SHARE) {
-      // @todo compare links ???
-      console.log('create share link');
-      return;
-    }
+      const anchor = this.querySelector('a');
 
-    if (moduleWasCached && moduleKey === TARGET_VAL.SHARE) {
-      // @todo compare links ???
-      console.log('update share link');
+      if (anchor.href === href) return;
+
+      this.querySelectorAll('button').forEach((button) =>
+        button.setAttribute('value', href)
+      );
+      anchor.href = href;
+      anchor.innerText = href;
+      // console.log('updated share link');
       return;
     }
   }

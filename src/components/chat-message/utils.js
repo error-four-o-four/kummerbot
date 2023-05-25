@@ -1,36 +1,30 @@
+import { isMobileDevice } from '../../renderer/utils.js';
+
 import elements from '../../elements/elements.js';
 import formHandler from '../../listener/form-handler.js';
 
 import { MESSAGE_TAG } from '../components.js';
 
-export function insertShareLink(output) {
-  // @todo
-  // check if sharelink exists beforehand
-
-  const href = router.getShareUrl();
-  const paraLink = document.createElement('p');
-  paraLink.innerHTML = `
-  <a href="${href}">${href}</a>`;
-
-  const paraBtns = document.createElement('p');
-  paraBtns.innerHTML = `
-  <button
-  class="btn-copy has-icon"
-  value="${href}"
-  type="button"
-  >URL Kopieren<svg><use href="#icon-copy-svg"></use></svg></button>`;
-
-  // if (isMobileDevice) {
-  // }
-
-  // paraBtns.innerHTML += `
-  // <button
-  // class="btn-share has-icon"
-  // value="${href}"
-  // type="button"
-  // >URL Teilen<svg><use href="#icon-share-svg"></use></svg></button>`;
-
-  output.querySelectorAll(MESSAGE_TAG)[1].append(paraLink, paraBtns);
+export function createShareLinkHtml(href) {
+  return `
+  <p><a href="${href}">${href}</a></p>
+  <p>
+    <button
+      class="btn-copy has-icon"
+      value="${href}"
+      type="button"
+      >URL Kopieren<svg><use href="#icon-copy-svg"></use></svg></button>
+    ${
+      isMobileDevice
+        ? `
+      <button
+        class="btn-share has-icon"
+        value="${href}"
+        type="button"
+        >URL Teilen<svg><use href="#icon-share-svg"></use></svg></button>`
+        : ''
+    }
+  </p>`;
 }
 
 export function insertCaptcha(output) {
