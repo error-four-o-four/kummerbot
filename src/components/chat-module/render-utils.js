@@ -13,15 +13,8 @@ import {
   TARGET_VAL,
 } from '../components.js';
 
-export const createModuleFragment = (input, properties) => {
+export const createModuleFragment = (parsedElements, properties) => {
   const output = new DocumentFragment();
-  // @doublecheck cached template
-  // const parsedElements = !wasCached
-  //   ? parseInput(input)
-  //   : [...input.content.children];
-  const parsedElements = parseInput(input);
-
-  // const template = wasCached ? input : createTemplate(input);
   console.log(
     `rendering a ${properties.wasCached ? 'cached' : 'new'} ${
       properties.moduleKey
@@ -29,18 +22,12 @@ export const createModuleFragment = (input, properties) => {
   );
 
   for (const parsedElement of parsedElements) {
-    // store attached static templates of .html-file
-    if (parsedElement.localName === 'template') {
-      templates.set(parsedElement);
-      continue;
-    }
-
     // message-pending indicator
-    if (
-      ![MESSAGE_TAG, CONTACT_TAG, LINK_TAG].includes(parsedElement.localName)
-    ) {
-      continue;
-    }
+    // if (
+    //   ![MESSAGE_TAG, CONTACT_TAG, LINK_TAG].includes(parsedElement.localName)
+    // ) {
+    //   continue;
+    // }
 
     const element = constructElement(parsedElement, properties);
     output.appendChild(element);
@@ -51,19 +38,8 @@ export const createModuleFragment = (input, properties) => {
   return output;
 };
 
-function parseInput(string) {
-  const parser = new DOMParser();
-  const parsed = parser.parseFromString(string, 'text/html');
-  return [...parsed.body.children];
-}
-
-// function createTemplate(html) {
-//   const template = document.createElement('template');
-//   template.innerHTML = html;
-//   return template;
-// }
-
 function constructElement(template, properties) {
+  // @todo clean before caching
   // needless attributes
   const obsoletAttributes = [
     MESSAGE_ATTR.PENDING,
