@@ -1,6 +1,8 @@
 import elements from '../../elements/elements.js';
 import formHandler from '../../listener/form-handler.js';
 
+import { MESSAGE_TAG } from '../components.js';
+
 export function insertShareLink(output) {
   // @todo
   // check if sharelink exists beforehand

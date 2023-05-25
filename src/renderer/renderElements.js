@@ -1,10 +1,9 @@
 import router from '../router/router.js';
-
-import { MODULE_TAG } from '../components/chat-module/index.js';
-
-import animation from './animation.js';
 import elements from '../elements/elements.js';
 
+import { MODULE_TAG } from '../components/components.js';
+
+import animation from './animation.js';
 import { state, createLoadingIndicator } from './utils.js';
 
 export async function renderElements() {

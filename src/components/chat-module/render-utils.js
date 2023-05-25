@@ -1,12 +1,17 @@
 // import { isMobileDevice } from '../../renderer/utils.js';
 
 import templates from '../../templates/templates.js';
-import { MESSAGE_TAG, MESSAGE_ATTR } from '../chat-message/index.js';
-import { CONTACT_TAG, CONTACT_ATTR } from '../contact-item/index.js';
-import { LINK_TAG, LINK_ATTR } from '../chat-link/index.js';
-import { TARGET_VAL } from '../chat-link/utils.js';
-
 import router from '../../router/router.js';
+
+import {
+  MESSAGE_TAG,
+  MESSAGE_ATTR,
+  CONTACT_TAG,
+  CONTACT_ATTR,
+  LINK_TAG,
+  LINK_ATTR,
+  TARGET_VAL,
+} from '../components.js';
 
 export const createModuleFragment = (input, properties) => {
   const output = new DocumentFragment();

@@ -1,13 +1,9 @@
+import { CUSTOM_ATTR } from './config.js';
+
 import router from '../../router/router.js';
 import templates from '../../templates/templates.js';
 
-import { TARGET_VAL } from '../chat-link/utils.js';
-
-// used to handle animation
-// ChatModule.createModuleFragment() calls render-utils.js
-export const CUSTOM_ATTR = {
-  PENDING: 'pending',
-};
+import { TARGET_VAL } from '../components.js';
 
 export class ChatMessage extends HTMLElement {
   static get observedAttributes() {

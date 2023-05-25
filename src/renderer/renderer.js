@@ -1,13 +1,12 @@
 import router from '../router/router.js';
 import elements from '../elements/elements.js';
+import formHandler from '../listener/form-handler.js';
+
+import { TARGET_VAL } from '../components/components.js';
 
 import { removeElements, removeAllEllements } from './removeElements.js';
 import { renderElements, renderElementDirectly } from './renderElements.js';
-
-import { TARGET_VAL } from '../components/chat-link/utils.js';
 import { state } from './utils.js';
-
-import formHandler from '../listener/form-handler.js';
 
 export default {
   state,

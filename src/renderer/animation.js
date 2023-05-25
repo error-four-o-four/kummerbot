@@ -1,5 +1,4 @@
-import { MESSAGE_TAG } from '../components/chat-message/index.js';
-import { CONTACT_TAG } from '../components/contact-item/index.js';
+import { MESSAGE_TAG, CONTACT_TAG } from '../components/components.js';
 
 function scrollToChatModule(element) {
   element.scrollIntoView({
