@@ -1,13 +1,10 @@
 // import { isMobileDevice } from '../../renderer/utils.js';
 
-import templates from '../../templates/templates.js';
 import router from '../../router/router.js';
 
 import {
   MESSAGE_TAG,
-  MESSAGE_ATTR,
   CONTACT_TAG,
-  CONTACT_ATTR,
   LINK_TAG,
   LINK_ATTR,
   TARGET_VAL,
@@ -16,19 +13,12 @@ import {
 export const createModuleFragment = (parsedElements, properties) => {
   const output = new DocumentFragment();
   console.log(
-    `rendering a ${properties.wasCached ? 'cached' : 'new'} ${
+    `rendering a ${properties.moduleWasCached ? 'cached' : 'new'} ${
       properties.moduleKey
     } ChatModule`
   );
 
   for (const parsedElement of parsedElements) {
-    // message-pending indicator
-    // if (
-    //   ![MESSAGE_TAG, CONTACT_TAG, LINK_TAG].includes(parsedElement.localName)
-    // ) {
-    //   continue;
-    // }
-
     const element = constructElement(parsedElement, properties);
     output.appendChild(element);
   }
@@ -39,32 +29,17 @@ export const createModuleFragment = (parsedElements, properties) => {
 };
 
 function constructElement(template, properties) {
-  // @todo clean before caching
-  // needless attributes
-  const obsoletAttributes = [
-    MESSAGE_ATTR.PENDING,
-    CONTACT_ATTR.LOADING,
-    LINK_ATTR.REJECTED,
-    LINK_ATTR.SELECTED,
-  ];
-  // needless classes
-  const obsoleteClasses = ['is-transparent'];
-
   // @reminder
   // call constructor to make setters, getters and methods available
   // although constructor resets properties
+  // @gnaaaaaa
+  // element.cloneNode(true) of a connected element calls constructor!!!
   // const test = template.cloneNode(true);
   // console.log(test.target, test.getAttribute(LINK_ATTR.TARGET_KEY));
   const element = document.createElement(template.localName);
 
-  // skip needless classes
-  for (const item of obsoleteClasses) {
-    element.classList.remove(item);
-  }
-
   // skip needless attributes
   for (const { name, value } of template.attributes) {
-    if (obsoletAttributes.includes(name)) continue;
     element.setAttribute(name, value);
   }
 
@@ -89,7 +64,6 @@ function constructElement(template, properties) {
     element.render();
   }
 
-  console.log(element);
   element.update(properties.moduleHref);
   return element;
 }
@@ -156,3 +130,13 @@ function constructChatLink(value, href) {
   element.update(href);
   return element;
 }
+
+// @todo
+// <template id="message-tmpl-error">
+//   <p>$&#x26A0; Da hat etwas nicht funktioniert ...</p>
+//   <!-- <p>Hier erscheint eine Fehlermeldung</p> -->
+//   <p>
+//     Versuche die Seite neu zu laden oder<br />
+//     kehre zur&uuml;ck zur <a>Startseite</a>
+//   </p>
+// </template>

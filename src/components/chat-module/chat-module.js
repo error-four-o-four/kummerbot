@@ -101,7 +101,7 @@ export class ChatModule extends HTMLElement {
 
     // @todo this._href should be obsolete
     injectContactsData(this.contacts).then(() => {
-      templates.set(this, templateId);
+      templates.set(this, templateId, true);
     });
   }
 

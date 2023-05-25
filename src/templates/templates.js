@@ -1,21 +1,43 @@
-// const data = await fetch('/views/templates.html');
-// const text = await data.text();
+import {
+  CONTACT_ATTR,
+  CONTACT_TAG,
+  LINK_ATTR,
+  LINK_TAG,
+  MESSAGE_ATTR,
+  MESSAGE_TAG,
+} from '../components/components.js';
 
-// const parser = new DOMParser();
-// const templates = [...parser.parseFromString(text, 'text/html').head.children];
+export const cleanAttributes = (clone) => {
+  const obsoleteClasses = ['is-transparent'];
+  const obsoleteAttributes = [
+    MESSAGE_ATTR.PENDING,
+    CONTACT_ATTR.LOADING,
+    LINK_ATTR.REJECTED,
+    LINK_ATTR.SELECTED,
+  ];
+
+  for (let i = clone.content.children.length - 1; i >= 0; i -= 1) {
+    const element = clone.content.children[i];
+
+    // skip needless elements
+    if (![MESSAGE_TAG, CONTACT_TAG, LINK_TAG].includes(element.localName)) {
+      element.remove();
+      continue;
+    }
+    // skip needless attributes
+    for (const item of obsoleteClasses) {
+      element.classList.remove(item);
+    }
+    // skip needless classes
+    for (const name of obsoleteAttributes) {
+      element.removeAttribute(name);
+    }
+  }
+
+  return clone;
+};
 
 const wrap = document.getElementById('templates-container');
-// wrap.append(...templates.slice(9));
-
-// @todo
-// <template id="message-tmpl-error">
-//   <p>$&#x26A0; Da hat etwas nicht funktioniert ...</p>
-//   <!-- <p>Hier erscheint eine Fehlermeldung</p> -->
-//   <p>
-//     Versuche die Seite neu zu laden oder<br />
-//     kehre zur&uuml;ck zur <a>Startseite</a>
-//   </p>
-// </template>
 
 // dynamic contents
 const cachedModuleIds = [];
@@ -38,7 +60,7 @@ export default {
     // @todo meh
     return wrap.children[id].innerHTML;
   },
-  set(element, id = null) {
+  set(element, id = null, clean = false) {
     // store all children of a ChatModule
     // in a template element
     // and append it to the wrapper
@@ -47,6 +69,8 @@ export default {
       const template = document.createElement('template');
       template.id = id;
       template.innerHTML = element.innerHTML;
+
+      clean && cleanAttributes(template);
 
       wrap.appendChild(template);
       cachedModuleIds.push(id);

@@ -1,6 +1,14 @@
 import router, { fetchData } from '../../router/router.js';
 import templates from '../../templates/templates.js';
-import { MESSAGE_TAG } from '../components.js';
+
+import {
+  MESSAGE_TAG,
+  MESSAGE_ATTR,
+  CONTACT_ATTR,
+  LINK_ATTR,
+  CONTACT_TAG,
+  LINK_TAG,
+} from '../components.js';
 
 // @todo
 export const setAttribute = (component, attr, value) =>
@@ -41,19 +49,6 @@ const filterTemplateElements = (data) => {
 
   return elements;
 };
-
-// const filterTemplateElements = (data) =>
-//   parseModuleData(data).filter((element) => {
-//     if (
-//       element.localName === 'template' &&
-//       !templates.isCachedMessage(element.id)
-//     ) {
-//       templates.set(element);
-//       // moduleElements
-//       return false;
-//     }
-//     return true;
-//   });
 
 const hasDynamicElements = (elements) => {
   return elements

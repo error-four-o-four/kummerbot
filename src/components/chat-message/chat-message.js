@@ -69,7 +69,8 @@ export class ChatMessage extends HTMLElement {
       return;
     }
 
-    // guard case necessary ?
-    this.previousElementSibling.remove();
+    if (this.previousElementSibling.id === 'message-pending-indicator') {
+      this.previousElementSibling.remove();
+    }
   }
 }
