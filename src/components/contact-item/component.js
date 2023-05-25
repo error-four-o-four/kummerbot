@@ -1,10 +1,6 @@
 import { ChatMessage } from '../chat-message/component.js';
 
-import {
-  createFragment,
-  injectContactData,
-  updateMessageButton,
-} from './utils.js';
+import { createFragment, injectContactData } from './utils.js';
 
 export const CUSTOM_ATTR = {
   KEY: 'key',
@@ -60,7 +56,7 @@ export class ContactItem extends ChatMessage {
     this.lastElementChild.firstElementChild.innerText = message;
   }
 
-  injectData(error, contacts, moduleHref) {
+  injectData(error, contacts) {
     if (error) {
       this.renderError(error);
       this.error = true;
@@ -74,14 +70,9 @@ export class ContactItem extends ChatMessage {
       this.error = true;
     } else {
       injectContactData(this, contactData);
-      updateMessageButton(this, moduleHref);
     }
 
     this.loading = false;
     this.loaded = true;
-  }
-
-  update(moduleHref) {
-    updateMessageButton(this, moduleHref);
   }
 }

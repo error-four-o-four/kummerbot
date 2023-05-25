@@ -1,19 +1,63 @@
 import router from '../router/router.js';
 import elements from '../elements/elements.js';
 
-import { updatePageElements } from './renderer-page.js';
-import { updateChatElements } from './renderer-chat.js';
+import { removeElements, removeAllEllements } from './removeElements.js';
+import { renderElements, renderElementDirectly } from './renderElements.js';
 
-import { state, clearOutlet } from './utils.js';
-import { MODULE_KEY } from './templates.js';
+import { TARGET_VAL } from '../components/chat-link/utils.js';
+import { state } from './utils.js';
+
 import formHandler from '../listener/form-handler.js';
 
+export default {
+  state,
+  update,
+};
+
 async function update() {
-  // clear outlet when previous route wasn't chat route
-  if (router.hasChanged) {
-    clearOutlet();
+  const [
+    routeHasChanged,
+    routeIsChatRoute,
+    routeIsAboutRoute,
+    routeIsShareRoute,
+    routeIsContactRoute,
+  ] = [
+    'hasChanged',
+    'isChatRoute',
+    'isAboutRoute',
+    'isShareRoute',
+    'isContactRoute',
+  ].map((getter) => router[getter]);
+
+  if (routeHasChanged) {
     state.initial = true;
+    // @consider => elements/header.js
+    // @todo convert into function
     elements.header.link.active = router.isAboutRoute;
+  }
+
+  // @todo catch /contact route errors in router
+  // it should not be possible to render /contact/captcha/delivered initially
+  // /contact route without a set value 'requiredEmailValue'
+  // should redirect to /error route
+  if (routeHasChanged && !routeIsContactRoute) {
+    elements.form.visible && elements.form.hide();
+  }
+
+  if (!routeHasChanged && routeIsContactRoute) {
+    // redirect /contact/captcha => /contact/delivered
+    // @consider display subitted message in captcha ChatModule
+    // remove listener if captcha input exists before it's removed
+    formHandler.captcha && formHandler.removeCaptchaListener();
+  }
+
+  // to prevent clicking transparent elements
+  state.transition = true;
+
+  if (routeHasChanged) {
+    await removeAllEllements();
+  } else {
+    await removeElements();
   }
 
   // @todo on first render
@@ -21,31 +65,32 @@ async function update() {
   // @todo show app when last element was rendered
   // improves UX
 
-  // prevent clicking transparent elements
-  state.transition = true;
-
-  if (router.isChatRoute || router.isSharedRoute) {
-    if (!router.keys.includes(MODULE_KEY.MESSAGE) && elements.form.visible) {
-      elements.form.hide();
-      formHandler.removeCaptchaListener();
+  if (routeHasChanged) {
+    // adds a delayed chained animation
+    if (routeIsChatRoute || routeIsContactRoute) {
+      await renderElements();
     }
 
-    await updateChatElements();
+    // without delayed chained animation
+    if (routeIsShareRoute || routeIsAboutRoute) {
+      await renderElementDirectly();
+    }
 
-    if (router.keys.includes(MODULE_KEY.MESSAGE) && !elements.form.visible) {
-      elements.form.show();
-      formHandler.addCaptchaListener();
+    // show contact form
+    if (routeIsContactRoute) {
+      !elements.form.visible && elements.form.show();
     }
   } else {
-    await updatePageElements();
+    // affects only /chat and /contact route
+    await renderElements();
+
+    // add Listener
+    if (routeIsContactRoute && router.keys.includes(TARGET_VAL.CAPTCHA)) {
+      formHandler.addCaptchaListener();
+    }
   }
 
   state.transition = false;
 
   if (state.initial) state.initial = false;
 }
-
-export default {
-  state,
-  update,
-};

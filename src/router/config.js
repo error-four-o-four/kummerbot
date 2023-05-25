@@ -8,9 +8,7 @@
 export const routes = {
   home: '/chat',
   about: '/about',
-  shared: '/shared',
-  // code: '/code',
-  // contact: '/contact',
-  success: '/success',
+  shared: '/display',
+  contact: '/contact',
   error: '/error',
 };

@@ -1,5 +1,5 @@
-import { MODULE_KEY } from '../../renderer/templates.js';
 import { isMobileDevice } from '../../renderer/utils.js';
+import router from '../../router/router.js';
 
 export const eltSelector = {
   wrapDescr: 'contact-description-wrap',
@@ -94,9 +94,10 @@ export function injectContactData(component, contactData) {
 
   // @todo refactor
   const btnMessage = wrapBtns.querySelector('.' + btnSelector.message);
-  btnMessage &&
-    contactData[btnDataKeys.message] &&
+  if (btnMessage && contactData[btnDataKeys.message]) {
     btnMessage.setAttribute('value', contactData[btnDataKeys.message]);
+    btnMessage.setAttribute('href', router.routes.contact);
+  }
 
   const btnMail = wrapBtns.querySelector('.' + btnSelector.mail);
   btnMail &&
@@ -107,15 +108,4 @@ export function injectContactData(component, contactData) {
   btnPhone &&
     contactData[btnDataKeys.phone] &&
     btnPhone.setAttribute('value', contactData[btnDataKeys.phone]);
-}
-
-export function updateMessageButton(component, componentHref) {
-  const btn = component.querySelector('.' + btnSelector.message);
-  const href = componentHref + '/' + MODULE_KEY.MESSAGE;
-
-  if (btn.href === href) return;
-
-  console.log('updated', componentHref, href, btn);
-
-  btn && btn.setAttribute('href', href);
 }

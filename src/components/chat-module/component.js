@@ -1,11 +1,12 @@
-import templates, { MESSAGE_TMPL_KEY } from '../../renderer/templates.js';
+import templates from '../../templates/templates.js';
 import router from '../../router/router.js';
 
 import { MESSAGE_TAG } from '../chat-message/index.js';
 import { CONTACT_TAG } from '../contact-item/index.js';
 import { LINK_TAG } from '../chat-link/index.js';
+import { TARGET_VAL } from '../chat-link/utils.js';
 
-import { createModuleFragment } from './render.js';
+import { createModuleFragment } from './render-utils.js';
 import { setAttribute, getData, injectContactsData } from './utils.js';
 
 const CUSTOM_ATTR = {
@@ -20,8 +21,6 @@ export class ChatModule extends HTMLElement {
 
   constructor() {
     super();
-
-    this._href = null;
   }
 
   // Setters and Getters
@@ -53,44 +52,51 @@ export class ChatModule extends HTMLElement {
   // methods
 
   async render(keys) {
-    const [prevKey, componentKey, nextKey] = keys;
-    this._href = router.getHref(componentKey);
+    const [prevKey, moduleKey, nextKey] = keys;
+    const moduleHref = router.getHref(moduleKey);
 
     // when key equals TARGTE_KEY.SHARE
     // the id contains the prevKey too
-    const templateId = templates.hash(componentKey);
+    const templateId = templates.hash(moduleKey);
 
     // fetch data or get cached data
-    const { error, data, wasCached } = await getData(templateId, componentKey);
+    const { error, data, moduleWasCached } = await getData(
+      templateId,
+      moduleKey
+    );
 
     if (error) {
       // @todo pass error message as argument
       const element = document.createElement(MESSAGE_TAG);
-      element.setAttribute(MESSAGE_TMPL_KEY.ERROR, '');
-      element.render();
-      this.key = 'error';
+      // element.setAttribute(MESSAGE_TMPL_KEY.ERROR, '');
+      // element.render();
+      element.innerHTML = '<p>@todo Fehler</p>';
+      this.key = TARGET_VAL.ERROR;
 
       return;
     }
 
-    this.append(
-      createModuleFragment(data, wasCached, prevKey, componentKey, this._href)
-    );
+    const properties = {
+      prevKey,
+      moduleKey,
+      moduleHref,
+      moduleWasCached,
+    };
+    this.append(createModuleFragment(data, properties));
 
-    this.key = componentKey;
+    this.key = moduleKey;
     this.next = nextKey;
 
-    // console.log('module', this.key, this._href);
-
-    if (wasCached) return;
+    if (moduleWasCached) return;
 
     if (this.contacts.length === 0) {
-      templates.set(templateId, this);
+      templates.set(this, templateId);
       return;
     }
 
-    injectContactsData(this.contacts, this._href).then(() => {
-      templates.set(templateId, this);
+    // @todo this._href should be obsolete
+    injectContactsData(this.contacts).then(() => {
+      templates.set(this, templateId);
     });
   }
 

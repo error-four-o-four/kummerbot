@@ -1,11 +1,9 @@
-import templates, { HEADER_TMPL_KEY } from '../renderer/templates.js';
-
 import form from './form.js';
 
 const app = document.getElementById('app');
 
-const htmlPending = templates.html[HEADER_TMPL_KEY.indicatorPending];
-const htmlWaiting = templates.html[HEADER_TMPL_KEY.indicatorWaiting];
+const htmlPending = 'Schreibt ...';
+const htmlWaiting = 'Online';
 
 const classIndicator = 'pending';
 
