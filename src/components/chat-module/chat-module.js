@@ -1,18 +1,17 @@
+import { CUSTOM_ATTR } from './config.js';
+
 import templates from '../../templates/templates.js';
 import router from '../../router/router.js';
 
-import { MESSAGE_TAG } from '../chat-message/index.js';
-import { CONTACT_TAG } from '../contact-item/index.js';
-import { LINK_TAG } from '../chat-link/index.js';
-import { TARGET_VAL } from '../chat-link/utils.js';
+import {
+  MESSAGE_TAG,
+  CONTACT_TAG,
+  LINK_TAG,
+  TARGET_VAL,
+} from '../components.js';
 
 import { createModuleFragment } from './render-utils.js';
 import { setAttribute, getData, injectContactsData } from './utils.js';
-
-const CUSTOM_ATTR = {
-  KEY: 'key',
-  NEXT: 'next',
-};
 
 export class ChatModule extends HTMLElement {
   static get observedAttributes() {

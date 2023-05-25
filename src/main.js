@@ -1,10 +1,7 @@
 import './style/main.css';
 
 import './components/about-link/index.js';
-import './components/chat-link/index.js';
-import './components/chat-message/index.js';
-import './components/contact-item/index.js';
-import './components/chat-module/index.js';
+import './components/components.js';
 
 import router from './router/router.js';
 import elements from './elements/elements.js';

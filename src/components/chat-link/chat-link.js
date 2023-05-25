@@ -1,15 +1,15 @@
-import router from '../../router/router.js';
-
 import { setBooleanAttribute } from '../utils.js';
 
+import { CUSTOM_ATTR, CUSTOM_VAL } from './config.js';
+
 import {
-  CUSTOM_ATTR,
-  TARGET_VAL,
-  selector,
   html,
+  selector,
   getParentLinkHtml,
   getTargetLinkHtml,
 } from './utils.js';
+
+import router from '../../router/router.js';
 
 export class ChatLink extends HTMLElement {
   constructor() {
@@ -41,7 +41,7 @@ export class ChatLink extends HTMLElement {
 
     // do not render Link to parent ChatModule component
     // when the link redirects to another route
-    if (targetKey !== TARGET_VAL.HOME && targetKey !== TARGET_VAL.BACK) {
+    if (targetKey !== CUSTOM_VAL.HOME && targetKey !== CUSTOM_VAL.BACK) {
       this.innerHTML = getParentLinkHtml(text);
     }
 
@@ -54,13 +54,13 @@ export class ChatLink extends HTMLElement {
 
     // console.log('calling update', hrefToParent, linkToTarget);
 
-    if (targetKey === TARGET_VAL.HOME && !linkToTarget.href) {
+    if (targetKey === CUSTOM_VAL.HOME && !linkToTarget.href) {
       linkToTarget.href = router.origin + router.routes.home;
       // console.log('updated', TARGET_VAL.HOME, linkToTarget.href, this);
       return;
     }
 
-    if (targetKey === TARGET_VAL.BACK) {
+    if (targetKey === CUSTOM_VAL.BACK) {
       // set href value in renderElement loop
       // relative to previous ChatModule
       if (router.isChatRoute) {

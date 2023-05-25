@@ -1,13 +1,7 @@
-import { ChatMessage } from '../chat-message/component.js';
+import { ChatMessage } from '../chat-message/chat-message.js';
 
+import { CUSTOM_ATTR } from './config.js';
 import { createFragment, injectContactData } from './utils.js';
-
-export const CUSTOM_ATTR = {
-  KEY: 'key',
-  LOADED: 'loaded',
-  LOADING: 'loading',
-  ERROR: 'error',
-};
 
 export class ContactItem extends ChatMessage {
   static get observedAttributes() {

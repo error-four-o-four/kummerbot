@@ -1,5 +1,4 @@
-// import { LINK_ATTR, LINK_TAG } from '../components/chat-link/index.js';
-import { TARGET_VAL } from '../components/chat-link/utils.js';
+import { LINK_TAG, LINK_ATTR, TARGET_VAL } from '../components/components.js';
 
 import { routes } from './config.js';
 import { validate } from './utils.js';

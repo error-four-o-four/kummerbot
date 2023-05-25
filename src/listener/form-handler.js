@@ -1,10 +1,10 @@
-import { TARGET_VAL } from '../components/chat-link/utils.js';
-
 import router from '../router/router.js';
 import renderer from '../renderer/renderer.js';
 
 import elements from '../elements/elements.js';
 import { delay } from '../renderer/animation.js';
+
+import { TARGET_VAL } from '../components/components.js';
 
 let requiredEmailValue = null;
 let requiredCaptchaValue = null;
