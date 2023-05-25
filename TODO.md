@@ -2,16 +2,30 @@
 
 ### Routes
 
-- [x] view
-- [ ] send user to a new route to send a message and when the message was send. Implies to remove 'renderer-page.js' and use the custom component ChatModule in every route: /chat, /shared, /message, /processed (or url param) and /about.
-  - [ ] redirect to /error from /message when `requiredEmailValue === null` [@](src/listener/form-handler.js#80) [@](src/router/router.js#136)
-  - [ ] redirect to /error when /processed when `processing === null`
+- [ ] doublecheck each route when it's the landing page
+- [ ] doublecheck [adjustChatLinksToRoute(output, properties)](src/components/chat-module/render-utils.js) in each route
+
+- [ ] shared
+
+  - [x] load 'message-tmpl-contacts-info' in /shared route when it's the landing page view
+  - [ ] remove attribute class 'is-transparent' from ContactItem when redirected from /chat or clean attributes _before_ (?) caching awaited/promised ContacItem components
+  - [ ] remove all needless elements (e.g. span#message-pending-indicator) _before_ caching promised ContactItem components
+
+- [x] send user to a new route to send a message and when the message was send. Implies to remove 'renderer-page.js' and use the custom component ChatModule in every route: /chat, /shared, /message, /processed (or url param) and /about.
+
+  - [ ] use a message state to
+
+    - [ ] redirect to /error from /message when `requiredEmailValue === null` [@](src/listener/form-handler.js#80) [@](src/router/router.js#136)
+    - [ ] redirect to /error when /processed when `processing === null`
+
+  - [ ] route validation
 
 ### Contents
 
 - [x] chat
 
 - [ ] about
+
 - [ ] error
 
   - [ ] handle and pass error messages to ChatMessage
@@ -21,7 +35,6 @@
 
   - [ ] create API to send messages [@](src/listener/form-handler.js#16)
   - [ ] add email regex. might not be necessary because there's no user input
-  - [ ] set attribute 'pending' when message was send [@](src/listener/form-handler.js#101)
   - [ ] adjust attribute 'cols' in 'resized' event [@](src/listener/form-handler.js#112)
 
 - [x] share - restructure or rewrite
@@ -38,24 +51,27 @@
 - [x] clearify [TMPL_ATTR](src/components/chat-message/component.js#11)
 - [ ] ~~restructure functions which are used by renderer.chat.js AND renderer.page.js~~
 - [ ] doublecheck selectors and keys. who's responsible? templates.js vs components
-- [ ] create a template file for /share, /message and /processed
-- [ ] [refactor](src/renderer/templates.js#21)
+- [x] create a template file for /share, /contact and /processed
+- [ ] remove needless elements and attributes of ChatModule with ContactItems before it's stored in cache
+- [ ] [refactor](src/templates/templates.js#21)
 
 ### Components
 
-- [ ] (re)move AboutLink to elements.js (?)
+- [ ] (re)move AboutLink ~~to elements.js~~ create HeaderComponent
+- [ ] create ContactForm component
+- [ ] fix route when clicked on header back button
 
 #### ChatModule
 
-- [ ] restructure [chat-module/render.js](src/components/chat-module/render.js)
-- [ ] refactor [insertChatLinks](src/components/chat-module/render.js#109)
+- [x] restructure chat-module/render.js
+- [x] refactor insertChatLinks
 - [ ] pass error message as argument [@](src/components/chat-module/component.js#67)
-- [ ] add a case to decide when to call ContactItem.update(href) [@](src/components/chat-module/render.js#50)
+- [x] ~~add a case to decide when to call ContactItem.update(href) [@](src/components/chat-module/render.js#50)~~ obsolete bc href value is static
 
 #### ChatLink
 
-- [ ] add condition: do not always update the href value [@](src/components/chat-link/component.js#80)
-- [ ] doublecheck possible cases [@](src/components/chat-link/component.js)
+- [ ] add condition: do not always update the href value
+- [ ] doublecheck possible cases
 
 #### ContactItem
 
@@ -86,5 +102,5 @@
 - [x] chained animation promises
 - [x] themes [css](src/style/theme.css#100)
 - [ ] collect util functions
-  - [ ] [@](src/renderer/animation.js#76)
+  - [ ] delay [@](src/renderer/animation.js#76)
   - [ ] setBooleanAttribute()
