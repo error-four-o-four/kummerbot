@@ -1,89 +1,85 @@
 import router from '../../router/router.js';
-import templates, { MODULE_KEY } from '../../renderer/templates.js';
 
-export const CUSTOM_ATTR = {
-  REJECTED: 'rejected',
-  SELECTED: 'selected',
-  TARGET_KEY: 'target',
-};
+import { setBooleanAttribute } from '../utils.js';
 
-const selector = {
-  parentLink: 'parent-link',
-  targetLink: 'target-link',
-};
-
-const getParentLinkHtml = (text) => `
-<div>
-  <a class="${selector.parentLink}">✖</a>
-  <span>${text}</span>
-</div>`;
-
-const getTargetLinkHtml = (text) => `
-<a class="${selector.targetLink}">${text}</a>`;
+import {
+  CUSTOM_ATTR,
+  TARGET_VAL,
+  selector,
+  html,
+  getParentLinkHtml,
+  getTargetLinkHtml,
+} from './utils.js';
 
 export class ChatLink extends HTMLElement {
   constructor() {
     super();
   }
 
+  // @todo setBooleanAttribute
   get target() {
     return this.getAttribute(CUSTOM_ATTR.TARGET_KEY);
   }
 
   set selected(value) {
-    value
-      ? this.setAttribute(CUSTOM_ATTR.SELECTED, value)
-      : this.removeAttribute(CUSTOM_ATTR.SELECTED);
+    setBooleanAttribute(this, CUSTOM_ATTR.SELECTED, value);
   }
   get selected() {
     return this.hasAttribute(CUSTOM_ATTR.SELECTED);
   }
 
   set rejected(value) {
-    value
-      ? this.setAttribute(CUSTOM_ATTR.REJECTED, value)
-      : this.removeAttribute(CUSTOM_ATTR.REJECTED);
+    setBooleanAttribute(this, CUSTOM_ATTR.REJECTED, value);
   }
   get rejected() {
     return this.hasAttribute(CUSTOM_ATTR.REJECTED);
   }
 
   render() {
-    const keyToTarget = this.target;
-    const text = !!this.innerText
-      ? this.innerText
-      : templates.html[keyToTarget];
+    const targetKey = this.target;
+    const text = !!this.innerText ? this.innerText : html[targetKey];
 
-    if (![MODULE_KEY.HOME, MODULE_KEY.BACK].includes(keyToTarget)) {
+    // do not render Link to parent ChatModule component
+    // when the link redirects to another route
+    if (targetKey !== TARGET_VAL.HOME && targetKey !== TARGET_VAL.BACK) {
       this.innerHTML = getParentLinkHtml(text);
     }
+
     this.innerHTML += getTargetLinkHtml(text);
   }
 
   update(hrefToParent) {
-    const keyToTarget = this.target;
+    const targetKey = this.target;
     const linkToTarget = this.querySelector('.' + selector.targetLink);
 
     // console.log('calling update', hrefToParent, linkToTarget);
 
-    if (keyToTarget === MODULE_KEY.HOME && !linkToTarget.href) {
+    if (targetKey === TARGET_VAL.HOME && !linkToTarget.href) {
       linkToTarget.href = router.origin + router.routes.home;
-      console.log('updated', MODULE_KEY.HOME, linkToTarget.href, this);
+      // console.log('updated', TARGET_VAL.HOME, linkToTarget.href, this);
       return;
     }
 
-    // if (keyToTarget === TARGET_KEY.BACK && router.isSharedRoute) {
-    //   this.linkToTarget.href = router.prev ? router.prev : router.origin + router.routes.home;
-    //   return;
-    // }
+    if (targetKey === TARGET_VAL.BACK) {
+      // set href value in renderElement loop
+      // relative to previous ChatModule
+      if (router.isChatRoute) {
+        const keyOfParentModule = hrefToParent.split('/').at(-1);
+        const indexOfPreviousModule = router.getIndex(keyOfParentModule) - 1;
+        linkToTarget.href = router.getHref(indexOfPreviousModule);
+        return;
+      }
 
-    // @todo update condition
-    if (keyToTarget === MODULE_KEY.BACK) {
-      const keyOfParent = hrefToParent.split('/').at(-1);
-      const indexOfTarget = router.getIndex(keyOfParent) - 1;
-      linkToTarget.href = router.getHref(indexOfTarget);
-      // console.log('updated', TARGET_KEY.BACK, linkToTarget.href, this);
+      if (router.prev) {
+        linkToTarget.href = router.origin + router.prev;
+        return;
+      }
+
+      console.warn(
+        '@todo: Missed a case in `update(hrefToParent)` of ChatLink back'
+      );
       return;
+      // console.log('updated', TARGET_KEY.BACK, linkToTarget.href, this);
     }
 
     // component has link to parent
@@ -91,14 +87,14 @@ export class ChatLink extends HTMLElement {
 
     // @todo
     if (linkToParent === null) {
-      // console.warn('Missed a case in `update(hrefToParent)`', this);
+      console.warn('@todo: Missed a case in `update(hrefToParent)`', this);
       return;
     }
 
     if (linkToParent.href === hrefToParent) return;
 
     linkToParent.href = hrefToParent;
-    linkToTarget.href = hrefToParent + '/' + keyToTarget;
+    linkToTarget.href = hrefToParent + '/' + targetKey;
     // console.log('updated', this.target, linkToTarget.href, this);
   }
 }

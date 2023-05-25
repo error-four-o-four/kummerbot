@@ -1,5 +1,3 @@
-import elements from '../elements/elements.js';
-
 // const supportsTouchEvents = () => window && "ontouchstart" in window;
 
 const getDeviceType = () => {
@@ -13,10 +11,6 @@ export const isMobileDevice = getDeviceType();
 export const state = {
   initial: true,
   transition: false,
-};
-
-export const clearOutlet = () => {
-  elements.outlet.innerHTML = '';
 };
 
 export const createLoadingIndicator = () => {

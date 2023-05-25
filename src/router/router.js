@@ -1,5 +1,5 @@
-import { MODULE_KEY } from '../renderer/templates.js';
-import { LINK_ATTR, LINK_TAG } from '../components/chat-link/index.js';
+// import { LINK_ATTR, LINK_TAG } from '../components/chat-link/index.js';
+import { TARGET_VAL } from '../components/chat-link/utils.js';
 
 import { routes } from './config.js';
 import { validate } from './utils.js';
@@ -32,13 +32,17 @@ class Router {
   get isSharedRoute() {
     return this.path.startsWith(routes.shared);
   }
-  get isPageRoute() {
-    return !this.isChatRoute && !this.isSharedRoute;
+  get isContactRoute() {
+    return this.path.startsWith(routes.contact);
   }
 
+  get hasError() {
+    return this.keys.includes('error');
+  }
   get hasChanged() {
-    const key = this.path.substring(1).split('/')[0];
-    return !(this.prev && this.prev.includes(key));
+    return !this.prev
+      ? true
+      : this.keys[0] !== this.prev.substring(1).split('/')[0];
   }
 
   isRouterLink(link) {
@@ -53,7 +57,11 @@ class Router {
   getHref(value) {
     const index = typeof value === 'string' ? this.getIndex(value) : value;
     const path = this.keys.slice(0, index + 1).join('/');
-    const shared = this.isSharedRoute
+
+    // router does not store /display/<Number> of shared route in keys
+    // @todo /shared route has no subsequent modules
+    // might be obsolete
+    const prefixSharedRoute = this.isSharedRoute
       ? '/' +
         this.path
           .split('/')
@@ -62,34 +70,43 @@ class Router {
           .join('/')
       : '';
 
-    return this.origin + shared + '/' + path;
+    return this.origin + prefixSharedRoute + '/' + path;
   }
 
   getShareUrl = () => {
-    const indexShareKey = this.keys.indexOf(MODULE_KEY.SHARE);
+    const indexShareKey = this.keys.indexOf(TARGET_VAL.SHARE);
     const moduleKey = this.keys.at(indexShareKey - 1);
     const index = this.keys.indexOf(moduleKey);
 
     return `${this.origin}${routes.shared}/${index}/${moduleKey}`;
   };
 
-  getFileUrl(key) {
+  getFileUrl(moduleKey) {
     // @reminder
-    //  errors are handled by renderer
-    if (this.isPageRoute) {
-      return '/views' + this.path + '.html';
+    // errors in /chat route are handled by renderer
+
+    // console.log(moduleKey, Object.values(TARGET_VAL));
+
+    const file = moduleKey + '.html';
+
+    // gnaaaa
+    if (
+      this.isChatRoute &&
+      (moduleKey === this.keys[0] || moduleKey === TARGET_VAL.SHARE)
+    ) {
+      return '/views/chat/' + file;
     }
 
-    const file = key + '.html';
-    const index = this.isSharedRoute
-      ? this.path.split('/').filter((item) => !!item && !isNaN(item))[0]
-      : this.keys.indexOf(key);
+    if (this.isChatRoute || this.isSharedRoute) {
+      // @doublecheck
+      const index = this.isSharedRoute
+        ? this.path.split('/').filter((item) => !!item && !isNaN(item))[0]
+        : this.keys.indexOf(moduleKey);
+      return '/views/chat-' + index + '/' + file;
+    }
 
-    return (this.isChatRoute && index === 0) ||
-      key === MODULE_KEY.SHARE ||
-      key === MODULE_KEY.MESSAGE
-      ? '/views/chat/' + file
-      : '/views/chat-' + index + '/' + file;
+    // keys map to file names
+    return '/views/' + file;
   }
 
   setLocation(route) {

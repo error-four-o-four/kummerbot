@@ -1,6 +1,10 @@
-import templates, { MESSAGE_TMPL_KEY } from '../../renderer/templates.js';
+import router from '../../router/router.js';
+import templates from '../../templates/templates.js';
 
-// used to handle animation and render templates
+import { TARGET_VAL } from '../chat-link/utils.js';
+
+// used to handle animation
+// ChatModule.createModuleFragment() calls render-utils.js
 export const CUSTOM_ATTR = {
   PENDING: 'pending',
 };
@@ -14,29 +18,31 @@ export class ChatMessage extends HTMLElement {
     super();
   }
 
-  render() {
-    const id = Object.values(MESSAGE_TMPL_KEY).reduce(
-      (result, current) =>
-        !!result ? result : this.hasAttribute(current) ? current : undefined,
-      undefined
-    );
+  render(properties) {
+    const { moduleWasCached, moduleKey } = properties;
+    const templateId = this.attributes[0].name;
 
-    if (!id) return;
+    // @consider
+    // get contents via attributes
+    if (!this.innerHTML) {
+      this.innerHTML = templates.get(templateId);
+      return;
+    }
 
-    this.innerHTML = templates.html[id];
-
-    // this.innerHTML = Object.values(TMPL_KEY).reduce(
-    //   (html, key) =>
-    //     html ? html : this.hasAttribute(key) ? templates.html[key] : undefined,
-    //   undefined
-    // );
-
-    // for (const { name } of this.attributes) {
-    //   if (!(name in templates.html)) continue;
-
-    //   this.innerHTML = templates.html[name];
-    //   break;
+    // if (!moduleWasCached && moduleKey !== TARGET_VAL.SHARE) {
     // }
+
+    if (!moduleWasCached && moduleKey === TARGET_VAL.SHARE) {
+      // @todo compare links ???
+      console.log('create share link');
+      return;
+    }
+
+    if (moduleWasCached && moduleKey === TARGET_VAL.SHARE) {
+      // @todo compare links ???
+      console.log('update share link');
+      return;
+    }
   }
 
   set pending(value) {

@@ -8,4 +8,4 @@ if (!window.customElements.get(CUSTOM_TAG)) {
 
 export { CUSTOM_TAG as LINK_TAG };
 
-export { CUSTOM_ATTR as LINK_ATTR } from './component.js';
+export { CUSTOM_ATTR as LINK_ATTR } from './utils.js';

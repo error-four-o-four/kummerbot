@@ -9,7 +9,7 @@ const resolver = async (resolve) => {
 
 export default async () => {
   if (!contacts) {
-    await delay(6000);
+    await delay(1000);
     return new Promise(resolver)
       .then((data) => {
         contacts = data;

@@ -1,9 +1,7 @@
 import router from '../../router/router.js';
 
-import templates, { HEADER_TMPL_KEY } from '../../renderer/templates.js';
-
-const htmlInactive = templates.html[HEADER_TMPL_KEY.aboutInactive];
-const htmlActive = templates.html[HEADER_TMPL_KEY.aboutActive];
+const htmlInactive = 'Details';
+const htmlActive = 'zur&uuml;ck';
 
 const CUSTOM_ATTR = 'active';
 

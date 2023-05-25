@@ -1,6 +1,7 @@
+import { TARGET_VAL } from '../components/chat-link/utils.js';
+
 import router from '../router/router.js';
 import renderer from '../renderer/renderer.js';
-import { MODULE_KEY } from '../renderer/templates.js';
 
 import elements from '../elements/elements.js';
 import { delay } from '../renderer/animation.js';
@@ -104,7 +105,7 @@ function submitMessageForm(e) {
   sendMessage().then(() => (processingMessage = false));
 
   const route =
-    '/' + router.keys.slice(0, -1).join('/') + '/' + MODULE_KEY.PROCESSED;
+    '/' + router.keys.slice(0, -1).join('/') + '/' + TARGET_VAL.PROCESSED;
   router.setLocation(route);
   renderer.update();
 }
