@@ -64,6 +64,7 @@ export const getModuleElements = async (moduleTemplateId, moduleKey) => {
     data = templates.get(moduleTemplateId);
 
     output.moduleElements = parseDataString(data);
+    output.moduleWasCached = true;
     return output;
   }
 
@@ -91,7 +92,7 @@ export const getModuleElements = async (moduleTemplateId, moduleKey) => {
     // either redo parseDataString
     // bc templates are attached to head
     // or create template innerHTML = response.data etc
-    const templateElements = parseDataString(data.data);
+    const templateElements = parseDataString(data);
     for (const element of templateElements) {
       templates.set(element);
     }
