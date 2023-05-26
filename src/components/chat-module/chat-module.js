@@ -5,12 +5,7 @@ import router from '../../router/router.js';
 
 import errorHandler from '../../handler/error-handler.js';
 
-import {
-  MESSAGE_TAG,
-  CONTACT_TAG,
-  LINK_TAG,
-  TARGET_VAL,
-} from '../components.js';
+import { MESSAGE_TAG, CONTACT_TAG, LINK_TAG } from '../components.js';
 
 import { setAttribute } from '../utils.js';
 
@@ -70,14 +65,8 @@ export class ChatModule extends HTMLElement {
 
     // check errorHandler
     const errorMessage = errorHandler.get();
-    // handle /error route
-    if (router.hasError || errorMessage) {
-      const properties = {
-        message: errorMessage,
-      };
-
-      this.key = 'error';
-      this.append(createErrorFragment(properties));
+    if (!!errorMessage) {
+      this.handleErrorRoute(errorMessage);
       return;
     }
 
@@ -104,6 +93,11 @@ export class ChatModule extends HTMLElement {
     injectContactsData(this.contacts).then(() => {
       templates.set(this, templateId, true);
     });
+  }
+
+  renderError(message) {
+    this.key = 'error';
+    this.append(createErrorFragment(message));
   }
 
   attributeChangedCallback(name, _, next) {

@@ -1,4 +1,7 @@
-import { LINK_TAG, LINK_ATTR, TARGET_VAL } from '../components/components.js';
+import contactHandler from '../handler/contact-handler.js';
+import errorHandler from '../handler/error-handler.js';
+
+import { TARGET_VAL } from '../components/components.js';
 
 import { routes } from './config.js';
 import { validate } from './utils.js';
@@ -137,6 +140,8 @@ class Router {
     // adds a history state
     e.preventDefault();
 
+    if (errorHandler.get()) errorHandler.set(null);
+
     const { href } = e.target;
     window.history.pushState({ href }, '', href);
     this.update();
@@ -155,12 +160,16 @@ class Router {
       pathname = pathname.slice(0, -1);
     }
 
-    if (!validate(pathname)) {
+    // validate requiredEmailValue is set
+    if (pathname.startsWith(routes.contact) && !contactHandler.email) {
+      errorHandler.set('Die angegebene Adresse ist nicht erreichbar.');
       pathname = routes.error;
     }
 
-    // @todo
-    // validate footer.email.value is set
+    if (!validate(pathname)) {
+      errorHandler.set('Die angegebene Adresse ist nicht erreichbar.');
+      pathname = routes.error;
+    }
 
     if (pathname !== window.location.pathname) {
       const href = this.origin + pathname;
