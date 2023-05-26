@@ -44,6 +44,16 @@ class Router {
       : this.keys[0] !== this.prev.substring(1).split('/')[0];
   }
 
+  get state() {
+    return [
+      this.hasChanged,
+      this.isChatRoute,
+      this.isAboutRoute,
+      this.isSharedRoute,
+      this.isContactRoute,
+    ];
+  }
+
   isRouterLink(link) {
     const href = link.href;
     return href && href.startsWith(this.origin);
