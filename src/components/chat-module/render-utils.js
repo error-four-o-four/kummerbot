@@ -8,11 +8,11 @@ import {
   TARGET_VAL,
 } from '../components.js';
 
-export const createErrorFragment = (properties) => {
+export const createErrorFragment = (message) => {
   const element = document.createElement(MESSAGE_TAG);
   element.innerHTML = `
-  <p>$&#x26A0; Da hat etwas nicht funktioniert ...</p>
-  ${!!properties.message ? `<p>${properties.message}</p>` : ''}
+  <p>&#x26A0; Da hat etwas nicht funktioniert ...</p>
+  ${!!message ? `<p>${message}</p>` : ''}
   <p>
   Versuche die Seite neu zu laden oder<br />
   kehre Startseite zur&uuml;ck.
@@ -22,7 +22,7 @@ export const createErrorFragment = (properties) => {
   const output = new DocumentFragment();
   output.appendChild(element);
 
-  adjustChatLinksToRoute(output, properties);
+  adjustChatLinksToRoute(output, { hasError: true });
 
   return output;
 };
@@ -135,7 +135,7 @@ function adjustChatLinksToRoute(output, properties) {
 
   // insert ChatLink home
   // to ChatModule with ContactItems
-  if ((router.isSharedRoute || properties.message) && !hasChatLinkHome) {
+  if ((router.isSharedRoute || properties.hasError) && !hasChatLinkHome) {
     const element = constructChatLink(TARGET_VAL.HOME, moduleHref);
     output.append(element);
   }

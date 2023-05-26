@@ -6,6 +6,8 @@ import { MODULE_TAG } from '../components/components.js';
 import animation from './animation.js';
 import { state, createLoadingIndicator } from './utils.js';
 
+import errorHandler from '../handler/error-handler.js';
+
 export async function renderElements() {
   if (state.initial) {
     // console.log('initial render');
@@ -32,28 +34,25 @@ export async function renderElements() {
     // fetch data and cache contents
     // get data with current key of the module
     const module = document.createElement(MODULE_TAG);
-    // updates elements
-    // when module was cloned from cache
-    // and prev route wasn't the same
-    await module.render(keys);
+
+    if (router.hasError) {
+      // handle error
+      module.renderError(errorHandler.get());
+    } else {
+      // updates elements
+      // when module was cloned from cache
+      // and prev route wasn't the same
+      await module.render(keys);
+    }
 
     // @todo @consider ??
     // insertLinks etc here!
     // module.update()
 
-    if (module.key === 'error') {
-      elements.outlet.append(module);
-      // @todo animation
-      // @todo error template
-      // when error module has ChatLinks
-      animation.scrollToChatModule(module);
-      break;
-    }
-
-    elements.outlet.append(module);
-
     // @todo
     // if state.initial hide elements
+
+    elements.outlet.append(module);
 
     // skip animation if it's not the last module
     if (module.next !== null) continue;
@@ -102,7 +101,6 @@ async function checkCurrentStep(step, next) {
 export async function renderElementDirectly() {
   // outlet was cleared beforehand
   elements.outlet.append(createLoadingIndicator());
-
   elements.header.setIndicatorPending();
 
   // if there isn't a rendered module
@@ -110,16 +108,17 @@ export async function renderElementDirectly() {
   // fetch data and cache contents
   // get data with current key of the module
   const module = document.createElement(MODULE_TAG);
-  await module.render([null, router.keys[0], null]);
+
+  // handle error @todo necessary
+  if (router.hasError) {
+    module.renderError(errorHandler.get());
+  } else {
+    await module.render([null, router.keys[0], null]);
+  }
 
   // @todo @consider ??
   // insertLinks etc here!
   // module.update()
-
-  if (module.key === 'error') {
-    elements.outlet.append(module);
-    return;
-  }
 
   elements.outlet.innerHTML = '';
   elements.outlet.append(module);
