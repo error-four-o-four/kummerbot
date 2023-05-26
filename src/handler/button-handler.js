@@ -1,5 +1,5 @@
 import { btnSelector as contactBtnSelector } from '../components/contact-item/utils.js';
-import formHandler from './form-handler.js';
+import formHandler from './contact-handler.js';
 
 export function handleButtonEvents(e) {
   if (e.target.classList.contains('btn-copy')) {

@@ -3,7 +3,7 @@ let contacts;
 
 const resolver = async (resolve) => {
   console.log('resolving');
-  const data = await import('./contacts.js');
+  const data = await import('../data/contacts.js');
   resolve(data.default);
 };
 
