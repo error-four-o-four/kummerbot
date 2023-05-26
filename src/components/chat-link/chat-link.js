@@ -52,11 +52,13 @@ export class ChatLink extends HTMLElement {
     const targetKey = this.target;
     const linkToTarget = this.querySelector('.' + selector.targetLink);
 
-    // console.log('calling update', hrefToParent, linkToTarget);
+    if (targetKey === CUSTOM_VAL.HOME && linkToTarget.href) {
+      return;
+    }
 
     if (targetKey === CUSTOM_VAL.HOME && !linkToTarget.href) {
       linkToTarget.href = router.origin + router.routes.home;
-      // console.log('updated', TARGET_VAL.HOME, linkToTarget.href, this);
+      // console.log('updated', CUSTOM_VAL.HOME, linkToTarget.href, this);
       return;
     }
 
@@ -79,7 +81,6 @@ export class ChatLink extends HTMLElement {
         '@todo: Missed a case in `update(hrefToParent)` of ChatLink back'
       );
       return;
-      // console.log('updated', TARGET_KEY.BACK, linkToTarget.href, this);
     }
 
     // component has link to parent

@@ -1,6 +1,6 @@
 import router from '../router/router.js';
 import elements from '../elements/elements.js';
-import formHandler from '../listener/form-handler.js';
+import formHandler from '../handler/contact-handler.js';
 
 import { TARGET_VAL } from '../components/components.js';
 
@@ -18,15 +18,9 @@ async function update() {
     routeHasChanged,
     routeIsChatRoute,
     routeIsAboutRoute,
-    routeIsShareRoute,
+    routeIsSharedRoute,
     routeIsContactRoute,
-  ] = [
-    'hasChanged',
-    'isChatRoute',
-    'isAboutRoute',
-    'isShareRoute',
-    'isContactRoute',
-  ].map((getter) => router[getter]);
+  ] = router.state;
 
   if (routeHasChanged) {
     state.initial = true;
@@ -71,7 +65,7 @@ async function update() {
     }
 
     // without delayed chained animation
-    if (routeIsShareRoute || routeIsAboutRoute) {
+    if (routeIsSharedRoute || routeIsAboutRoute) {
       await renderElementDirectly();
     }
 

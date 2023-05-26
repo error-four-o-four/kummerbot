@@ -1,5 +1,3 @@
-// import { isMobileDevice } from '../../renderer/utils.js';
-
 import router from '../../router/router.js';
 
 import {
@@ -96,6 +94,14 @@ function adjustChatLinksToRoute(output, properties) {
     }
   }
 
+  // insert ChatLink Back
+  // if routed from /chat to /shared, /about, /error, /contact
+  // and it's not the first view
+  if (!router.isChatRoute && !!router.prev && !hasChatLinkBack) {
+    const element = constructChatLink(TARGET_VAL.BACK, moduleHref);
+    output.appendChild(element);
+  }
+
   // insert ChatLink share when
   // first view was /shared
   // bc cached module does not have share link
@@ -104,17 +110,20 @@ function adjustChatLinksToRoute(output, properties) {
     output.appendChild(element);
   }
 
-  // insert ChatLink Back
-  // if routed from /chat
-  // and it's not the first view
-  if (router.isSharedRoute && !!router.prev && !hasChatLinkBack) {
-    const element = constructChatLink(TARGET_VAL.BACK, moduleHref);
-    output.appendChild(element);
+  if (router.isChatRoute && hasContacts && hasChatLinkHome) {
+    chatLinkHome.remove();
+  }
+
+  // insert ChatLink home
+  // to ChatModule with ContactItems
+  if (router.isSharedRoute && !hasChatLinkHome) {
+    const element = constructChatLink(TARGET_VAL.HOME, moduleHref);
+    output.append(element);
   }
 
   // remove ChatLink Share
   // if it's the first view
-  if (router.isSharedRoute && !router.prev && hasChatLinkShare) {
+  if (router.isSharedRoute && hasChatLinkShare) {
     chatLinkShare.remove();
   }
 
