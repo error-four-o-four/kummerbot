@@ -1,3 +1,4 @@
+import errorHandler from '../../handler/error-handler.js';
 import router, { fetchData } from '../../router/router.js';
 import templates from '../../templates/templates.js';
 
@@ -30,7 +31,6 @@ const filterTemplateElements = (data) => {
   if (templateElements.length === 0) return elements;
 
   for (const template of templateElements) {
-    console.log(template);
     templates.set(template);
   }
 
@@ -52,58 +52,56 @@ const hasDynamicElements = (elements) => {
 };
 
 export const getModuleElements = async (moduleTemplateId, moduleKey) => {
+  const output = {
+    moduleElements: null,
+    moduleWasCached: null,
+  };
+
+  let data;
+
   // return cached elements
   if (templates.isCachedModule(moduleTemplateId)) {
-    const cachedData = templates.get(moduleTemplateId);
+    data = templates.get(moduleTemplateId);
 
-    return {
-      moduleElements: parseDataString(cachedData),
-      moduleWasCached: true,
-    };
+    output.moduleElements = parseDataString(data);
+    return output;
   }
 
   // fetch data
   const path = router.getFileUrl(moduleKey);
-  let response = await fetchData(path);
+  data = await fetchData(path);
 
-  if (response.error) {
-    // todo
-    return {
-      error: response.error,
-      moduleElements: null,
-    };
+  if (!data || errorHandler.get()) {
+    return output;
   }
 
   // cache attached template elements
   // and remove from elements array
-  const moduleElements = filterTemplateElements(response.data);
+  output.moduleElements = filterTemplateElements(data);
 
   // fetch additional data based on ChatMessage attributes
-  const doRequest = hasDynamicElements(moduleElements);
+  const doRequest = hasDynamicElements(output.moduleElements);
 
   if (doRequest) {
-    response = await fetchData('/views/templates.html');
+    data = await fetchData('/views/templates.html');
 
-    if (response.error) return { error };
+    if (!data || errorHandler.get()) return output;
 
     // @todo
     // either redo parseDataString
     // bc templates are attached to head
     // or create template innerHTML = response.data etc
-    const templateElements = parseDataString(response.data);
+    const templateElements = parseDataString(data.data);
     for (const element of templateElements) {
       templates.set(element);
     }
   }
 
-  return {
-    moduleElements,
-    moduleWasCached: false,
-  };
+  return output;
 };
 
 export const injectContactsData = async (contacts) => {
-  const imported = await import('../../data/index.js');
+  const imported = await import('../../handler/data-handler.js');
   const { error, data } = await imported.default();
 
   contacts.forEach((contact) => {

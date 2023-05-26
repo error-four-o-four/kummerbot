@@ -3,6 +3,8 @@ import { CUSTOM_ATTR } from './config.js';
 import templates from '../../templates/templates.js';
 import router from '../../router/router.js';
 
+import errorHandler from '../../handler/error-handler.js';
+
 import {
   MESSAGE_TAG,
   CONTACT_TAG,
@@ -13,8 +15,7 @@ import {
 import { setAttribute } from '../utils.js';
 
 import { getModuleElements, injectContactsData } from './utils.js';
-
-import { createModuleFragment } from './render-utils.js';
+import { createErrorFragment, createModuleFragment } from './render-utils.js';
 
 export class ChatModule extends HTMLElement {
   static get observedAttributes() {
@@ -62,19 +63,21 @@ export class ChatModule extends HTMLElement {
     const templateId = templates.hash(moduleKey);
 
     // fetch data or get cached data
-    const { error, moduleElements, moduleWasCached } = await getModuleElements(
+    const { moduleElements, moduleWasCached } = await getModuleElements(
       templateId,
       moduleKey
     );
 
-    if (error) {
-      // @todo pass error message as argument
-      const element = document.createElement(MESSAGE_TAG);
-      // element.setAttribute(MESSAGE_TMPL_KEY.ERROR, '');
-      // element.render();
-      element.innerHTML = '<p>@todo Fehler</p>';
-      this.key = TARGET_VAL.ERROR;
+    // check errorHandler
+    const errorMessage = errorHandler.get();
+    // handle /error route
+    if (router.hasError || errorMessage) {
+      const properties = {
+        message: errorMessage,
+      };
 
+      this.key = 'error';
+      this.append(createErrorFragment(properties));
       return;
     }
 

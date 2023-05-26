@@ -1,27 +1,20 @@
+import errorHandler from '../handler/error-handler.js';
+
 import { routes } from './config.js';
 
 export const fetchData = async (file) => {
-  let data = null;
-  let error = null;
   try {
-    data = await fetch(file);
+    let data = await fetch(file);
 
     if (data.ok) {
-      return {
-        error,
-        data: await data.text(),
-      };
+      return await data.text();
     }
 
-    return {
-      error: `Unable to fetch data from ${file}`,
-      data,
-    };
+    throw new Error(`Daten können nicht gefunden werden`);
   } catch (error) {
-    return {
-      error,
-      data,
-    };
+    // handle
+    errorHandler.set(error);
+    return null;
   }
 };
 
