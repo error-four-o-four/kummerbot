@@ -8,6 +8,25 @@ import {
   TARGET_VAL,
 } from '../components.js';
 
+export const createErrorFragment = (properties) => {
+  const element = document.createElement(MESSAGE_TAG);
+  element.innerHTML = `
+  <p>$&#x26A0; Da hat etwas nicht funktioniert ...</p>
+  ${!!properties.message ? `<p>${properties.message}</p>` : ''}
+  <p>
+  Versuche die Seite neu zu laden oder<br />
+  kehre Startseite zur&uuml;ck.
+  </p>
+  `;
+
+  const output = new DocumentFragment();
+  output.appendChild(element);
+
+  adjustChatLinksToRoute(output, properties);
+
+  return output;
+};
+
 export const createModuleFragment = (parsedElements, properties) => {
   const output = new DocumentFragment();
   console.log(
@@ -116,7 +135,7 @@ function adjustChatLinksToRoute(output, properties) {
 
   // insert ChatLink home
   // to ChatModule with ContactItems
-  if (router.isSharedRoute && !hasChatLinkHome) {
+  if ((router.isSharedRoute || properties.message) && !hasChatLinkHome) {
     const element = constructChatLink(TARGET_VAL.HOME, moduleHref);
     output.append(element);
   }
@@ -139,13 +158,3 @@ function constructChatLink(value, href) {
   element.update(href);
   return element;
 }
-
-// @todo
-// <template id="message-tmpl-error">
-//   <p>$&#x26A0; Da hat etwas nicht funktioniert ...</p>
-//   <!-- <p>Hier erscheint eine Fehlermeldung</p> -->
-//   <p>
-//     Versuche die Seite neu zu laden oder<br />
-//     kehre zur&uuml;ck zur <a>Startseite</a>
-//   </p>
-// </template>
