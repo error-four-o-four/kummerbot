@@ -1,4 +1,8 @@
-export function setAttribute(component, attribute, value) {}
+export function setAttribute(component, attribute, value) {
+  !!value
+    ? component.setAttribute(attribute, value)
+    : component.removeAttribute(attribute);
+}
 
 export function setBooleanAttribute(component, attribute, value) {
   !!value

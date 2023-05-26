@@ -10,11 +10,9 @@ import {
   TARGET_VAL,
 } from '../components.js';
 
-import {
-  setAttribute,
-  getModuleElements,
-  injectContactsData,
-} from './utils.js';
+import { setAttribute } from '../utils.js';
+
+import { getModuleElements, injectContactsData } from './utils.js';
 
 import { createModuleFragment } from './render-utils.js';
 
