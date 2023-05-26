@@ -3,7 +3,7 @@ import { state } from '../renderer/utils.js';
 
 import router from '../router/router.js';
 
-import formHandler from './form-handler.js';
+import formHandler from './contact-handler.js';
 
 import { handleButtonEvents } from './button-handler.js';
 import { eltSelector } from '../components/contact-item/utils.js';

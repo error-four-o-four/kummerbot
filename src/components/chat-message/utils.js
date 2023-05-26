@@ -1,7 +1,7 @@
 import { isMobileDevice } from '../../renderer/utils.js';
 
 import elements from '../../elements/elements.js';
-import formHandler from '../../listener/form-handler.js';
+import formHandler from '../../handler/contact-handler.js';
 
 import { MESSAGE_TAG } from '../components.js';
 
