@@ -1,5 +1,7 @@
 import { ChatMessage } from '../chat-message/chat-message.js';
 
+import { setBooleanAttribute } from '../utils.js';
+
 import { CUSTOM_ATTR } from './config.js';
 import { createFragment, injectContactData } from './utils.js';
 
@@ -28,14 +30,14 @@ export class ContactItem extends ChatMessage {
   }
 
   set loaded(value) {
-    this.toggleAttribute(CUSTOM_ATTR.LOADED, !!value);
+    setBooleanAttribute(this, CUSTOM_ATTR.LOADED, value);
   }
   get loaded() {
     return this.hasAttribute(CUSTOM_ATTR.LOADED);
   }
 
   set error(value) {
-    this.toggleAttribute(CUSTOM_ATTR.ERROR, !!value);
+    setBooleanAttribute(this, CUSTOM_ATTR.ERROR, value);
   }
   get error() {
     return this.hasAttribute(CUSTOM_ATTR.ERROR);

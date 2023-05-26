@@ -1,20 +1,7 @@
 import router, { fetchData } from '../../router/router.js';
 import templates from '../../templates/templates.js';
 
-import {
-  MESSAGE_TAG,
-  MESSAGE_ATTR,
-  CONTACT_ATTR,
-  LINK_ATTR,
-  CONTACT_TAG,
-  LINK_TAG,
-} from '../components.js';
-
-// @todo
-export const setAttribute = (component, attr, value) =>
-  !!value
-    ? component.setAttribute(attr, value)
-    : component.removeAttribute(attr);
+import { MESSAGE_TAG } from '../components.js';
 
 const parser = new DOMParser();
 
