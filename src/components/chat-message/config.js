@@ -1,7 +1,8 @@
 export const CUSTOM_TAG = 'chat-message';
 
-// used to handle animation
-// ChatModule.createModuleFragment() calls render-utils.js
 export const CUSTOM_ATTR = {
+  TEMPLATE: 'template',
+  DYNAMIC: 'requires-update',
+  // used to handle animation
   PENDING: 'pending',
 };

@@ -18,6 +18,6 @@ document.documentElement.style.setProperty(
 router.update();
 
 (async () => {
-  await renderer.update();
+  await renderer.update(router.state);
   eventHandler.init();
 })();

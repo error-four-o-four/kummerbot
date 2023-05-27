@@ -1,9 +1,24 @@
 import { isMobileDevice } from '../../renderer/utils.js';
 
 import elements from '../../elements/elements.js';
-import formHandler from '../../handler/contact-handler.js';
+import templates from '../../templates/templates.js';
+import contactHandler from '../../handler/contact-handler.js';
 
-import { MESSAGE_TAG } from '../components.js';
+import { MESSAGE_TAG, MODULE_VAL } from '../components.js';
+
+export function createErrorTemplate() {
+  const template = document.createElement('template');
+  template.id = MODULE_VAL.ERROR;
+  template.innerHTML = `
+  <p>&#x26A0; Da hat etwas nicht funktioniert ...</p>
+  <p>
+    Versuche die Seite neu zu laden oder<br />
+    kehre Startseite zur&uuml;ck.
+  </p>
+  `;
+
+  templates.set(template.id, template);
+}
 
 export function createShareLinkHtml(href) {
   return `
@@ -36,7 +51,7 @@ export function insertCaptcha(output) {
   const numA = Math.floor(5 + Math.random() * 9);
   const numB = Math.floor(1 + Math.random() * 9);
 
-  formHandler.captcha = numA + numB;
+  contactHandler.captcha = numA + numB;
 
   const para = document.createElement('p');
   para.innerHTML = `${numA} + ${numB} = ${elements.form.createCaptchaHtml()}`;

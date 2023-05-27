@@ -1,6 +1,3 @@
-import { btnSelector as contactBtnSelector } from '../components/contact-item/utils.js';
-import formHandler from './contact-handler.js';
-
 export function handleButtonEvents(e) {
   if (e.target.classList.contains('btn-copy')) {
     console.log('@todo', e.target);
@@ -10,10 +7,6 @@ export function handleButtonEvents(e) {
   if (e.target.classList.contains('btn-share')) {
     console.log('@todo', e.target);
     return;
-  }
-
-  if (e.target.classList.contains(contactBtnSelector.message)) {
-    formHandler.email = e.target.getAttribute('value');
   }
 }
 

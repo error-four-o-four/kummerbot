@@ -19,6 +19,7 @@ import {
 import {
   CUSTOM_TAG as MODULE_TAG,
   CUSTOM_ATTR as MODULE_ATTR,
+  CUSTOM_VAL as MODULE_VAL,
 } from './chat-module/config.js';
 
 export {
@@ -31,6 +32,7 @@ export {
   CONTACT_ATTR,
   MODULE_TAG,
   MODULE_ATTR,
+  MODULE_VAL,
 };
 
 import { ChatMessage } from './chat-message/chat-message.js';

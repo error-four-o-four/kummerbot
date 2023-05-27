@@ -4,3 +4,8 @@ export const CUSTOM_ATTR = {
   KEY: 'key',
   NEXT: 'next',
 };
+
+export const CUSTOM_VAL = {
+  CONTACT: 'contact',
+  ERROR: 'error',
+};

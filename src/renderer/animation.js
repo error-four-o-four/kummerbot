@@ -1,5 +1,13 @@
 import { MESSAGE_TAG, CONTACT_TAG } from '../components/components.js';
 
+export default {
+  scrollToChatModule,
+  hideChatLinks,
+  fadeChatLinksIn,
+  fadeLastChatModuleIn,
+  fadeFilteredChatModulesOut,
+};
+
 function scrollToChatModule(element) {
   element.scrollIntoView({
     block: 'start',
@@ -79,6 +87,10 @@ function hideChatMessages(module) {
   for (const message of module.messages) {
     message.classList.add('is-transparent');
   }
+
+  for (const contact of module.contacts) {
+    contact.classList.add('is-transparent');
+  }
 }
 
 function hideChatLinks(module) {
@@ -119,7 +131,7 @@ async function fadeChatMessagesIn(module) {
 
     if (message.localName === MESSAGE_TAG) {
       message.pending = true;
-      await delay(6 * message.innerText.length);
+      await delay(5 * message.innerText.length);
       message.pending = false;
     }
 
@@ -131,7 +143,10 @@ async function fadeChatMessagesIn(module) {
     );
   };
 
-  return module.messages.reduce(reducer, Promise.resolve());
+  return [...module.messages, ...module.contacts].reduce(
+    reducer,
+    Promise.resolve()
+  );
 }
 
 async function fadeChatLinksIn(module) {
@@ -154,6 +169,11 @@ async function fadeLastChatModuleIn(module) {
 
   await fadeChatMessagesIn(module);
   await fadeChatLinksIn(module);
+
+  if (!module.contacts.length) return;
+
+  // @todo check ContactItem attributes
+  // console.log(module.contacts[0]);
 }
 
 async function fadeFilteredChatModulesOut(modules) {
@@ -175,11 +195,3 @@ async function fadeFilteredChatModulesOut(modules) {
     )
   );
 }
-
-export default {
-  scrollToChatModule,
-  hideChatLinks,
-  fadeChatLinksIn,
-  fadeLastChatModuleIn,
-  fadeFilteredChatModulesOut,
-};

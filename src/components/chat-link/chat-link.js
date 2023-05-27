@@ -48,7 +48,7 @@ export class ChatLink extends HTMLElement {
     this.innerHTML += getTargetLinkHtml(text);
   }
 
-  update(hrefToParent) {
+  update(moduleKey, moduleHref, { isChatRoute, prevRoute }) {
     const targetKey = this.target;
     const linkToTarget = this.querySelector('.' + selector.targetLink);
 
@@ -65,15 +65,14 @@ export class ChatLink extends HTMLElement {
     if (targetKey === CUSTOM_VAL.BACK) {
       // set href value in renderElement loop
       // relative to previous ChatModule
-      if (router.isChatRoute) {
-        const keyOfParentModule = hrefToParent.split('/').at(-1);
-        const indexOfPreviousModule = router.getIndex(keyOfParentModule) - 1;
+      if (isChatRoute) {
+        const indexOfPreviousModule = router.getIndex(moduleKey) - 1;
         linkToTarget.href = router.getHref(indexOfPreviousModule);
         return;
       }
 
-      if (router.prev) {
-        linkToTarget.href = router.origin + router.prev;
+      if (!!prevRoute) {
+        linkToTarget.href = router.origin + prevRoute;
         return;
       }
 
@@ -92,10 +91,10 @@ export class ChatLink extends HTMLElement {
       return;
     }
 
-    if (linkToParent.href === hrefToParent) return;
+    if (linkToParent.href === moduleHref) return;
 
-    linkToParent.href = hrefToParent;
-    linkToTarget.href = hrefToParent + '/' + targetKey;
+    linkToParent.href = moduleHref;
+    linkToTarget.href = moduleHref + '/' + targetKey;
     // console.log('updated', this.target, linkToTarget.href, this);
   }
 }

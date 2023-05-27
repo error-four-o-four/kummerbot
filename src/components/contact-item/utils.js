@@ -92,11 +92,11 @@ export function injectContactData(component, contactData) {
     return html;
   }, '');
 
-  // @todo refactor
+  // @todo @refactor
   const btnMessage = wrapBtns.querySelector('.' + btnSelector.message);
   if (btnMessage && contactData[btnDataKeys.message]) {
     btnMessage.setAttribute('value', contactData[btnDataKeys.message]);
-    btnMessage.setAttribute('href', router.routes.contact);
+    btnMessage.setAttribute('href', router.origin + router.routes.contact);
   }
 
   const btnMail = wrapBtns.querySelector('.' + btnSelector.mail);

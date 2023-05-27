@@ -4,110 +4,176 @@ import renderer from '../renderer/renderer.js';
 import elements from '../elements/elements.js';
 import { delay } from '../renderer/animation.js';
 
-import { TARGET_VAL } from '../components/components.js';
+import { LINK_TAG, TARGET_VAL } from '../components/components.js';
+import errorHandler from './error-handler.js';
 
-let requiredEmailValue = null;
-let requiredCaptchaValue = null;
-let submittedCaptchaValue = null;
-let requiredTextareaValue = null;
+let initiated = false;
 
-let processingMessage = false;
+const captchaValidator = {
+  required: null,
+  submitted: null,
+  index: 0,
+  messages: [
+    'Leider nein.',
+    'Nope!',
+    'Nö',
+    'Kann es sein, dass du kein Mensch bist?',
+  ],
+  get message() {
+    this.index = (this.index + 1) % this.messages.length;
+    return this.messages[this.index - 1];
+  },
+  onInput(e) {
+    this.submitted = e.target.valueAsNumber;
+  },
+  isValid() {
+    return this.required === this.submitted;
+  },
+};
 
-const sendMessage = async () => {
-  // @todo
-  // pseudo functionality
-  await delay(5000);
-  console.log('send', requiredEmailValue, requiredTextareaValue);
+const requiredValue = {
+  email: null,
+  message: null,
+  reset() {
+    this.email = null;
+    this.message = null;
+  },
+};
 
-  requiredEmailValue = null;
-  requiredCaptchaValue = null;
-  submittedCaptchaValue = null;
-  requiredTextareaValue = null;
+const messageTmplAttributes = [
+  ['message-tmpl-awaiting-message'],
+  ['message-tmpl-preview-recipient', 'message-tmpl-awaiting-captcha'],
+  ['message-tmpl-awaiting-response'],
+  ['message-tmpl-response-success'],
+];
+
+const state = {
+  index: 0,
+  prev() {
+    this.index = Math.max(this.index - 1, 0);
+  },
+  next() {
+    this.index = Math.min(this.index + 1, this.values.length);
+  },
 };
 
 export default {
-  set email(value) {
-    requiredEmailValue = value;
+  setEmail(value) {
+    requiredValue.email = value;
   },
-  get email() {
-    return requiredEmailValue;
+  getTemplateIds() {
+    return messageTmplAttributes[state.index];
   },
-  set captcha(value) {
-    requiredCaptchaValue = value;
+  async adopt(e, route) {
+    e.preventDefault();
+
+    if (!requiredValue.email) {
+      errorHandler.set('Die angegebene Adresse ist nicht erreichbar.');
+      route = router.setLocation(router.routes.error);
+      await renderer.update(route);
+      return;
+    }
+
+    if (!initiated) {
+      elements.form.element.addEventListener('submit', submitMessageForm);
+      elements.form.textarea.addEventListener('input', adjustTextareaValue);
+      initiated = true;
+    }
+
+    elements.form.show();
+    renderer.update(route);
   },
-  get captcha() {
-    return requiredCaptchaValue;
-  },
-  get processing() {
-    return processingMessage;
-  },
-  addEventListeners() {
-    elements.form.element.addEventListener('submit', submitMessageForm);
-    elements.form.textarea.addEventListener('input', adjustTextareaValue);
-  },
-  addCaptchaListener() {
-    elements.form.captcha.addEventListener('input', onCaptchaInput);
-  },
-  removeCaptchaListener() {
-    elements.form.captcha.removeEventListener('input', onCaptchaInput);
+  async handle(e, route) {
+    const { target } = e;
+
+    e.preventDefault();
+
+    if (target.localName === LINK_TAG && target.target === TARGET_VAL.BACK) {
+      state.prev();
+    }
+    renderer.update(route);
+
+    if (state.index === 1) {
+      // captcha
+      return;
+    }
+
+    if (state.index === 0) {
+      elements.form.show();
+      return;
+    }
   },
 };
 
-const customValidities = [
-  'Leider nein.',
-  'Nope!',
-  'Nööö',
-  'Kann es sein, dass du kein Mensch bist?',
-];
-
-let index = 0;
-
-const increment = () => {
-  index = (index + 1) % customValidities.length;
-};
-
-function onCaptchaInput(e) {
-  submittedCaptchaValue = e.target.valueAsNumber;
-}
+// @todo validate email
+// with regex
 
 function submitMessageForm(e) {
-  const { form } = elements;
-
   e.preventDefault();
 
-  // @todo validate email
-  // with regex
+  const isValid = elements.form.element.reportValidity();
 
-  // @todo
-  // in router before rendering ChatModule message !!
-  // in updateChatElements()
+  if (!isValid) return;
 
-  if (requiredCaptchaValue !== submittedCaptchaValue) {
-    // set validity on captcha
-    form.captcha.setCustomValidity(customValidities[index]);
-    increment();
-  }
+  requiredValue.text = elements.form.textarea.value;
+  elements.form.hide();
+  state.next();
 
-  const valid = form.element.reportValidity();
+  renderer.update(router.state);
 
-  if (!valid) {
-    // reset validity on captcha
-    form.captcha.setCustomValidity('');
+  // add captcha listener
+  //   elements.form.captcha.addEventListener(
+  //     'input',
+  //     captchaValidator.onInput.bind(captchaValidator)
+  //   );
+}
+
+async function submitCaptchaForm() {
+  const isValid = captchaValidator.validate();
+
+  if (!isValid) {
+    elements.form.captcha.setCustomValidity(captchaValidator.message);
+    elements.form.checkValidity();
+    elements.form.captcha.setCustomValidity('');
     return;
   }
 
-  requiredTextareaValue = form.textarea.value;
-  form.element.reset();
+  //   elements.form.captcha.removeEventListener(
+  //     'input',
+  //     captchaValidator.onInput.bind(captchaValidator)
+  //   );
 
-  // @todo
-  // set attribute 'pending' of ChatMessage
-  processingMessage = true;
-  sendMessage().then(() => (processingMessage = false));
+  state.next();
+  renderer.update(router.state);
 
-  const route =
-    '/' + router.keys.slice(0, -1).join('/') + '/' + TARGET_VAL.PROCESSED;
-  router.setLocation(route);
-  renderer.update();
+  const response = await sendMessage(
+    requiredValue.email,
+    requiredValue.message
+  );
+
+  if (!response.ok) {
+    const route = router.setLocation(router.routes.error);
+    errorHandler.set('Leider konnte deine Nachricht nicht versendet werden.');
+    renderer.update(route);
+    return;
+  }
+
+  elements.form.element.reset();
+  requiredValue.reset();
+
+  state.next();
+  renderer.update(router.state);
+}
+
+// pseudo functionality
+async function sendMessage(email, message) {
+  await delay(5000);
+  console.log('send', email, message);
+
+  return {
+    ok: true,
+    // ok: false,
+  };
 }
 
 // @todo window resized listener
