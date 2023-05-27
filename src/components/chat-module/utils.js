@@ -1,8 +1,14 @@
-import errorHandler from '../../handler/error-handler.js';
 import router, { fetchData } from '../../router/router.js';
 import templates from '../../templates/templates.js';
 
-import { MESSAGE_TAG } from '../components.js';
+import {
+  CONTACT_TAG,
+  LINK_ATTR,
+  LINK_TAG,
+  MESSAGE_ATTR,
+  MESSAGE_TAG,
+  TARGET_VAL,
+} from '../components.js';
 
 const parser = new DOMParser();
 
@@ -13,99 +19,204 @@ const parseDataString = (string) => {
     : [...parsed.head.children];
 };
 
-const filterTemplateElements = (data) => {
-  const elements = parseDataString(data);
-  const templateElements = [];
-  // templates are attached at the end
-  let i = elements.length - 1;
+export function cloneFragment(input) {
+  const fragment = new DocumentFragment();
 
-  while (i >= 0) {
-    const element = elements[i];
-
-    if (element.localName !== 'template') break;
-
-    templateElements.push(elements.pop());
-    i -= 1;
+  for (const node of input.children) {
+    const child = constructChildFromNode(node);
+    fragment.appendChild(child);
   }
 
-  if (templateElements.length === 0) return elements;
+  return fragment;
+}
 
-  for (const template of templateElements) {
-    templates.set(template);
-  }
-
-  return elements;
-};
-
-const hasDynamicElements = (elements) => {
-  return elements
-    .filter(
-      (element) => element.localName === MESSAGE_TAG && !element.innerHTML
-    )
-    .reduce(
-      (result, element) =>
-        result
-          ? result
-          : !templates.isCachedMessage(element.attributes[0].name),
-      false
-    );
-};
-
-export const getModuleElements = async (moduleTemplateId, moduleKey) => {
-  const output = {
-    moduleElements: null,
-    moduleWasCached: null,
-  };
-
-  let data;
-
-  // return cached elements
-  if (templates.isCachedModule(moduleTemplateId)) {
-    data = templates.get(moduleTemplateId);
-
-    output.moduleElements = parseDataString(data);
-    output.moduleWasCached = true;
-    return output;
-  }
-
+export async function createFragment(moduleKey) {
   // fetch data
-  const path = router.getFileUrl(moduleKey);
-  data = await fetchData(path);
+  let path = router.getFileUrl(moduleKey);
+  let data = await fetchData(path);
 
-  if (!data || errorHandler.get()) {
-    return output;
+  if (!data) {
+    return null;
   }
+
+  const fragment = new DocumentFragment();
+  const nodes = parseDataString(data);
 
   // cache attached template elements
-  // and remove from elements array
-  output.moduleElements = filterTemplateElements(data);
+  for (const node of nodes) {
+    if (node.localName === 'template' && !templates.isCached(node.id)) {
+      templates.set(node.id, node);
+      continue;
+    }
 
-  // fetch additional data based on ChatMessage attributes
-  const doRequest = hasDynamicElements(output.moduleElements);
+    const child = constructChildFromNode(node);
+    fragment.appendChild(child);
+  }
 
-  if (doRequest) {
-    data = await fetchData('/views/templates.html');
+  const requestGlobalTemplates = checkGlobalTemplates(fragment);
 
-    if (!data || errorHandler.get()) return output;
+  if (requestGlobalTemplates) {
+    path = '/views/templates.html';
+    data = await fetchData(path);
 
-    // @todo
-    // either redo parseDataString
-    // bc templates are attached to head
-    // or create template innerHTML = response.data etc
-    const templateElements = parseDataString(data);
-    for (const element of templateElements) {
-      templates.set(element);
+    if (!data) return null;
+
+    const globalTemplates = parseDataString(data);
+    for (const element of globalTemplates) {
+      templates.set(element.id, element);
     }
   }
 
-  return output;
-};
+  renderChildren(fragment, moduleKey);
 
-export const injectContactsData = async (contacts) => {
+  return fragment;
+}
+
+function constructChildFromNode(node) {
+  const child = document.createElement(node.localName);
+  node.hasAttributes() && copyAttributes(node, child);
+  child.innerHTML = node.innerHTML;
+
+  return child;
+}
+
+function copyAttributes(node, element) {
+  for (const { name, value } of node.attributes) {
+    // @todo @refactor styles 'is-hidden'
+    // @consider do not add any class attributes
+    if (name === 'class') continue;
+
+    element.setAttribute(name, value);
+  }
+}
+
+function checkGlobalTemplates(fragment) {
+  let doRequest = false;
+  let i = 0;
+
+  const messages = fragment.querySelectorAll(MESSAGE_TAG);
+
+  while (i < messages.length) {
+    const attr = messages[i].getAttribute(MESSAGE_ATTR.TEMPLATE);
+
+    if (attr && !templates.isCached(attr)) {
+      doRequest = true;
+      break;
+    }
+
+    i += 1;
+  }
+
+  return doRequest;
+}
+
+function renderChildren(fragment, moduleKey) {
+  const [messages, contacts, links] = [MESSAGE_TAG, CONTACT_TAG, LINK_TAG].map(
+    (tag) => [...fragment.querySelectorAll(tag)]
+  );
+
+  messages
+    .filter((message) => message.requiresRender)
+    .forEach((message) => message.render(moduleKey));
+
+  contacts.forEach((contact) => contact.render());
+
+  links.forEach((link) => link.render());
+}
+
+export function adjustLinks(module, moduleHasContacts, prevModuleKey, route) {
+  const links = module.links;
+
+  const [linkHome, linkBack, linkShare] = [
+    TARGET_VAL.HOME,
+    TARGET_VAL.BACK,
+    TARGET_VAL.SHARE,
+  ].map((value) => links.find((link) => link.target === value));
+
+  // @todo @refactor
+  const { isChatRoute, isSharedRoute, prevRoute } = route;
+
+  // always insert ChatLink back
+  // and doublecheck position
+  if (isChatRoute && !!prevModuleKey && !linkBack) {
+    const element = createChatLink(TARGET_VAL.BACK);
+
+    if (!links.length) {
+      module.appendChild(element);
+    } else {
+      const position = linkHome ? 'after' : 'before';
+      links[0][position](element);
+    }
+  }
+
+  // insert ChatLink share when
+  // first view was /shared
+  // bc cached module does not have share link
+  if (isChatRoute && moduleHasContacts && !linkShare) {
+    module.appendChild(createChatLink(TARGET_VAL.SHARE));
+  }
+
+  if (isChatRoute && moduleHasContacts && !!linkHome) {
+    linkHome.remove();
+  }
+
+  // insert ChatLink Back
+  // if routed from /chat to /shared, /about, /error, /contact
+  // and it's not the first view
+  if (!isChatRoute && !!prevRoute && !linkBack) {
+    module.appendChild(createChatLink(TARGET_VAL.BACK));
+  }
+
+  // insert ChatLink home
+  // to ChatModule with ContactItems
+  if (isSharedRoute && !linkHome) {
+    module.append(createChatLink(TARGET_VAL.HOME));
+  }
+
+  // remove ChatLink Share
+  // if it's the first view
+  if (isSharedRoute && !!linkShare) {
+    linkShare.remove();
+  }
+
+  // @todo isContactRoute
+}
+
+function createChatLink(value) {
+  const element = document.createElement(LINK_TAG);
+  element.setAttribute(LINK_ATTR.TARGET_KEY, value);
+  element.render();
+  return element;
+}
+
+export async function injectContactsData(contacts) {
   const imported = await import('../../handler/data-handler.js');
   const { error, data } = await imported.default();
 
   contacts.forEach((contact) => {
     contact.injectData(error, data);
   });
-};
+}
+
+export function createErrorFragment(moduleKey) {
+  const element = document.createElement(MESSAGE_TAG);
+  element.setAttribute(MESSAGE_ATTR.TEMPLATE, moduleKey);
+  element.render(moduleKey);
+
+  const fragment = new DocumentFragment();
+  fragment.appendChild(element);
+
+  return fragment;
+}
+
+// @todo
+export function createContactFragment(moduleKey) {
+  // const element = document.createElement(MESSAGE_TAG);
+  // element.setAttribute(MESSAGE_ATTR.TEMPLATE, moduleKey);
+  // element.render(moduleKey);
+
+  const fragment = new DocumentFragment();
+  // fragment.appendChild(element);
+
+  return fragment;
+}

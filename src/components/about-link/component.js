@@ -44,7 +44,7 @@ export class AboutLink extends HTMLElement {
 
   attributeChangedCallback(_, prev, next) {
     if (prev === null && typeof next === 'string') {
-      this.child.href = router.prev ? router.prev : router.routes.home;
+      this.child.href = !!router.prev ? router.prev : router.routes.home;
       this.child.innerHTML = htmlActive;
       return;
     }

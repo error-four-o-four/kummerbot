@@ -1,4 +1,3 @@
-import contactHandler from '../handler/contact-handler.js';
 import errorHandler from '../handler/error-handler.js';
 
 import { TARGET_VAL } from '../components/components.js';
@@ -12,8 +11,8 @@ class Router {
   constructor() {
     this.origin = window.location.origin;
     this.path = null;
-    this.prev = null;
     this.keys = null;
+    this.prev = null;
 
     this.routes = routes;
 
@@ -25,6 +24,8 @@ class Router {
     }
   }
 
+  // @todo doublcheck references
+  // @refactor
   get isChatRoute() {
     return this.path.startsWith(routes.home);
   }
@@ -48,13 +49,21 @@ class Router {
   }
 
   get state() {
-    return [
-      this.hasChanged,
-      this.isChatRoute,
-      this.isAboutRoute,
-      this.isSharedRoute,
-      this.isContactRoute,
-    ];
+    const isSharedRoute = this.isSharedRoute;
+
+    const keys = isSharedRoute ? this.keys.slice(2) : this.keys;
+
+    // @refactor
+    return {
+      keys,
+      hasError: this.hasError,
+      hasChanged: this.hasChanged,
+      prevRoute: this.prev,
+      isChatRoute: this.isChatRoute,
+      isAboutRoute: this.isAboutRoute,
+      isSharedRoute,
+      isContactRoute: this.isContactRoute,
+    };
   }
 
   isRouterLink(link) {
@@ -68,21 +77,8 @@ class Router {
 
   getHref(value) {
     const index = typeof value === 'string' ? this.getIndex(value) : value;
-    const path = this.keys.slice(0, index + 1).join('/');
-
-    // router does not store /display/<Number> of shared route in keys
-    // @todo /shared route has no subsequent modules
-    // might be obsolete
-    const prefixSharedRoute = this.isSharedRoute
-      ? '/' +
-        this.path
-          .split('/')
-          .filter((key) => !!key)
-          .slice(0, 2)
-          .join('/')
-      : '';
-
-    return this.origin + prefixSharedRoute + '/' + path;
+    const path = '/' + this.keys.slice(0, index + 1).join('/');
+    return this.origin + path;
   }
 
   getShareUrl = () => {
@@ -97,28 +93,33 @@ class Router {
     // @reminder
     // errors in /chat route are handled by renderer
 
-    // console.log(moduleKey, Object.values(TARGET_VAL));
-
-    const file = moduleKey + '.html';
+    const base = '/views';
+    const file = '/' + moduleKey + '.html';
 
     // gnaaaa
     if (
       this.isChatRoute &&
       (moduleKey === this.keys[0] || moduleKey === TARGET_VAL.SHARE)
     ) {
-      return '/views/chat/' + file;
+      return base + '/chat' + file;
+    }
+
+    if (this.isContactRoute) {
+      return base + '/contact.html';
     }
 
     if (this.isChatRoute || this.isSharedRoute) {
-      // @doublecheck
+      // const index = this.isSharedRoute
+      // ? this.path.split('/').filter((item) => !!item && !isNaN(item))[0]
+      // : this.keys.indexOf(moduleKey);
       const index = this.isSharedRoute
-        ? this.path.split('/').filter((item) => !!item && !isNaN(item))[0]
+        ? 1 * this.keys[1]
         : this.keys.indexOf(moduleKey);
-      return '/views/chat-' + index + '/' + file;
+      return base + '/chat-' + index + file;
     }
 
     // keys map to file names
-    return '/views/' + file;
+    return base + file;
   }
 
   setLocation(route) {
@@ -129,10 +130,12 @@ class Router {
 
     const href = this.origin + route;
 
-    console.log(href);
+    // console.log(href);
     window.history.replaceState({ href }, '', href);
     // window.location.replace(route);
     this.update();
+
+    return this.state;
   }
 
   handle(e) {
@@ -140,11 +143,11 @@ class Router {
     // adds a history state
     e.preventDefault();
 
-    if (errorHandler.get()) errorHandler.set(null);
-
     const { href } = e.target;
     window.history.pushState({ href }, '', href);
     this.update();
+
+    return this.state;
   }
 
   update() {
@@ -160,12 +163,6 @@ class Router {
       pathname = pathname.slice(0, -1);
     }
 
-    // validate requiredEmailValue is set
-    if (pathname.startsWith(routes.contact) && !contactHandler.email) {
-      errorHandler.set('Die angegebene Adresse ist nicht erreichbar.');
-      pathname = routes.error;
-    }
-
     if (!validate(pathname)) {
       errorHandler.set('Die angegebene Adresse ist nicht erreichbar.');
       pathname = routes.error;
@@ -179,14 +176,12 @@ class Router {
     this.prev = this.path;
     this.path = pathname;
 
-    const keys = [
+    this.keys = [
       ...this.path
         .substring(1)
         .split('/')
         .filter((key) => key),
     ];
-
-    this.keys = this.isSharedRoute ? keys.slice(2) : keys;
   }
 }
 
