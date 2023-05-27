@@ -1,6 +1,6 @@
 import errorHandler from '../handler/error-handler.js';
 
-import { TARGET_VAL } from '../components/components.js';
+import { TARGET_VAL, MODULE_VAL } from '../components/components.js';
 
 import { routes } from './config.js';
 import { validate } from './utils.js';
@@ -9,12 +9,12 @@ export { fetchData } from './utils.js';
 
 class Router {
   constructor() {
-    this.origin = window.location.origin;
-    this.path = null;
-    this.keys = null;
-    this.prev = null;
-
     this.routes = routes;
+    this.origin = window.location.origin;
+
+    this._path = null;
+    this._keys = null;
+    this._prev = null;
 
     // on page load
     // redirect from '/' to '/chat'
@@ -24,45 +24,34 @@ class Router {
     }
   }
 
-  // @todo doublcheck references
-  // @refactor
-  get isChatRoute() {
-    return this.path.startsWith(routes.home);
-  }
-  get isAboutRoute() {
-    return this.path.startsWith(routes.about);
-  }
-  get isSharedRoute() {
-    return this.path.startsWith(routes.shared);
-  }
-  get isContactRoute() {
-    return this.path.startsWith(routes.contact);
-  }
-
   get hasError() {
-    return this.keys.includes('error');
+    return this._keys.includes('error');
   }
   get hasChanged() {
-    return !this.prev
+    return !this._prev
       ? true
-      : this.keys[0] !== this.prev.substring(1).split('/')[0];
+      : this._keys[0] !== this._prev.substring(1).split('/')[0];
   }
 
   get state() {
-    const isSharedRoute = this.isSharedRoute;
+    const [isChatRoute, isAboutRoute, isSharedRoute, isContactRoute] = [
+      routes.home,
+      routes.about,
+      routes.shared,
+      routes.contact,
+    ].map((route) => this._path.startsWith(route));
 
-    const keys = isSharedRoute ? this.keys.slice(2) : this.keys;
-
-    // @refactor
     return {
-      keys,
-      hasError: this.hasError,
-      hasChanged: this.hasChanged,
-      prevRoute: this.prev,
-      isChatRoute: this.isChatRoute,
-      isAboutRoute: this.isAboutRoute,
+      keys: isSharedRoute ? this._keys.slice(2) : this._keys,
+      hasError: this._keys.includes(MODULE_VAL.ERROR),
+      hasChanged: !this._prev
+        ? true
+        : this._keys[0] !== this._prev.substring(1).split('/')[0],
+      prevRoute: this._prev,
+      isChatRoute,
+      isAboutRoute,
       isSharedRoute,
-      isContactRoute: this.isContactRoute,
+      isContactRoute,
     };
   }
 
@@ -72,19 +61,19 @@ class Router {
   }
 
   getIndex(key) {
-    return this.keys.indexOf(key);
+    return this._keys.indexOf(key);
   }
 
   getHref(value) {
     const index = typeof value === 'string' ? this.getIndex(value) : value;
-    const path = '/' + this.keys.slice(0, index + 1).join('/');
+    const path = '/' + this._keys.slice(0, index + 1).join('/');
     return this.origin + path;
   }
 
   getShareUrl = () => {
-    const indexShareKey = this.keys.indexOf(TARGET_VAL.SHARE);
-    const moduleKey = this.keys.at(indexShareKey - 1);
-    const index = this.keys.indexOf(moduleKey);
+    const indexShareKey = this._keys.indexOf(TARGET_VAL.SHARE);
+    const moduleKey = this._keys.at(indexShareKey - 1);
+    const index = this._keys.indexOf(moduleKey);
 
     return `${this.origin}${routes.shared}/${index}/${moduleKey}`;
   };
@@ -92,29 +81,27 @@ class Router {
   getFileUrl(moduleKey) {
     // @reminder
     // errors in /chat route are handled by renderer
+    const { isChatRoute, isSharedRoute, isContactRoute } = this.state;
 
     const base = '/views';
     const file = '/' + moduleKey + '.html';
 
     // gnaaaa
     if (
-      this.isChatRoute &&
-      (moduleKey === this.keys[0] || moduleKey === TARGET_VAL.SHARE)
+      isChatRoute &&
+      (moduleKey === this._keys[0] || moduleKey === TARGET_VAL.SHARE)
     ) {
       return base + '/chat' + file;
     }
 
-    if (this.isContactRoute) {
+    if (isContactRoute) {
       return base + '/contact.html';
     }
 
-    if (this.isChatRoute || this.isSharedRoute) {
-      // const index = this.isSharedRoute
-      // ? this.path.split('/').filter((item) => !!item && !isNaN(item))[0]
-      // : this.keys.indexOf(moduleKey);
-      const index = this.isSharedRoute
-        ? 1 * this.keys[1]
-        : this.keys.indexOf(moduleKey);
+    if (isChatRoute || isSharedRoute) {
+      const index = isSharedRoute
+        ? 1 * this._keys[1]
+        : this._keys.indexOf(moduleKey);
       return base + '/chat-' + index + file;
     }
 
@@ -173,11 +160,11 @@ class Router {
       window.history.replaceState({ href }, '', href);
     }
 
-    this.prev = this.path;
-    this.path = pathname;
+    this._prev = this._path;
+    this._path = pathname;
 
-    this.keys = [
-      ...this.path
+    this._keys = [
+      ...this._path
         .substring(1)
         .split('/')
         .filter((key) => key),
