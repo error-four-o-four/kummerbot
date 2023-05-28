@@ -59,7 +59,7 @@ contact-item {
 }
 
 contact-item div.contact-body {
-  & div.contact-description-wrap {
+  & div.contact-info-wrap {
     padding: 0 0.625rem 1.125rem;
 
     & p {

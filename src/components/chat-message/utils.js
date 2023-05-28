@@ -1,9 +1,8 @@
-import { isMobileDevice } from '../../renderer/utils.js';
-
 import elements from '../../elements/elements.js';
 import templates from '../../templates/templates.js';
 import contactHandler from '../../handler/contact-handler.js';
 
+import { buttonSelector } from '../../handler/button-handler.js';
 import { MESSAGE_TAG, MODULE_VAL } from '../components.js';
 
 export function createErrorTemplate() {
@@ -25,15 +24,15 @@ export function createShareLinkHtml(href) {
   <p><a href="${href}">${href}</a></p>
   <p>
     <button
-      class="btn-copy has-icon"
+      class="has-icon ${buttonSelector.copy}"
       value="${href}"
       type="button"
       >URL Kopieren<svg><use href="#icon-copy-svg"></use></svg></button>
     ${
-      isMobileDevice
+      !!navigator.canShare
         ? `
       <button
-        class="btn-share has-icon"
+        class="has-icon ${buttonSelector.share}"
         value="${href}"
         type="button"
         >URL Teilen<svg><use href="#icon-share-svg"></use></svg></button>`
