@@ -101,7 +101,7 @@ export class ChatMessage extends HTMLElement {
 
     // skip if message is cloned by templates.set
     if (!this.isConnected) {
-      console.log(this);
+      // console.log(this);
       return;
     }
 

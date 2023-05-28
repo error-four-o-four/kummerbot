@@ -1,11 +1,10 @@
-import router from '../router/router.js';
-import renderer from '../renderer/renderer.js';
-
+import router, { ROUTES } from '../router/router.js';
 import elements from '../elements/elements.js';
+import renderer from '../renderer/renderer.js';
 import { delay } from '../renderer/animation.js';
 
-import { LINK_TAG, TARGET_VAL } from '../components/components.js';
 import errorHandler from './error-handler.js';
+import { handleEvent } from './event-handler.js';
 
 let initiated = false;
 
@@ -31,7 +30,7 @@ const captchaValidator = {
   },
 };
 
-const requiredValue = {
+const _requiredValue = {
   email: null,
   message: null,
   reset() {
@@ -47,8 +46,12 @@ const messageTmplAttributes = [
   ['message-tmpl-response-success'],
 ];
 
-const state = {
+const _state = {
+  values: 'message captcha requesting responded'.split(' '),
   index: 0,
+  get current() {
+    return this.values[this.index];
+  },
   prev() {
     this.index = Math.max(this.index - 1, 0);
   },
@@ -58,49 +61,33 @@ const state = {
 };
 
 export default {
-  setEmail(value) {
-    requiredValue.email = value;
+  setContactData(value) {
+    _requiredValue.email = value;
+  },
+  hasContactData() {
+    return !!_requiredValue.email;
+  },
+  get step() {
+    return _state.current;
   },
   getTemplateIds() {
-    return messageTmplAttributes[state.index];
+    return messageTmplAttributes[_state.index];
   },
-  async adopt(e, route) {
-    e.preventDefault();
+  handle() {
+    if (_state.index === 0) {
+      elements.form.show();
 
-    if (!requiredValue.email) {
-      errorHandler.set('Die angegebene Adresse ist nicht erreichbar.');
-      route = router.setLocation(router.routes.error);
-      await renderer.update(route);
-      return;
-    }
+      // @consider
+      !initiated &&
+        elements.form.element.addEventListener('submit', submitMessageForm);
+      !initiated &&
+        elements.form.textarea.addEventListener('input', adjustTextareaValue);
 
-    if (!initiated) {
-      elements.form.element.addEventListener('submit', submitMessageForm);
-      elements.form.textarea.addEventListener('input', adjustTextareaValue);
       initiated = true;
     }
 
-    elements.form.show();
-    renderer.update(route);
-  },
-  async handle(e, route) {
-    const { target } = e;
-
-    e.preventDefault();
-
-    if (target.localName === LINK_TAG && target.target === TARGET_VAL.BACK) {
-      state.prev();
-    }
-    renderer.update(route);
-
-    if (state.index === 1) {
-      // captcha
-      return;
-    }
-
-    if (state.index === 0) {
-      elements.form.show();
-      return;
+    if (_state.index === 1) {
+      // attach captcha listener
     }
   },
 };
@@ -109,23 +96,16 @@ export default {
 // with regex
 
 function submitMessageForm(e) {
-  e.preventDefault();
-
   const isValid = elements.form.element.reportValidity();
 
   if (!isValid) return;
 
-  requiredValue.text = elements.form.textarea.value;
+  _requiredValue.text = elements.form.textarea.value;
+
   elements.form.hide();
-  state.next();
+  _state.next();
 
-  renderer.update(router.state);
-
-  // add captcha listener
-  //   elements.form.captcha.addEventListener(
-  //     'input',
-  //     captchaValidator.onInput.bind(captchaValidator)
-  //   );
+  handleEvent(e);
 }
 
 async function submitCaptchaForm() {
@@ -143,26 +123,26 @@ async function submitCaptchaForm() {
   //     captchaValidator.onInput.bind(captchaValidator)
   //   );
 
-  state.next();
+  _state.next();
   renderer.update(router.state);
 
   const response = await sendMessage(
-    requiredValue.email,
-    requiredValue.message
+    _requiredValue.email,
+    _requiredValue.message
   );
 
   if (!response.ok) {
-    const route = router.setLocation(router.routes.error);
+    const route = router.replace(ROUTES.ERROR);
     errorHandler.set('Leider konnte deine Nachricht nicht versendet werden.');
     renderer.update(route);
     return;
   }
 
   elements.form.element.reset();
-  requiredValue.reset();
+  _requiredValue.reset();
 
-  state.next();
-  renderer.update(router.state);
+  _state.next();
+  // renderer.update(router.state);
 }
 
 // pseudo functionality

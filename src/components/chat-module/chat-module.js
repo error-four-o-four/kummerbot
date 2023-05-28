@@ -62,6 +62,13 @@ export class ChatModule extends HTMLElement {
       `rendering a ${isCached ? 'cached' : 'new'} ${cacheId} ChatModule`
     );
 
+    if (isCached && route.isContactRoute) {
+      this.innerHTML = 'morp';
+      this.update(moduleKey, route);
+      this.next = null;
+      return;
+    }
+
     if (isCached) {
       const fragment = templates.get(cacheId).content;
       this.append(cloneFragment(fragment));
