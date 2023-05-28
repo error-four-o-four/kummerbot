@@ -1,28 +1,51 @@
-export function handleButtonEvents(e) {
-  if (e.target.classList.contains('btn-copy')) {
-    console.log('@todo', e.target);
-    return;
-  }
+export const buttonSelector = {
+  copy: 'button-copy-value',
+  share: 'button-share-value',
+};
 
-  if (e.target.classList.contains('btn-share')) {
-    console.log('@todo', e.target);
-    return;
+const isCopyButton = (target) => {
+  return target.classList.contains(buttonSelector.copy);
+};
+
+const isShareButton = (target) => {
+  return target.classList.contains(buttonSelector.share);
+};
+
+export default {
+  async handle(e) {
+    const { target } = e;
+
+    if (isCopyButton(target)) {
+      const text = target.value;
+      const copied = await copyData(text);
+
+      document
+        .querySelectorAll('.' + buttonSelector.copy)
+        .forEach((button) => button.classList.remove('success'));
+
+      target.classList.add(copied ? 'success' : 'error');
+
+      return;
+    }
+
+    if (isShareButton(target)) {
+      console.log('@todo', target);
+      return;
+    }
+  },
+};
+
+async function copyData(string) {
+  if (!navigator.clipboard.writeText) return false;
+
+  try {
+    await navigator.clipboard.writeText(string);
+    return true;
+  } catch (error) {
+    console.warn(error);
+    return false;
   }
 }
-
-// button.addEventListener('click', (e) => {
-//   const input = document.createElement('input');
-//   input.style.display = 'none';
-//   document.body.appendChild(input);
-//   input.value = text;
-//   input.focus();
-//   input.select();
-//   const result = document.execCommand('copy');
-//   if (result === 'unsuccessful') {
-//     console.error('Failed to copy text.');
-//   }
-//   input.remove();
-// });
 
 // async function writeToClipboard(data) {
 //   if(typeof ClipboardItem && navigator.clipboard.write) {
@@ -38,3 +61,5 @@ export function handleButtonEvents(e) {
 //     navigator.clipboard.writeText(data)
 //   }
 // }
+
+async function shareData() {}

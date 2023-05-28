@@ -3,11 +3,10 @@ import renderer from '../renderer/renderer.js';
 import { state } from '../renderer/utils.js';
 
 import elements from '../elements/elements.js';
-import { btnSelector as contactBtnSelector } from '../components/contact-item/utils.js';
 
 import errorHandler from './error-handler.js';
 import contactHandler from './contact-handler.js';
-import { handleButtonEvents } from './button-handler.js';
+import buttonHandler from './button-handler.js';
 
 export default {
   init,
@@ -39,15 +38,16 @@ async function handle(e) {
   }
 
   if (e.target.localName === 'button') {
-    handleButtonEvents(e);
+    buttonHandler.handle(e);
     return;
   }
 
-  if (e.target.classList.contains(contactBtnSelector.message)) {
-    contactHandler.setEmail(e.target.getAttribute('value'));
-  }
-
   if (!router.isRouterLink(e.target)) return;
+
+  if (e.target.href.endsWith(router.routes.contact)) {
+    contactHandler.setEmail(e.target.getAttribute('value'));
+    console.log('set email');
+  }
 
   // update state
   const route = router.handle(e);

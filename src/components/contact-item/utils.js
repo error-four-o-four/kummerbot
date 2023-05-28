@@ -1,80 +1,124 @@
-import { isMobileDevice } from '../../renderer/utils.js';
 import router from '../../router/router.js';
 
-export const eltSelector = {
-  wrapDescr: 'contact-description-wrap',
-  description: 'contact-description',
-  page: 'contact-description-page',
-  phone: 'contact-description-phone',
-  wrapBtns: 'contact-buttons-wrap',
-  btn: 'contact-button',
+import { isMobileDevice } from '../../renderer/utils.js';
+import { buttonSelector as actionSelector } from '../../handler/button-handler.js';
+
+export const elementSelector = {
+  infoWrap: 'contact-info-wrap',
+  info: 'contact-info',
+  buttonWrap: 'contact-buttons-wrap',
+  button: 'contact-button',
 };
 
-const eltHtml = {
-  description: (value) => `
-  <p class="${eltSelector.description}">${value}</p>`,
-  page: (value) => `
-  <p>
-    <a
-      href="${value}"
-      class="has-icon-before ${eltSelector.page}"
-      ><svg><use href="#icon-website-svg"></use></svg>Website
-    </a>
-  </p>`,
-  phone: (value) => `
-  <p>
-    <span class="has-icon-before ${eltSelector.phone}">${value}</span>
-  </p>`,
+const infoKey = {
+  description: 'description',
+  website: 'website',
+  phone: 'phone,',
 };
 
-export const btnSelector = {
-  message: 'contact-btn-message',
-  mail: 'contact-btn-mail',
-  phone: 'contact-btn-phone',
+const info = {
+  description: {
+    key: 'description',
+    selector: elementSelector.info + '-' + infoKey.description,
+    html(data) {
+      return `
+      <p class="${this.selector}">${data}</p>`;
+    },
+  },
+  website: {
+    key: 'url',
+    selector: elementSelector.info + '-' + infoKey.website,
+    html(data) {
+      return `
+      <p>
+        <a
+          href="${data}"
+          class="has-icon-before ${this.selector}"
+          ><svg><use href="#icon-website-svg"></use></svg>Website
+        </a>
+      </p>`;
+    },
+  },
+  phone: {
+    key: 'phone',
+    selector: elementSelector.info + '-' + infoKey.phone,
+    html(data) {
+      return `
+      <p>
+        <span class="has-icon-before ${this.selector}">${data}</span>
+      </p>`;
+    },
+  },
 };
 
-const btnLabel = {
-  message: 'Nachricht',
-  mail: 'Mail',
-  phone: 'Anruf',
-};
-
-const btnDataKeys = {
-  message: 'mail',
+const buttonKey = {
+  message: 'message',
   mail: 'mail',
   phone: 'phone',
+};
+
+const buttonSelector = Object.entries(buttonKey).reduce((all, [key, value]) => {
+  all[key] = elementSelector.button + '-' + value;
+  return all;
+}, {});
+
+const buttons = {
+  message: {
+    key: 'mail',
+    label: 'Nachricht',
+    selector: buttonSelector[buttonKey.message],
+    html: anchorHtml,
+  },
+  mail: {
+    key: 'mail',
+    label: 'E-Mail',
+    selector: buttonSelector[buttonKey.mail],
+    html: buttonHtml,
+  },
+  phone: {
+    key: 'phone',
+    label: 'Anruf',
+    selector: buttonSelector[buttonKey.phone],
+    html: anchorHtml,
+  },
 };
 
 //  @consider
 // requires extra guard cases in click event handler
 // const btnSvg = (type) => `<svg><use href="#icon-${type}"></use></svg>`;
 
-const btnHtml = {
-  // handled by listener
-  anchor: (type) => `
-  <a
-    class="${eltSelector.btn} ${btnSelector[type]}"
-    >${btnLabel[type]}</a>`,
-  button: (type) => `
+function buttonHtml(actionSelector = null) {
+  return `
   <button
     type="button"
-    class="${eltSelector.btn} ${btnSelector[type]}"
-    >${btnLabel[type]}</button>`,
-};
+    class="${elementSelector.button} ${this.selector} ${
+    actionSelector ? actionSelector : ''
+  }"
+    >${this.label}</button>`;
+}
+
+function anchorHtml() {
+  return `
+  <a
+    class="${elementSelector.button} ${this.selector}"
+    >${this.label}</a>`;
+}
 
 // @todo html entitities in title
-export const createFragment = (title) => {
+
+export function createFragment(title) {
   const template = document.createElement('template');
   template.innerHTML = `
   <div class="contact-head">${title}</div>
   <div class="contact-body">
-    <div class="${eltSelector.wrapDescr}"></div>
-    <div class="${eltSelector.wrapBtns}">
-      ${Object.keys(btnDataKeys).reduce((html, key) => {
-        if (!isMobileDevice && key === 'phone') return html;
+    <div class="${elementSelector.infoWrap}"></div>
+    <div class="${elementSelector.buttonWrap}">
+      ${Object.entries(buttons).reduce((html, [key, props]) => {
+        if (!isMobileDevice && key === buttonKey.phone) return html;
 
-        const tag = key === 'mail' ? 'button' : 'anchor';
-        html += btnHtml[tag](key);
+        key === buttonKey.mail
+          ? (html += props.html(actionSelector.copy))
+          : (html += props.html());
 
         return html;
       }, '')}
@@ -82,30 +126,30 @@ export const createFragment = (title) => {
   </div>`;
 
   return template.content;
-};
+}
 
 export function injectContactData(component, contactData) {
   const [wrapDescr, wrapBtns] = [...component.lastElementChild.children];
 
-  wrapDescr.innerHTML = Object.entries(eltHtml).reduce((html, [key, fn]) => {
-    if (contactData[key]) html += fn(contactData[key]);
+  wrapDescr.innerHTML = Object.values(info).reduce((html, props) => {
+    const data = contactData[props.key];
+    if (!!data) html += props.html(data);
     return html;
   }, '');
 
-  // @todo @refactor
-  const btnMessage = wrapBtns.querySelector('.' + btnSelector.message);
-  if (btnMessage && contactData[btnDataKeys.message]) {
-    btnMessage.setAttribute('value', contactData[btnDataKeys.message]);
-    btnMessage.setAttribute('href', router.origin + router.routes.contact);
+  for (const [key, props] of Object.entries(buttons)) {
+    const button = wrapBtns.querySelector('.' + props.selector);
+
+    if (!button) continue;
+
+    const data = contactData[props.key];
+
+    if (!data) continue;
+
+    if (key === buttonKey.message) {
+      button.setAttribute('href', router.origin + router.routes.contact);
+    }
+
+    button.setAttribute('value', data);
   }
-
-  const btnMail = wrapBtns.querySelector('.' + btnSelector.mail);
-  btnMail &&
-    contactData[btnDataKeys.mail] &&
-    btnMail.setAttribute('value', contactData[btnDataKeys.mail]);
-
-  const btnPhone = wrapBtns.querySelector('.' + btnSelector.phone);
-  btnPhone &&
-    contactData[btnDataKeys.phone] &&
-    btnPhone.setAttribute('value', contactData[btnDataKeys.phone]);
 }
