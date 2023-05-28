@@ -6,6 +6,11 @@ export default {
     errorMessage = message;
   },
   get() {
-    return !!errorMessage ? errorMessage : null;
+    if (!errorMessage) return null;
+
+    const message = errorMessage;
+    errorMessage = null;
+
+    return message;
   },
 };

@@ -96,17 +96,7 @@ export async function renderElementsImmediately(route) {
   elements.header.setIndicatorPending();
 
   const module = document.createElement(MODULE_TAG);
-  // render single ChatModule component
-  if (route.hasChanged) {
-    const moduleKey = route.keys[0];
-    await module.render([null, moduleKey, null], route);
-  }
-
-  // use cached message templates in the following calls of this function
-  if (!route.hasChanged && route.isContactRoute) {
-    // @todo @consider
-    //
-  }
+  await module.render([null, route.keys[0], null], route);
 
   elements.outlet.append(module);
   elements.header.setIndicatorWaiting();

@@ -1,4 +1,4 @@
-import router from '../../router/router.js';
+import router, { ROUTES } from '../../router/router.js';
 
 const htmlInactive = 'Details';
 const htmlActive = 'zur&uuml;ck';
@@ -27,29 +27,26 @@ export class AboutLink extends HTMLElement {
   }
 
   connectedCallback() {
-    const isAboutRoute = window.location.pathname.startsWith(
-      router.routes.about
-    );
-
     this.child = document.createElement('a');
-    this.child.href = router.routes.about;
+    this.child.href = ROUTES.ABOUT;
     this.child.innerHTML = htmlInactive;
 
     this.appendChild(this.child);
 
-    if (isAboutRoute) {
+    if (router.state.isAboutRoute) {
       this.active = true;
     }
   }
 
   attributeChangedCallback(_, prev, next) {
+    const { prevRoute } = router.state;
     if (prev === null && typeof next === 'string') {
-      this.child.href = !!router.prev ? router.prev : router.routes.home;
+      this.child.href = !!prevRoute ? prevRoute : ROUTES.HOME;
       this.child.innerHTML = htmlActive;
       return;
     }
 
-    this.child.href = router.routes.about;
+    this.child.href = ROUTES.ABOUT;
     this.child.innerHTML = htmlInactive;
   }
 }

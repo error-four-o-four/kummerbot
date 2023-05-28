@@ -12,7 +12,9 @@ const isShareButton = (target) => {
 };
 
 export default {
-  async handle(e) {
+  click: async (e) => {
+    if (e.target.localName !== 'button') return;
+
     const { target } = e;
 
     if (isCopyButton(target)) {

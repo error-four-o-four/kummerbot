@@ -1,6 +1,7 @@
+import contactHandler from '../handler/contact-handler.js';
 import errorHandler from '../handler/error-handler.js';
 
-import { routes } from './config.js';
+import { ROUTES } from './config.js';
 
 export const fetchData = async (file) => {
   try {
@@ -10,7 +11,7 @@ export const fetchData = async (file) => {
       return await data.text();
     }
 
-    throw new Error(`Daten können nicht gefunden werden`);
+    throw new Error('Die angegebene Adresse ist nicht erreichbar.');
   } catch (error) {
     // handle
     errorHandler.set(error);
@@ -18,13 +19,19 @@ export const fetchData = async (file) => {
   }
 };
 
+export const check = (route, request) => !!route && route.startsWith(request);
+
 export const validate = (pathname) => {
-  const requested = '/' + pathname.substring(1).split('/')[0];
+  const route = '/' + pathname.substring(1).split('/')[0];
 
-  if (requested === '/') return true;
+  if (route === '/') return true;
 
-  return Object.values(routes).reduce(
-    (matched, valid) => (valid === requested ? true : matched),
+  if (check(route, ROUTES.CONTACT) && !contactHandler.hasContactData()) {
+    return false;
+  }
+
+  return Object.values(ROUTES).reduce(
+    (matched, valid) => (valid === route ? true : matched),
     false
   );
 };

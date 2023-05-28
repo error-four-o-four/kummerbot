@@ -9,7 +9,7 @@ import {
   getTargetLinkHtml,
 } from './utils.js';
 
-import router from '../../router/router.js';
+import router, { ROUTES } from '../../router/router.js';
 
 export class ChatLink extends HTMLElement {
   constructor() {
@@ -57,7 +57,7 @@ export class ChatLink extends HTMLElement {
     }
 
     if (targetKey === CUSTOM_VAL.HOME && !linkToTarget.href) {
-      linkToTarget.href = router.origin + router.routes.home;
+      linkToTarget.href = ROUTES.HOME;
       // console.log('updated', CUSTOM_VAL.HOME, linkToTarget.href, this);
       return;
     }
@@ -72,7 +72,8 @@ export class ChatLink extends HTMLElement {
       }
 
       if (!!prevRoute) {
-        linkToTarget.href = router.origin + prevRoute;
+        // @todo @doublecheck
+        linkToTarget.href = prevRoute;
         return;
       }
 

@@ -5,10 +5,12 @@
 //     return all;
 //   }, {});
 
-export const routes = {
-  home: '/chat',
-  about: '/about',
-  shared: '/display',
-  contact: '/contact',
-  error: '/error',
+export const ROUTES = {
+  HOME: '/chat',
+  ABOUT: '/about',
+  SHARED: '/display',
+  CONTACT: '/contact',
+  ERROR: '/error',
 };
+
+export const ORIGIN = window.location.origin;

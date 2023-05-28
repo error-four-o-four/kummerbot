@@ -1,9 +1,9 @@
-import router from '../../router/router.js';
+import router, { ROUTES } from '../../router/router.js';
 
 import { isMobileDevice } from '../../renderer/utils.js';
 import { buttonSelector as actionSelector } from '../../handler/button-handler.js';
 
-export const elementSelector = {
+const elementSelector = {
   infoWrap: 'contact-info-wrap',
   info: 'contact-info',
   buttonWrap: 'contact-buttons-wrap',
@@ -51,16 +51,19 @@ const info = {
   },
 };
 
-const buttonKey = {
+export const buttonKey = {
   message: 'message',
   mail: 'mail',
   phone: 'phone',
 };
 
-const buttonSelector = Object.entries(buttonKey).reduce((all, [key, value]) => {
-  all[key] = elementSelector.button + '-' + value;
-  return all;
-}, {});
+export const buttonSelector = Object.entries(buttonKey).reduce(
+  (all, [key, value]) => {
+    all[key] = elementSelector.button + '-' + value;
+    return all;
+  },
+  {}
+);
 
 const buttons = {
   message: {
@@ -147,7 +150,7 @@ export function injectContactData(component, contactData) {
     if (!data) continue;
 
     if (key === buttonKey.message) {
-      button.setAttribute('href', router.origin + router.routes.contact);
+      button.setAttribute('href', ROUTES.CONTACT);
     }
 
     button.setAttribute('value', data);
