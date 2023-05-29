@@ -1,9 +1,10 @@
-import router, { ROUTES } from '../../router/router.js';
+import { ROUTES } from '../../router/router.js';
+import { setAttribute } from '../utils.js';
 
 const htmlInactive = 'Details';
 const htmlActive = 'zur&uuml;ck';
 
-const CUSTOM_ATTR = 'active';
+const CUSTOM_ATTR = 'route';
 
 export class AboutLink extends HTMLElement {
   static get observedAttributes() {
@@ -20,7 +21,7 @@ export class AboutLink extends HTMLElement {
   }
 
   set active(value) {
-    this.toggleAttribute(CUSTOM_ATTR, !!value);
+    setAttribute(this, CUSTOM_ATTR, value);
   }
   get active() {
     return this.hasAttribute(CUSTOM_ATTR);
@@ -32,16 +33,14 @@ export class AboutLink extends HTMLElement {
     this.child.innerHTML = htmlInactive;
 
     this.appendChild(this.child);
-
-    if (router.state.isAboutRoute) {
-      this.active = true;
-    }
+    this.active = window.location.pathname.startsWith(ROUTES.ABOUT)
+      ? ROUTES.HOME
+      : false;
   }
 
   attributeChangedCallback(_, prev, next) {
-    const { prevRoute } = router.state;
-    if (prev === null && typeof next === 'string') {
-      this.child.href = !!prevRoute ? prevRoute : ROUTES.HOME;
+    if (!!next) {
+      this.child.href = next;
       this.child.innerHTML = htmlActive;
       return;
     }
