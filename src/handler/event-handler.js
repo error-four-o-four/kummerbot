@@ -59,7 +59,7 @@ export async function handleEvent(e) {
     state.initial = true;
     // @consider => elements/header.js
     // @todo convert into function
-    elements.header.link.active = route.isAboutRoute;
+    elements.header.link.active = route.isAboutRoute ? route.prevRoute : false;
     elements.form.visible && elements.form.hide();
   }
 
