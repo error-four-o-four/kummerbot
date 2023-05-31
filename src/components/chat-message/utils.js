@@ -1,10 +1,10 @@
 import elements from '../../elements/elements.js';
-import templates from '../../templates/templates.js';
-import contactHandler, { CONTACT_VAL } from '../../handler/contact-handler.js';
+import templates from '../../controller/templates.js';
+import formController from '../../controller/form-controller.js';
+import { ERROR_KEY } from '../../controller/error-controller.js';
 
 import { buttonSelector } from '../../handler/button-handler.js';
 import { MESSAGE_TAG } from '../components.js';
-import { ERROR_KEY } from '../../handler/error-handler.js';
 
 (() => {
   const template = document.createElement('template');
@@ -52,7 +52,7 @@ function insertCaptcha(output) {
   const numA = Math.floor(5 + Math.random() * 9);
   const numB = Math.floor(1 + Math.random() * 9);
 
-  contactHandler.captcha = numA + numB;
+  formController.captcha = numA + numB;
 
   const para = document.createElement('p');
   para.innerHTML = `${numA} + ${numB} = ${elements.form.createCaptchaHtml()}`;

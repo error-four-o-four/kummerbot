@@ -1,5 +1,5 @@
 import router from '../../router/router.js';
-import { CONTACT_VAL } from '../../handler/contact-handler.js';
+import { CONTACT_VAL } from '../../controller/form-controller.js';
 
 import {
   CONTACT_TAG,

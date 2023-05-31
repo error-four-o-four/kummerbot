@@ -3,7 +3,7 @@ import elements from '../elements/elements.js';
 import renderer from '../renderer/renderer.js';
 import { delay } from '../renderer/animation.js';
 
-import errorHandler from './error-handler.js';
+import errorController from './error-controller.js';
 
 const captchaValidator = {
   required: null,
@@ -148,7 +148,9 @@ async function submitCaptchaForm() {
 
   if (!response.ok) {
     const route = router.replace(ROUTES.ERROR);
-    errorHandler.set('Leider konnte deine Nachricht nicht versendet werden.');
+    errorController.set(
+      'Leider konnte deine Nachricht nicht versendet werden.'
+    );
     renderer.update(route);
     return;
   }

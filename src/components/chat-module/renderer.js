@@ -1,7 +1,13 @@
-import router, { isFetched, getData } from '../../router/router.js';
-import templates from '../../templates/templates.js';
+import router from '../../router/router.js';
+import templates from '../../controller/templates.js';
 
-import { ERROR_KEY } from '../../handler/error-handler.js';
+import { ERROR_KEY } from '../../controller/error-controller.js';
+import { CONTACT_VAL } from '../../controller/form-controller.js';
+import {
+  isFetched,
+  getData,
+  getFilePath,
+} from '../../controller/data-controller.js';
 
 import { MESSAGE_ATTR, MESSAGE_TAG, TARGET_VAL } from '../components.js';
 import { setBooleanAttribute } from '../utils.js';
@@ -15,7 +21,6 @@ import {
   createChatLink,
   getContactTmplAttribute as getContactTmplAttributes,
 } from './utils.js';
-import { CONTACT_VAL } from '../../handler/contact-handler.js';
 
 export function cloneFragment(input, prevModuleKey, moduleKey) {
   const fragment = new DocumentFragment();
@@ -30,7 +35,7 @@ export async function createFragment(prevModuleKey, moduleKey) {
   // handle /error route
   if (moduleKey === ERROR_KEY) return null;
 
-  let path = router.getFileUrl(moduleKey);
+  let path = getFilePath(moduleKey);
   let data = await getData(path);
 
   if (!data) {
@@ -95,8 +100,10 @@ export async function createFragment(prevModuleKey, moduleKey) {
 }
 
 export async function injectContactsData(contacts) {
-  const imported = await import('../../handler/data-handler.js');
-  const { error, data } = await imported.default();
+  const { getContactsData } = await import(
+    '../../controller/data-controller.js'
+  );
+  const { error, data } = await getContactsData();
 
   contacts.forEach((contact) => {
     contact.injectData(error, data);
