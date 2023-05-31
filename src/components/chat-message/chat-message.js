@@ -1,8 +1,8 @@
 import { CUSTOM_ATTR } from './config.js';
 
 import router from '../../router/router.js';
-import templates from '../../templates/templates.js';
-import contactHandler from '../../handler/contact-handler.js';
+import templates from '../../controller/templates.js';
+import formController from '../../controller/form-controller.js';
 
 import { TARGET_VAL } from '../components.js';
 import { setBooleanAttribute } from '../utils.js';
@@ -59,7 +59,7 @@ export class ChatMessage extends HTMLElement {
     }
 
     if (router.state.isContactRoute) {
-      console.log('@todo update', contactHandler.get());
+      console.log('@todo update', formController.get());
     }
   }
 

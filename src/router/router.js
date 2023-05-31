@@ -1,12 +1,11 @@
 import { ORIGIN, ROUTES } from './config.js';
 import { check, validate } from './utils.js';
 
-import errorHandler, { ERROR_KEY } from '../handler/error-handler.js';
-import contactHandler, { CONTACT_VAL } from '../handler/contact-handler.js';
+import errorController, { ERROR_KEY } from '../controller/error-controller.js';
+import formController, { CONTACT_VAL } from '../controller/form-controller.js';
 import { TARGET_VAL } from '../components/components.js';
 
 export { ORIGIN, ROUTES };
-export { isFetched, getData } from './utils.js';
 
 let _keys = [];
 
@@ -70,7 +69,7 @@ export default {
     }
 
     if (!validate(window.location.pathname)) {
-      errorHandler.set('Die angegebene Adresse ist nicht erreichbar.');
+      errorController.set('Die angegebene Adresse ist nicht erreichbar.');
       this.replace(ROUTES.ERROR);
       return;
     }
@@ -78,35 +77,6 @@ export default {
     update();
   },
 
-  getFileUrl(moduleKey) {
-    // @reminder
-    // errors in /chat route are handled by renderer
-
-    const base = '/views';
-    const file = '/' + moduleKey + '.html';
-
-    // gnaaaa
-    if (
-      state.isChatRoute &&
-      (moduleKey === _keys[0] || moduleKey === TARGET_VAL.SHARE)
-    ) {
-      return base + '/chat' + file;
-    }
-
-    if (state.isContactRoute) {
-      return base + '/contact.html';
-    }
-
-    if (state.isChatRoute || state.isSharedRoute) {
-      const index = state.isSharedRoute
-        ? 1 * _keys[1]
-        : _keys.indexOf(moduleKey);
-      return base + '/chat-' + index + file;
-    }
-
-    // keys map to file names
-    return base + file;
-  },
   getShareUrl() {
     const indexShareKey = _keys.indexOf(TARGET_VAL.SHARE);
     const moduleKey = _keys.at(indexShareKey - 1);
@@ -141,57 +111,46 @@ export default {
   },
 
   handle(e) {
-    const { target, type } = e;
-
-    e.preventDefault();
-
-    if (type !== 'submit') {
-      // get target location
-      const pathname =
-        type === 'popstate' ? window.location.pathname : target.pathname; // @todo submit
-
-      const isContactRoute = check(pathname, ROUTES.CONTACT);
-      const wasContactRoute = check(state.route, ROUTES.CONTACT);
-
-      // just preventDefault and pushState
-      if (!isContactRoute || (isContactRoute && !wasContactRoute)) {
-        const href =
-          // routed from ContactItem
-          isContactRoute && !wasContactRoute
-            ? ORIGIN + ROUTES.CONTACT + '/' + CONTACT_VAL[0]
-            : target.href;
-
-        window.history.pushState({ href }, '', href);
-        update();
-        return state;
-      }
-
-      const href = ORIGIN + ROUTES.CONTACT + '/' + contactHandler.step;
-      window.history.pushState({ href }, '', href);
-      update();
-      return state;
-    }
-
-    // @todo
-    // handle submit
-    // if step < CONTACT_VAL[1] => pushState
-    // else replaceState
-    const href = ORIGIN + ROUTES.CONTACT + '/' + contactHandler.step;
-    window.history.pushState({ href }, '', href);
-    update();
-    return state;
-
+    // const { target, type } = e;
+    // e.preventDefault();
+    // if (type !== 'submit') {
+    //   // get target location
+    //   const pathname =
+    //     type === 'popstate' ? window.location.pathname : target.pathname; // @todo submit
+    //   const isContactRoute = check(pathname, ROUTES.CONTACT);
+    //   const wasContactRoute = check(state.route, ROUTES.CONTACT);
+    //   // just preventDefault and pushState
+    //   if (!isContactRoute || (isContactRoute && !wasContactRoute)) {
+    //     const href =
+    //       // routed from ContactItem
+    //       isContactRoute && !wasContactRoute
+    //         ? ORIGIN + ROUTES.CONTACT + '/' + CONTACT_VAL[0]
+    //         : target.href;
+    //     window.history.pushState({ href }, '', href);
+    //     update();
+    //     return state;
+    //   }
+    //   const href = ORIGIN + ROUTES.CONTACT + '/' + formController.step;
+    //   window.history.pushState({ href }, '', href);
+    //   update();
+    //   return state;
+    // }
+    // // @todo
+    // // handle submit
+    // // if step < CONTACT_VAL[1] => pushState
+    // // else replaceState
+    // const href = ORIGIN + ROUTES.CONTACT + '/' + formController.step;
+    // window.history.pushState({ href }, '', href);
+    // update();
+    // return state;
     // if (type === 'popstate') {
     //   validate(window.location.pathname)
     //     ? serialize()
     //     : this.replace(ROUTES.ERROR);
-
     //   return state;
     // }
-
     // if (type === 'submit') {
     //   const href = ORIGIN + ROUTES.CONTACT + '/' + contactHandler.step;
-
     //   // @todo
     //   // use replaceState when message was send
     //   window.history.pushState({ href }, '', href);

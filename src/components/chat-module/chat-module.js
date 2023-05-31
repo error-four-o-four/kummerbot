@@ -1,7 +1,7 @@
 import { CUSTOM_ATTR, CUSTOM_TAG } from './config.js';
 
 import router from '../../router/router.js';
-import templates from '../../templates/templates.js';
+import templates from '../../controller/templates.js';
 
 import { MESSAGE_TAG, CONTACT_TAG, LINK_TAG } from '../components.js';
 import { setAttribute } from '../utils.js';
@@ -13,7 +13,7 @@ import {
   injectContactsData,
 } from './renderer.js';
 
-import { ERROR_KEY } from '../../handler/error-handler.js';
+import { ERROR_KEY } from '../../controller/error-controller.js';
 
 export class ChatModule extends HTMLElement {
   static get observedAttributes() {

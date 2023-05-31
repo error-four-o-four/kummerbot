@@ -6,7 +6,7 @@ import { state } from '../renderer/utils.js';
 import { ORIGIN, ROUTES } from '../router/config.js';
 import { buttonKey, buttonSelector } from '../components/contact-item/utils.js';
 
-import contactHandler, { CONTACT_VAL } from './contact-handler.js';
+import formController, { CONTACT_VAL } from '../controller/form-controller.js';
 
 export default {
   popstate: handlePopstate,
@@ -31,7 +31,7 @@ function handleClick(e) {
   if (!isRouterLink(element)) return;
 
   if (isContactLink(element)) {
-    contactHandler.setContactData(element.getAttribute('value'));
+    formController.setContactData(element.getAttribute('value'));
   }
 
   e.preventDefault();
@@ -75,12 +75,12 @@ function handleSubmit(e) {
   e.preventDefault();
 
   // submitted message
-  if (contactHandler.get() === CONTACT_VAL[0]) {
+  if (formController.get() === CONTACT_VAL[0]) {
     if (!elements.form.element.reportValidity()) return;
-    contactHandler.setMessage();
+    formController.setMessage();
   }
 
-  contactHandler.forward();
+  formController.forward();
   handleContactPage(e);
 }
 
@@ -95,10 +95,10 @@ async function handleContactPage(e, pathname, hasChanged) {
   const isBackEvent = pathname === router.state.prevRoute;
 
   if (isBackEvent) {
-    contactHandler.back();
+    formController.back();
   }
 
-  const contactState = hasChanged ? CONTACT_VAL[0] : contactHandler.get();
+  const contactState = hasChanged ? CONTACT_VAL[0] : formController.get();
   pathname = ROUTES.CONTACT + '/' + contactState;
 
   if (hasChanged) {
@@ -108,5 +108,5 @@ async function handleContactPage(e, pathname, hasChanged) {
   }
 
   await renderer.update();
-  contactHandler.update(contactState);
+  formController.update(contactState);
 }
