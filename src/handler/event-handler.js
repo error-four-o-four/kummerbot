@@ -3,32 +3,24 @@ import renderer from '../renderer/renderer.js';
 import elements from '../elements/elements.js';
 import { state } from '../renderer/utils.js';
 
-import { ORIGIN } from '../router/config.js';
-import { LINK_ATTR, TARGET_VAL } from '../components/components.js';
+import { ORIGIN, ROUTES } from '../router/config.js';
 import { buttonKey, buttonSelector } from '../components/contact-item/utils.js';
 
-import contactHandler from './contact-handler.js';
+import contactHandler, { CONTACT_VAL } from './contact-handler.js';
 
 export default {
   popstate: handlePopstate,
   click: handleClick,
+  submit: handleSubmit,
 };
 
-async function handlePopstate(e) {
+function handlePopstate(e) {
   // state.transition && (await handleAnimations(e));
-  handleEvent(e);
+
+  handleEvent(e, window.location.pathname);
 }
 
-const isRouterLink = (element) =>
-  element.href && element.href.startsWith(ORIGIN);
-
-const isContactLink = (element) =>
-  element.classList.contains(buttonSelector[buttonKey.message]);
-
-const isBackLink = (element) =>
-  element.getAttribute(LINK_ATTR.TARGET_KEY) === TARGET_VAL.BACK;
-
-async function handleClick(e) {
+function handleClick(e) {
   const element = e.target;
 
   if (state.transition) {
@@ -36,24 +28,28 @@ async function handleClick(e) {
     return;
   }
 
-  // if (element.localName === 'a') console.log(element);
-
   if (!isRouterLink(element)) return;
 
   if (isContactLink(element)) {
-    contactHandler.setContactData(e.target.getAttribute('value'));
-    // await import contacts data
+    contactHandler.setContactData(element.getAttribute('value'));
   }
 
-  if (isBackLink(element)) {
-    // contactHandler
-  }
-
-  handleEvent(e);
+  e.preventDefault();
+  handleEvent(e, element.pathname);
 }
 
-export async function handleEvent(e) {
-  const route = router.handle(e);
+export function handleEvent(e, pathname) {
+  const { isContactRoute: wasContactRoute } = router.state;
+  const isContactRoute = router.check(pathname, ROUTES.CONTACT);
+
+  if (isContactRoute) {
+    // await import contacts data
+    handleContactPage(e, pathname, wasContactRoute !== isContactRoute);
+    return;
+  }
+
+  const route =
+    e.type === 'popstate' ? router.replace(pathname) : router.push(pathname);
 
   if (route.hasChanged) {
     state.initial = true;
@@ -63,7 +59,54 @@ export async function handleEvent(e) {
     elements.form.visible && elements.form.hide();
   }
 
-  await renderer.update(route);
+  renderer.update();
+}
 
-  route.isContactRoute && contactHandler.handle(route);
+// @consider css selector ??
+function isRouterLink(element) {
+  return element.href && element.href.startsWith(ORIGIN);
+}
+
+function isContactLink(element) {
+  return element.classList.contains(buttonSelector[buttonKey.message]);
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+
+  // submitted message
+  if (contactHandler.get() === CONTACT_VAL[0]) {
+    if (!elements.form.element.reportValidity()) return;
+    contactHandler.setMessage();
+  }
+
+  contactHandler.forward();
+  handleContactPage(e);
+}
+
+async function handleContactPage(e, pathname, hasChanged) {
+  if (pathname === router.state.route) {
+    console.log(pathname, e);
+    return;
+  }
+  // check pathname and prev route
+  // to see if it was a back event
+  // and call contactHandler.backward()
+  const isBackEvent = pathname === router.state.prevRoute;
+
+  if (isBackEvent) {
+    contactHandler.back();
+  }
+
+  const contactState = hasChanged ? CONTACT_VAL[0] : contactHandler.get();
+  pathname = ROUTES.CONTACT + '/' + contactState;
+
+  if (hasChanged) {
+    router.push(pathname);
+  } else {
+    router.replace(pathname);
+  }
+
+  await renderer.update();
+  contactHandler.update(contactState);
 }

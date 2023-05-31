@@ -1,3 +1,4 @@
+import router from '../router/router.js';
 import elements from '../elements/elements.js';
 import animation from './animation.js';
 
@@ -12,17 +13,18 @@ export async function removeAllEllements() {
   elements.outlet.innerHTML = '';
 }
 
-export async function removeElements(route) {
+export async function removeElements() {
+  const absoluteKeys = router.state.keys;
   // remove incorrect elements
   // when back or reset button was clicked
   // router.keys.length will always be greater than 0
   // if this conitidion is fullfilled
   // elements.outlet.children.length will always be greater than 1
-  if (elements.outlet.children.length < route.keys.length) return;
+  if (elements.outlet.children.length < absoluteKeys.length) return;
 
   // get the last correct ChatModule component
   // and the modules which will be removed
-  const [lastModuleIndex, filteredModules] = filterChatModules(route.keys);
+  const [lastModuleIndex, filteredModules] = filterChatModules(absoluteKeys);
   const lastModule = elements.outlet.children[lastModuleIndex];
 
   // console.log(lastModuleIndex, lastModule);
@@ -43,14 +45,14 @@ export async function removeElements(route) {
   }
 }
 
-function filterChatModules(routerKeys) {
+function filterChatModules(absoluteKeys) {
   let i = 0;
 
-  while (i < routerKeys.length) {
+  while (i < absoluteKeys.length) {
     const module = elements.outlet.children[i];
 
     // break if there's an incorrect section
-    if (routerKeys[i] !== module.key) break;
+    if (absoluteKeys[i] !== module.key) break;
 
     i += 1;
   }

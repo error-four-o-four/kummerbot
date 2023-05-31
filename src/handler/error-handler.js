@@ -1,6 +1,8 @@
 // @todo use a default
 let errorMessage = '';
 
+export const ERROR_KEY = 'error';
+
 export default {
   set(message) {
     errorMessage = message;

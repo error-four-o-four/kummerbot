@@ -2,15 +2,12 @@ import { CUSTOM_ATTR } from './config.js';
 
 import router from '../../router/router.js';
 import templates from '../../templates/templates.js';
-import errorHandler from '../../handler/error-handler.js';
 import contactHandler from '../../handler/contact-handler.js';
 
-import { MODULE_VAL, TARGET_VAL } from '../components.js';
+import { TARGET_VAL } from '../components.js';
 import { setBooleanAttribute } from '../utils.js';
 
-import { createErrorTemplate, createShareLinkHtml } from './utils.js';
-
-createErrorTemplate();
+import { createShareLinkHtml } from './utils.js';
 
 export class ChatMessage extends HTMLElement {
   static get observedAttributes() {
@@ -31,27 +28,17 @@ export class ChatMessage extends HTMLElement {
 
   render(moduleKey) {
     const templateId = this.getAttribute(CUSTOM_ATTR.TEMPLATE);
-    this.innerHTML = templates.get(templateId).innerHTML;
+    this.innerHTML = templates.get('tmpl-' + templateId).innerHTML;
 
-    if (moduleKey === MODULE_VAL.ERROR) {
-      const error = errorHandler.get();
+    const route = router.state;
 
-      !!error && (this.firstElementChild.innerHTML += `<br />${error}`);
-
-      return;
-    }
-
-    if (![TARGET_VAL.SHARE, MODULE_VAL.CONTACT].includes(moduleKey)) return;
+    if (moduleKey !== TARGET_VAL.SHARE && !route.isContactRoute) return;
 
     setBooleanAttribute(this, CUSTOM_ATTR.DYNAMIC);
 
     if (moduleKey === TARGET_VAL.SHARE) {
       const href = router.getShareUrl();
       this.innerHTML += createShareLinkHtml(href);
-    }
-
-    if (moduleKey === MODULE_VAL.CONTACT) {
-      console.log('@todo render', contactHandler);
     }
   }
 
@@ -71,8 +58,8 @@ export class ChatMessage extends HTMLElement {
       return;
     }
 
-    if (moduleKey === MODULE_VAL.CONTACT) {
-      console.log('@todo update', contactHandler);
+    if (router.state.isContactRoute) {
+      console.log('@todo update', contactHandler.get());
     }
   }
 

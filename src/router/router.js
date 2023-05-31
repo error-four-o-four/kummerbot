@@ -1,92 +1,111 @@
 import { ORIGIN, ROUTES } from './config.js';
 import { check, validate } from './utils.js';
 
-import errorHandler from '../handler/error-handler.js';
-import contactHandler from '../handler/contact-handler.js';
-import { TARGET_VAL, MODULE_VAL } from '../components/components.js';
+import errorHandler, { ERROR_KEY } from '../handler/error-handler.js';
+import contactHandler, { CONTACT_VAL } from '../handler/contact-handler.js';
+import { TARGET_VAL } from '../components/components.js';
 
-export { ROUTES };
-export { fetchData } from './utils.js';
+export { ORIGIN, ROUTES };
+export { isFetched, getData } from './utils.js';
 
-let _prevRoute = null;
-let _route = null;
 let _keys = [];
 
-const dict = {
-  isChatRoute: ROUTES.HOME,
-  isAboutRoute: ROUTES.ABOUT,
-  isSharedRoute: ROUTES.SHARED,
-  isContactRoute: ROUTES.CONTACT,
-};
-
-const _state = {
+const state = {
   keys: [],
   hasError: false,
-  hasChanged: true,
-  prevRoute: _prevRoute,
+  hasChanged: false,
+  route: null,
+  prevRoute: null,
   isChatRoute: false,
   isAboutRoute: false,
   isSharedRoute: false,
   isContactRoute: false,
 };
 
-const serialize = () => {
+const update = () => {
   // populate path and query
-  _prevRoute = _route;
-  _route = window.location.pathname;
+  state.prevRoute = state.route;
+  state.route = window.location.pathname;
+
+  state.hasChanged = !state.prevRoute
+    ? true
+    : !check(state.route, state.prevRoute);
 
   _keys = [
-    ..._route
+    ...state.route
       .substring(1)
       .split('/')
       .filter((key) => key),
   ];
 
+  state.hasError = _keys.includes(ERROR_KEY);
+
+  const routes = {
+    isChatRoute: ROUTES.HOME,
+    isAboutRoute: ROUTES.ABOUT,
+    isSharedRoute: ROUTES.SHARED,
+    isContactRoute: ROUTES.CONTACT,
+  };
+
   // update values
-  Object.entries(dict).forEach(
-    ([key, value]) => (_state[key] = check(_route, value))
+  Object.entries(routes).forEach(
+    ([key, value]) => (state[key] = check(state.route, value))
   );
 
-  _state.keys = _state.isSharedRoute ? _keys.slice(2) : _keys;
-  _state.hasError = _keys.includes(MODULE_VAL.ERROR);
-  _state.hasChanged = !_prevRoute
-    ? true
-    : _keys[0] !== _prevRoute.substring(1).split('/')[0];
+  state.keys = state.isSharedRoute ? _keys.slice(2) : _keys;
 
-  return _state;
+  return state;
 };
-
-// update values onload
-serialize();
 
 export default {
   get state() {
-    return _state;
+    return state;
   },
-
   init() {
     // on page load
     // redirect from '/' to '/chat'
-    console.log(_route, history);
-
-    if (window.history.state === null && _route === '/') {
+    if (window.history.state === null && window.location.pathname === '/') {
       this.replace(ROUTES.HOME);
       return;
     }
 
-    if (!validate(_route)) {
+    if (!validate(window.location.pathname)) {
       errorHandler.set('Die angegebene Adresse ist nicht erreichbar.');
       this.replace(ROUTES.ERROR);
+      return;
     }
+
+    update();
   },
-  // @doublecheck
-  getIndex(key) {
-    return _keys.indexOf(key);
-  },
-  getHref(value) {
-    const index = typeof value === 'string' ? this.getIndex(value) : value;
-    const pathname = '/' + _keys.slice(0, index + 1).join('/');
-    return ORIGIN + pathname;
+
+  getFileUrl(moduleKey) {
+    // @reminder
+    // errors in /chat route are handled by renderer
+
+    const base = '/views';
+    const file = '/' + moduleKey + '.html';
+
+    // gnaaaa
+    if (
+      state.isChatRoute &&
+      (moduleKey === _keys[0] || moduleKey === TARGET_VAL.SHARE)
+    ) {
+      return base + '/chat' + file;
+    }
+
+    if (state.isContactRoute) {
+      return base + '/contact.html';
+    }
+
+    if (state.isChatRoute || state.isSharedRoute) {
+      const index = state.isSharedRoute
+        ? 1 * _keys[1]
+        : _keys.indexOf(moduleKey);
+      return base + '/chat-' + index + file;
+    }
+
+    // keys map to file names
+    return base + file;
   },
   getShareUrl() {
     const indexShareKey = _keys.indexOf(TARGET_VAL.SHARE);
@@ -95,45 +114,30 @@ export default {
 
     return `${ORIGIN}${ROUTES.SHARED}/${index}/${moduleKey}`;
   },
-  getFileUrl(moduleKey) {
-    // @reminder
-    // errors in /chat route are handled by renderer
-    const { isChatRoute, isSharedRoute, isContactRoute } = this.state;
 
-    const base = '/views';
-    const file = '/' + moduleKey + '.html';
+  getHref(value) {
+    // @doublecheck isContactRoute
 
-    // gnaaaa
-    if (
-      isChatRoute &&
-      (moduleKey === _keys[0] || moduleKey === TARGET_VAL.SHARE)
-    ) {
-      return base + '/chat' + file;
-    }
-
-    if (isContactRoute) {
-      return base + '/contact.html';
-    }
-
-    if (isChatRoute || isSharedRoute) {
-      const index = isSharedRoute ? 1 * _keys[1] : _keys.indexOf(moduleKey);
-      return base + '/chat-' + index + file;
-    }
-
-    // keys map to file names
-    return base + file;
-  },
-  getData() {
-    // @todo
-    // called by ChatModule
-    // set ErrorHandler
+    // const index = typeof value === 'string' ? this.getIndex(value) : value;
+    const index = _keys.indexOf(value);
+    const pathname = '/' + _keys.slice(0, index + 1).join('/');
+    return pathname;
   },
 
-  replace(route) {
-    const href = ORIGIN + route;
+  check,
+
+  replace(pathname) {
+    const href = ORIGIN + pathname;
     window.history.replaceState({ href }, '', href);
 
-    return serialize();
+    return update();
+  },
+
+  push(pathname) {
+    const href = ORIGIN + pathname;
+    window.history.pushState({ href }, '', href);
+
+    return update();
   },
 
   handle(e) {
@@ -141,27 +145,58 @@ export default {
 
     e.preventDefault();
 
-    if (type === 'popstate') {
-      return serialize();
-    }
+    if (type !== 'submit') {
+      // get target location
+      const pathname =
+        type === 'popstate' ? window.location.pathname : target.pathname; // @todo submit
 
-    if (type === 'submit') {
+      const isContactRoute = check(pathname, ROUTES.CONTACT);
+      const wasContactRoute = check(state.route, ROUTES.CONTACT);
+
+      // just preventDefault and pushState
+      if (!isContactRoute || (isContactRoute && !wasContactRoute)) {
+        const href =
+          // routed from ContactItem
+          isContactRoute && !wasContactRoute
+            ? ORIGIN + ROUTES.CONTACT + '/' + CONTACT_VAL[0]
+            : target.href;
+
+        window.history.pushState({ href }, '', href);
+        update();
+        return state;
+      }
+
       const href = ORIGIN + ROUTES.CONTACT + '/' + contactHandler.step;
-
       window.history.pushState({ href }, '', href);
-      return serialize();
+      update();
+      return state;
     }
 
-    const isContactRoute = check(target.pathname, ROUTES.CONTACT);
-    const wasContactRoute = check(_route, ROUTES.CONTACT);
-
-    const href =
-      isContactRoute && !wasContactRoute
-        ? ORIGIN + ROUTES.CONTACT + '/' + contactHandler.step
-        : target.href;
-
+    // @todo
+    // handle submit
+    // if step < CONTACT_VAL[1] => pushState
+    // else replaceState
+    const href = ORIGIN + ROUTES.CONTACT + '/' + contactHandler.step;
     window.history.pushState({ href }, '', href);
+    update();
+    return state;
 
-    return serialize();
+    // if (type === 'popstate') {
+    //   validate(window.location.pathname)
+    //     ? serialize()
+    //     : this.replace(ROUTES.ERROR);
+
+    //   return state;
+    // }
+
+    // if (type === 'submit') {
+    //   const href = ORIGIN + ROUTES.CONTACT + '/' + contactHandler.step;
+
+    //   // @todo
+    //   // use replaceState when message was send
+    //   window.history.pushState({ href }, '', href);
+    //   serialize();
+    //   return state;
+    // }
   },
 };

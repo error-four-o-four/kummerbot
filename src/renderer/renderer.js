@@ -1,3 +1,5 @@
+import router from '../router/router.js';
+
 import { removeElements, removeAllEllements } from './removeElements.js';
 
 import {
@@ -12,7 +14,8 @@ export default {
   update,
 };
 
-async function update(route) {
+async function update() {
+  const route = router.state;
   // @todo on first render
   // @todo hide app
   // @todo show app when last element was rendered
@@ -25,13 +28,13 @@ async function update(route) {
   // @todo add css attribute to reset pointer
   state.transition = true;
 
-  route.hasChanged || route.isContactRoute
-    ? await removeAllEllements(route)
-    : await removeElements(route);
+  route.hasChanged || route.isContactRoute || route.hasError
+    ? await removeAllEllements()
+    : await removeElements();
 
   route.isChatRoute
-    ? await renderElementsDelayed(route)
-    : await renderElementsImmediately(route);
+    ? await renderElementsDelayed()
+    : await renderElementsImmediately();
 
   state.transition = false;
 
