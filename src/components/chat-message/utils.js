@@ -1,13 +1,14 @@
 import elements from '../../elements/elements.js';
 import templates from '../../templates/templates.js';
-import contactHandler from '../../handler/contact-handler.js';
+import contactHandler, { CONTACT_VAL } from '../../handler/contact-handler.js';
 
 import { buttonSelector } from '../../handler/button-handler.js';
-import { MESSAGE_TAG, MODULE_VAL } from '../components.js';
+import { MESSAGE_TAG } from '../components.js';
+import { ERROR_KEY } from '../../handler/error-handler.js';
 
-export function createErrorTemplate() {
+(() => {
   const template = document.createElement('template');
-  template.id = MODULE_VAL.ERROR;
+  template.id = ERROR_KEY;
   template.innerHTML = `
   <p>&#x26A0; Da hat etwas nicht funktioniert ...</p>
   <p>
@@ -17,7 +18,7 @@ export function createErrorTemplate() {
   `;
 
   templates.set(template.id, template);
-}
+})();
 
 export function createShareLinkHtml(href) {
   return `
@@ -41,7 +42,8 @@ export function createShareLinkHtml(href) {
   </p>`;
 }
 
-export function insertCaptcha(output) {
+// @todo inject contact name
+function insertCaptcha(output) {
   // @todo
   // check if captcha exists beforehand
 

@@ -1,39 +1,41 @@
+import router from '../router/router.js';
 import elements from '../elements/elements.js';
 import animation from './animation.js';
 import { state } from './utils.js';
 
 import { MODULE_TAG } from '../components/components.js';
 
-export async function renderElementsDelayed(route) {
+export async function renderElementsDelayed() {
   if (state.initial) {
     // console.log('initial render');
   }
 
-  for (let step = 0, steps = route.keys.length; step < steps; step += 1) {
+  const absoluteKeys = router.state.keys;
+
+  for (let step = 0; step < absoluteKeys.length; step += 1) {
     // get prev, current and next key
-    const keys = [step - 1, step, step + 1].map(
-      (step) => route.keys[step] || null
+    const relativeKeys = [step - 1, step, step + 1].map(
+      (step) => absoluteKeys[step] || null
     );
 
     // check if there's a rendered ChatModule component
     // for the currently iterated part of the pathname (router.keys)
     // play animation if necessary
-    const doContinue = await checkCurrentStep(step, keys[2]);
+    const doContinue = await checkCurrentStep(step, relativeKeys[2]);
 
     if (doContinue) continue;
 
+    // else create a new ChatModule component
     elements.header.setIndicatorPending();
 
-    // else create a new ChatModule component
     // @reminder
     // cloneNode() method of an element within a template does not call the constructor
     // it's necessary to call the constructor to make setters, getters and methods available
     const module = document.createElement(MODULE_TAG);
 
-    // use key to fetch .html-file initially
-    // and cache message-templates
+    // use moduleKey to fetch and store .html-file initially
     // render contents depending on route
-    await module.render(keys, route);
+    await module.render(relativeKeys);
 
     // @todo
     // if state.initial hide elements
@@ -90,13 +92,13 @@ async function checkCurrentStep(step, next) {
   return true;
 }
 
-export async function renderElementsImmediately(route) {
+export async function renderElementsImmediately() {
   // function isn't called in /chat route
   // outlet was cleared beforehand
   elements.header.setIndicatorPending();
 
   const module = document.createElement(MODULE_TAG);
-  await module.render([null, route.keys[0], null], route);
+  await module.render([null, router.state.keys[0], null]);
 
   elements.outlet.append(module);
   elements.header.setIndicatorWaiting();

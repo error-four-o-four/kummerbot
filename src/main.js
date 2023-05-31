@@ -17,6 +17,6 @@ document.documentElement.style.setProperty(
 router.init();
 
 (async () => {
-  await renderer.update(router.state);
+  await renderer.update();
   handler.init();
 })();

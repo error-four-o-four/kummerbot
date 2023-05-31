@@ -1,25 +1,43 @@
 import {
-  CONTACT_ATTR,
   CONTACT_TAG,
-  LINK_ATTR,
+  CONTACT_ATTR,
   LINK_TAG,
-  MESSAGE_ATTR,
+  LINK_ATTR,
   MESSAGE_TAG,
+  MESSAGE_ATTR,
   MODULE_TAG,
 } from '../components/components.js';
 
 const cachedIds = [];
 
 export default {
-  getId(element) {
+  getId(localName, key) {
     // prefix chat-module
-    // template has id
-    return element.localName === MODULE_TAG
-      ? ['module', element.key].join('-')
-      : element.id;
+    // @doublecheck
+    // at the moment this function os only called by ChatModule component
+    return localName === MODULE_TAG ? ['module', key].join('-') : key;
   },
   isCached(id) {
     return cachedIds.includes(id);
+  },
+  hasGlobalTemplates(fragment) {
+    let doRequest = false;
+    let i = 0;
+
+    const messages = fragment.querySelectorAll(MESSAGE_TAG);
+
+    while (i < messages.length) {
+      const attr = messages[i].getAttribute(MESSAGE_ATTR.TEMPLATE);
+
+      if (attr && !this.isCached(attr)) {
+        doRequest = true;
+        break;
+      }
+
+      i += 1;
+    }
+
+    return doRequest;
   },
   get(id) {
     return document.head.children[id];
@@ -29,17 +47,16 @@ export default {
     // templates are attached to the fetched .html files
     // and stored when the file is fetched
     // but before the ChatModule is rendered
-    const template =
-      element.localName === 'template'
-        ? element
-        : document.createElement('template');
-    template.id = id;
+    const isChatModule = element.localName === MODULE_TAG;
+    const template = isChatModule
+      ? document.createElement('template')
+      : element;
 
     // store all children of a ChatModule
     // in a template element
     // and append it to the head
     // const template = document.createElement('template');
-    if (element.localName !== 'template') {
+    if (isChatModule) {
       for (const child of element.children) {
         // skip obsolete elements like a pending-indicator
         if (![MESSAGE_TAG, CONTACT_TAG, LINK_TAG].includes(child.localName)) {
@@ -50,7 +67,11 @@ export default {
         tidy && tidyAttributes(clone);
         template.content.appendChild(clone);
       }
+    } else {
+      id = 'tmpl-' + id;
     }
+
+    template.id = id;
     cachedIds.push(id);
     document.head.appendChild(template);
   },

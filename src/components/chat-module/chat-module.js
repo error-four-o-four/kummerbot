@@ -1,7 +1,7 @@
-import { CUSTOM_ATTR, CUSTOM_VAL } from './config.js';
+import { CUSTOM_ATTR, CUSTOM_TAG } from './config.js';
 
-import templates from '../../templates/templates.js';
 import router from '../../router/router.js';
+import templates from '../../templates/templates.js';
 
 import { MESSAGE_TAG, CONTACT_TAG, LINK_TAG } from '../components.js';
 import { setAttribute } from '../utils.js';
@@ -11,8 +11,9 @@ import {
   createFragment,
   createErrorFragment,
   injectContactsData,
-  adjustLinks,
-} from './utils.js';
+} from './renderer.js';
+
+import { ERROR_KEY } from '../../handler/error-handler.js';
 
 export class ChatModule extends HTMLElement {
   static get observedAttributes() {
@@ -51,77 +52,54 @@ export class ChatModule extends HTMLElement {
 
   // methods
 
-  async render(keys, route) {
-    const [prevKey, moduleKey, nextKey] = keys;
+  async render(relativeKeys) {
+    const route = router.state;
+    // moduleKey represents the file name
+    // special case: /contact route (one file stores several message templates)
+    const prevModuleKey = relativeKeys[0];
+    const moduleKey = route.isContactRoute
+      ? [route.keys[0], route.keys[1]].join('-')
+      : relativeKeys[1];
+    const nextModuleKey = relativeKeys[2];
 
-    this.key = moduleKey;
-
-    const cacheId = templates.getId(this);
+    const cacheId = templates.getId(CUSTOM_TAG, moduleKey);
     const isCached = templates.isCached(cacheId);
+
     console.log(
-      `rendering a ${isCached ? 'cached' : 'new'} ${cacheId} ChatModule`
+      `rendering a ${
+        isCached ? 'cached' : 'new'
+      } ${cacheId} ChatModule ${moduleKey}`
     );
 
-    if (isCached && route.isContactRoute) {
-      this.innerHTML = 'morp';
-      this.update(moduleKey, route);
-      this.next = null;
-      return;
-    }
+    // debugger
 
-    if (isCached) {
-      const fragment = templates.get(cacheId).content;
-      this.append(cloneFragment(fragment));
-      this.update(prevKey, route);
-      this.next = nextKey;
-      return;
-    }
-
-    // calls method render() of every child
-    const fragment = await createFragment(moduleKey);
+    const fragment = isCached
+      ? cloneFragment(templates.get(cacheId).content, prevModuleKey, moduleKey)
+      : await createFragment(prevModuleKey, moduleKey);
 
     if (!fragment) {
-      this.key = CUSTOM_VAL.ERROR;
-      this.append(createErrorFragment(this.key));
-      this.update(prevKey, route);
+      this.key = ERROR_KEY;
+      this.append(createErrorFragment(this.key, route.prevRoute));
       this.next = null;
       return;
     }
 
+    this.key = moduleKey;
     this.append(fragment);
-    this.update(prevKey, route);
-    this.next = nextKey;
-  }
 
-  update(prevModuleKey, route) {
-    const moduleHref = router.getHref(this.key);
     const deferCache = !!this.contacts.length;
 
-    // update share link
-    // update captcha
-    this.messages
-      .filter((message) => message.requiresUpdate)
-      .forEach((message) => message.update(key));
-
-    // insert/remove links depending on routerState
-    adjustLinks(this, deferCache, prevModuleKey, route);
-
-    // update created links
-    this.links.forEach((link) => link.update(this.key, moduleHref, route));
-
-    const cacheId = templates.getId(this);
-    const isCached = templates.isCached(cacheId);
-
-    if (isCached) return;
-
-    if (!deferCache) {
+    if (!isCached && !deferCache) {
       templates.set(cacheId, this);
-      return;
     }
 
-    injectContactsData(this.contacts).then(() => {
-      templates.set(cacheId, this, true);
-    });
+    if (!isCached && deferCache) {
+      injectContactsData(this.contacts).then(() => {
+        templates.set(cacheId, this, true);
+      });
+    }
+
+    route.isChatRoute && (this.next = nextModuleKey);
   }
 
   attributeChangedCallback(name, _, next) {
