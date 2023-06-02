@@ -115,7 +115,7 @@ contact-item div.contact-body {
       }
 
       /* @consider */
-      /* nope
+      /*
         requires extra guard cases in click event handler
       */
       & svg {

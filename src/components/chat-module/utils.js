@@ -62,7 +62,6 @@ const getComponents = (fragment) =>
     ...fragment.querySelectorAll(tag),
   ]);
 
-// @todo destructure route
 export function renderChildren(fragment, moduleKey) {
   const [messages, contacts, links] = getComponents(fragment);
 

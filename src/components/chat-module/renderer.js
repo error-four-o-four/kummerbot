@@ -110,8 +110,8 @@ export async function injectContactsData(contacts) {
 }
 
 export function createErrorFragment() {
-  // @todo check module cache
-  // gnaaa dafuq
+  // message template is cached by iife
+  // in chat-message/utils.js
   const message = document.createElement(MESSAGE_TAG);
   const link = createChatLink(TARGET_VAL.HOME);
 

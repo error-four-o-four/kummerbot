@@ -181,7 +181,7 @@ function updateProps(pathname) {
 // if (type !== 'submit') {
 //   // get target location
 //   const pathname =
-//     type === 'popstate' ? window.location.pathname : target.pathname; // @todo submit
+//     type === 'popstate' ? window.location.pathname : target.pathname;
 //   const isContactRoute = check(pathname, ROUTES.CONTACT);
 //   const wasContactRoute = check(state.route, ROUTES.CONTACT);
 //   // just preventDefault and pushState
@@ -200,7 +200,6 @@ function updateProps(pathname) {
 //   update();
 //   return state;
 // }
-// // @todo
 // // handle submit
 // // if step < CONTACT_VAL[1] => pushState
 // // else replaceState
@@ -216,7 +215,6 @@ function updateProps(pathname) {
 // }
 // if (type === 'submit') {
 //   const href = ORIGIN + ROUTES.CONTACT + '/' + contactHandler.step;
-//   // @todo
 //   // use replaceState when message was send
 //   window.history.pushState({ href }, '', href);
 //   serialize();

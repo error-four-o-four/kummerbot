@@ -115,7 +115,6 @@ function handlePopstate(e) {
 
 // if (route.hasChanged) {
 //   // @consider => elements/header.js
-//   // @todo convert into function
 //   elements.header.link.active = route.isAboutRoute ? route.prevRoute : false;
 // }
 
