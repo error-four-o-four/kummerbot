@@ -48,7 +48,7 @@
   - [ ] ~~add email regex. might not be necessary because there's no user input~~
   - [ ] adjust attribute 'cols' in 'resized' event
   - [ ] pass data key from button to contactHandler !
-  - [ ] refactor data and dataHandler => add property 'tags' which is associated with the loaded .html-file (requires updating renderer)
+  - [x] refactor data and dataHandler => add property 'tags' which is associated with the loaded .html-file (requires updating renderer)
   - [ ] security: sanitize textarea.value
   - [ ] render dynamic ChatMessage contents [@](src/components/chat-message/chat-message.js#61) [@](src/components/chat-message/utils.js#54)
   - [ ] captcha-validator [@](src/components/chat-message/utils.js#51)
@@ -91,12 +91,12 @@
 - [x] add condition: do not always update the href value
 - [ ] doublecheck possible cases
 
-#### ContactItem
+#### ~~ContactItem~~ => ContacList
 
 - [x] ChatContactItem component
-- [ ] convert characters to html entities in title [@](src/components/contact-item/utils.js#65)
+- [x] convert characters to html entities in title [@](src/components/contact-item/utils.js#65)
 - [x] refactor `injectContactData`
-- [ ] display loaded ContactItems after last ChatMessage has faded in
+- [x] display loaded ContactItems after last ChatMessage has faded in
 
 ### Renderer / Animation
 

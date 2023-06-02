@@ -6,7 +6,7 @@
 /* componets do not have a shadowDOM */
 @import './chat-module.css';
 @import './chat-link.css';
-@import './contact-item.css';
+@import './contact-list.css';
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

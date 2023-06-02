@@ -1,11 +1,10 @@
 import {
-  CONTACT_TAG,
-  CONTACT_ATTR,
-  LINK_TAG,
-  LINK_ATTR,
+  MODULE_TAG,
   MESSAGE_TAG,
   MESSAGE_ATTR,
-  MODULE_TAG,
+  LIST_TAG,
+  LINK_TAG,
+  LINK_ATTR,
 } from '../components/components.js';
 
 const cachedIds = [];
@@ -59,7 +58,7 @@ export default {
     if (isChatModule) {
       for (const child of element.children) {
         // skip obsolete elements like a pending-indicator
-        if (![MESSAGE_TAG, CONTACT_TAG, LINK_TAG].includes(child.localName)) {
+        if (![MESSAGE_TAG, LIST_TAG, LINK_TAG].includes(child.localName)) {
           continue;
         }
         // clone child in order to call the constructor
@@ -79,7 +78,6 @@ export default {
 
 const obsoleteAttributes = [
   MESSAGE_ATTR.PENDING,
-  CONTACT_ATTR.LOADING,
   LINK_ATTR.REJECTED,
   LINK_ATTR.SELECTED,
 ];
