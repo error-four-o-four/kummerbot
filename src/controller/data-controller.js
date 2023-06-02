@@ -1,7 +1,9 @@
 import { delay } from '../renderer/animation.js';
 
 import router from '../router/router.js';
+import renderer from '../renderer/renderer.js';
 import errorController from '../controller/error-controller.js';
+
 import { TARGET_VAL } from '../components/components.js';
 
 const fetchedData = {};
@@ -36,28 +38,20 @@ export function getFilePath(moduleKey) {
   const base = '/views';
   const file = '/' + moduleKey + '.html';
 
-  const route = router.state;
-
   if (
-    route.isChatRoute &&
-    (moduleKey === route.keys[0] || moduleKey === TARGET_VAL.SHARE)
+    router.isChatRoute &&
+    (moduleKey === renderer.keys[0] || moduleKey === TARGET_VAL.SHARE)
   ) {
     return base + '/chat' + file;
   }
 
-  if (route.isChatRoute || route.isSharedRoute) {
-    const index = route.isChatRoute
-      ? route.keys.indexOf(moduleKey)
-      : window.location.pathname
-          .split('/')
-          .filter((key) => !!key && !isNaN(key));
+  if (router.isChatRoute || router.isSharedRoute) {
+    const index = router.isSharedRoute
+      ? renderer.keys[1]
+      : renderer.keys.indexOf(moduleKey);
 
     return base + '/chat-' + index + file;
   }
-
-  // if (route.isContactRoute) {
-  //   return base + '/contact.html';
-  // }
 
   // keys map to file names
   return base + file;

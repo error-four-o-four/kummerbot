@@ -1,14 +1,14 @@
-export const buttonSelector = {
+export const buttonClass = {
   copy: 'button-copy-value',
   share: 'button-share-value',
 };
 
 const isCopyButton = (target) => {
-  return target.classList.contains(buttonSelector.copy);
+  return target.classList.contains(buttonClass.copy);
 };
 
 const isShareButton = (target) => {
-  return target.classList.contains(buttonSelector.share);
+  return target.classList.contains(buttonClass.share);
 };
 
 export default {
@@ -22,7 +22,7 @@ export default {
       const copied = await copyData(text);
 
       document
-        .querySelectorAll('.' + buttonSelector.copy)
+        .querySelectorAll('.' + buttonClass.copy)
         .forEach((button) => button.classList.remove('success'));
 
       target.classList.add(copied ? 'success' : 'error');

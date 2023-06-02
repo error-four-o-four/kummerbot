@@ -4,12 +4,15 @@ import { CUSTOM_ATTR, CUSTOM_VAL } from './config.js';
 
 import {
   html,
-  selector,
+  anchorClass,
   getParentLinkHtml,
   getTargetLinkHtml,
 } from './utils.js';
 
-import router, { ROUTES } from '../../router/router.js';
+import router from '../../router/router.js';
+import renderer from '../../renderer/renderer.js';
+
+import { ROUTES } from '../../router/config.js';
 
 export class ChatLink extends HTMLElement {
   constructor() {
@@ -49,8 +52,8 @@ export class ChatLink extends HTMLElement {
 
   update(parentHref) {
     const targetKey = this.target;
-    const linkToParent = this.querySelector('.' + selector.parentLink);
-    const linkToTarget = this.querySelector('.' + selector.targetLink);
+    const linkToParent = this.querySelector('.' + anchorClass.toParent);
+    const linkToTarget = this.querySelector('.' + anchorClass.toTarget);
 
     if (!!linkToParent && !!parentHref) {
       // was cached
@@ -72,12 +75,10 @@ export class ChatLink extends HTMLElement {
       return;
     }
 
-    const route = router.state;
-
-    if (route.isChatRoute) {
+    if (router.isChatRoute) {
       const parentKey = parentHref.split('/').at(-1);
-      const prevIndex = route.keys.indexOf(parentKey) - 1;
-      const prevModuleHref = router.getHref(route.keys[prevIndex]);
+      const prevIndex = renderer.keys.indexOf(parentKey) - 1;
+      const prevModuleHref = renderer.getPathnameUrl(renderer.keys[prevIndex]);
 
       linkToTarget.href !== prevModuleHref &&
         (linkToTarget.href = prevModuleHref);
@@ -89,8 +90,8 @@ export class ChatLink extends HTMLElement {
     // @todo
     // add cases
     // nope
-    if (route.isContactRoute) {
-      linkToTarget.href = route.prevRoute;
+    if (router.isContactRoute) {
+      linkToTarget.href = router.prevRoute;
     }
   }
 }

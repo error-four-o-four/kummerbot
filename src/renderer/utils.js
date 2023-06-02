@@ -6,12 +6,8 @@ const getDeviceType = () => {
   );
 };
 
+// @todo renderer property
 export const isMobileDevice = getDeviceType();
-
-export const state = {
-  initial: true,
-  transition: false,
-};
 
 export const createLoadingIndicator = () => {
   const indicator = document.createElement('span');

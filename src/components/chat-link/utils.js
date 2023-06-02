@@ -6,16 +6,17 @@ export const html = {
   [CUSTOM_VAL.SHARE]: 'Ich m&ouml;chte diese Informationen teilen',
 };
 
-export const selector = {
-  parentLink: 'parent-link',
-  targetLink: 'target-link',
+export const anchorClass = {
+  toParent: 'parent-link',
+  toTarget: 'target-link',
+  routed: 'is-routed',
 };
 
 export const getParentLinkHtml = (text) => `
 <div>
-  <a class="${selector.parentLink}">✖</a>
+  <a class="${anchorClass.routed} ${anchorClass.toParent}">✖</a>
   <span>${text}</span>
 </div>`;
 
 export const getTargetLinkHtml = (text) => `
-<a class="${selector.targetLink}">${text}</a>`;
+<a class="${anchorClass.routed} ${anchorClass.toTarget}">${text}</a>`;

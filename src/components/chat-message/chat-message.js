@@ -1,12 +1,12 @@
-import { CUSTOM_ATTR } from './config.js';
-
 import router from '../../router/router.js';
+import renderer from '../../renderer/renderer.js';
 import templates from '../../controller/templates.js';
 import formController from '../../controller/form-controller.js';
 
 import { TARGET_VAL } from '../components.js';
 import { setBooleanAttribute } from '../utils.js';
 
+import { CUSTOM_ATTR } from './config.js';
 import { createShareLinkHtml } from './utils.js';
 
 export class ChatMessage extends HTMLElement {
@@ -30,21 +30,21 @@ export class ChatMessage extends HTMLElement {
     const templateId = this.getAttribute(CUSTOM_ATTR.TEMPLATE);
     this.innerHTML = templates.get('tmpl-' + templateId).innerHTML;
 
-    const route = router.state;
-
-    if (moduleKey !== TARGET_VAL.SHARE && !route.isContactRoute) return;
+    if (!router.isContactRoute && moduleKey !== TARGET_VAL.SHARE) {
+      return;
+    }
 
     setBooleanAttribute(this, CUSTOM_ATTR.DYNAMIC);
 
     if (moduleKey === TARGET_VAL.SHARE) {
-      const href = router.getShareUrl();
+      const href = renderer.getShareUrl();
       this.innerHTML += createShareLinkHtml(href);
     }
   }
 
   update(moduleKey) {
     if (moduleKey === TARGET_VAL.SHARE) {
-      const href = router.getShareUrl();
+      const href = renderer.getShareUrl();
       const anchor = this.querySelector('a');
 
       if (anchor.href === href) return;
@@ -58,7 +58,7 @@ export class ChatMessage extends HTMLElement {
       return;
     }
 
-    if (router.state.isContactRoute) {
+    if (router.isContactRoute) {
       console.log('@todo update', formController.get());
     }
   }
