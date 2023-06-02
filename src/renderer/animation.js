@@ -1,5 +1,3 @@
-import { MESSAGE_TAG, CONTACT_TAG } from '../components/components.js';
-
 export default {
   scrollToChatModule,
   hideChatLinks,
@@ -88,9 +86,7 @@ function hideChatMessages(module) {
     message.classList.add('is-transparent');
   }
 
-  for (const contact of module.contacts) {
-    contact.classList.add('is-transparent');
-  }
+  module.list && module.list.classList.add('is-transparent');
 }
 
 function hideChatLinks(module) {
@@ -113,27 +109,11 @@ async function fadeChatMessagesIn(module) {
   const reducer = async (chain, message) => {
     await chain;
 
-    // ContactItem component starts to fetch data
-    // in constructor
-    // set attribute if data hasn't been loaded yet
-    if (message.localName === CONTACT_TAG) {
-      animateTo(
-        message,
-        keyframesBounceIn,
-        keyframeOptions,
-        onFadeInFinished.bind(null, message)
-      );
-
-      if (!message.loaded) message.loading = true;
-
-      return Promise.resolve();
-    }
-
-    if (message.localName === MESSAGE_TAG) {
-      message.pending = true;
-      await delay(5 * message.innerText.length);
-      message.pending = false;
-    }
+    // if (message.localName === MESSAGE_TAG) {
+    message.pending = true;
+    await delay(4 * message.innerText.length);
+    message.pending = false;
+    // }
 
     return animateTo(
       message,
@@ -143,9 +123,15 @@ async function fadeChatMessagesIn(module) {
     );
   };
 
-  return [...module.messages, ...module.contacts].reduce(
-    reducer,
-    Promise.resolve()
+  return [...module.messages].reduce(reducer, Promise.resolve());
+}
+
+async function fadeContactListIn(list) {
+  return animateTo(
+    list,
+    keyframesFadeIn,
+    keyframeOptions,
+    onFadeInFinished.bind(null, list)
   );
 }
 
@@ -167,15 +153,13 @@ async function fadeLastChatModuleIn(module) {
   hideChatLinks(module);
   scrollToChatModule(module);
 
+  const list = module.list;
+
   await fadeChatMessagesIn(module);
+  !!list && (await fadeContactListIn(list));
   await fadeChatLinksIn(module);
 
-  if (!module.contacts.length) return;
-
-  // @todo check ContactItem attributes
-  // promisify animation (fadeChatLinksIn) has ended
-  // before displaying loaded contacts
-  // console.log(module.contacts[0]);
+  if (!list) return;
 }
 
 async function fadeFilteredChatModulesOut(modules) {

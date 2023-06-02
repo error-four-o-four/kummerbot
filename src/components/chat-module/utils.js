@@ -3,10 +3,10 @@ import renderer from '../../renderer/renderer.js';
 import { CONTACT_VAL } from '../../controller/form-controller.js';
 
 import {
-  CONTACT_TAG,
-  LINK_ATTR,
-  LINK_TAG,
   MESSAGE_TAG,
+  LIST_TAG,
+  LINK_TAG,
+  LINK_ATTR,
   TARGET_VAL,
 } from '../components.js';
 
@@ -57,26 +57,23 @@ export function constructChildren(fragment, children) {
   }
 }
 
-const getComponents = (fragment) =>
-  [MESSAGE_TAG, CONTACT_TAG, LINK_TAG].map((tag) => [
-    ...fragment.querySelectorAll(tag),
-  ]);
+const getComponents = (fragment, ...tags) =>
+  tags.map((tag) => [...fragment.querySelectorAll(tag)]);
 
 export function renderChildren(fragment, moduleKey) {
-  const [messages, contacts, links] = getComponents(fragment);
+  const [messages, links] = getComponents(fragment, MESSAGE_TAG, LINK_TAG);
 
   messages
     .filter((message) => message.requiresRender)
     .forEach((message) => message.render(moduleKey));
 
-  contacts.forEach((contact) => contact.render());
   links.forEach((link) => link.render());
 
   return fragment;
 }
 
 export function updateChildren(fragment, prevModuleKey, moduleKey) {
-  const [messages, contacts] = getComponents(fragment);
+  const [messages] = getComponents(fragment, MESSAGE_TAG);
 
   const moduleHref = renderer.getPathnameUrl(moduleKey);
   // update share link
@@ -85,7 +82,7 @@ export function updateChildren(fragment, prevModuleKey, moduleKey) {
     .filter((message) => message.requiresUpdate)
     .forEach((message) => message.update(moduleKey));
 
-  const links = adjustLinks(fragment, contacts.length, prevModuleKey);
+  const links = adjustLinks(fragment, prevModuleKey);
   links.forEach((link) => link.update(moduleHref));
 
   // gnaaaaaa
@@ -108,8 +105,9 @@ export function updateChildren(fragment, prevModuleKey, moduleKey) {
 }
 
 // @todo
-function adjustLinks(fragment, hasContacts, prevModuleKey) {
-  const links = [...fragment.querySelectorAll(LINK_TAG)];
+function adjustLinks(fragment, prevModuleKey) {
+  const hasContacts = !!fragment.querySelector(LIST_TAG);
+  const [links] = getComponents(fragment, LINK_TAG);
 
   // always insert ChatLink back
   // and doublecheck position

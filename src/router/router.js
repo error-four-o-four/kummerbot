@@ -4,7 +4,7 @@ import historyController from '../controller/history-controller.js';
 import errorController, { ERROR_KEY } from '../controller/error-controller.js';
 import formController from '../controller/form-controller.js';
 
-import renderer from '../renderer/renderer.js';
+// import renderer from '../renderer/renderer.js';
 
 const getPathname = () => window.location.pathname;
 
@@ -79,7 +79,8 @@ const router = {
 
     if (!!delta) {
       window.history.go(delta);
-      window.history.replaceState({ href, index }, '', href);
+      // window.history.replaceState({ href, index }, '', href);
+      return;
     } else {
       // case
       // first view was /chat route with multiple rendered ChatModule components
@@ -97,22 +98,24 @@ const router = {
     const { href, index } = e.state;
     const pathname = href.replace(ORIGIN, '');
 
-    if (renderer.transition) {
-      e.preventDefault();
+    // console.log(index, href);
 
-      // check direction
-      const direction =
-        e.state.index < historyController.index ? 'forward' : 'back';
+    // if (renderer.transition) {
+    //   e.preventDefault();
 
-      // go reversed direction
-      window.history[direction]();
+    //   // check direction
+    //   const direction =
+    //     e.state.index < historyController.index ? 'forward' : 'back';
 
-      // @todo finish animations
-      // instead of this
-      // @bug too many api calls
-      renderer.transition = false;
-      return;
-    }
+    //   // go reversed direction
+    //   window.history[direction]();
+
+    //   // @todo finish animations
+    //   // instead of this
+    //   // @bug too many api calls
+    //   renderer.transition = false;
+    //   return;
+    // }
 
     historyController.index = index;
 

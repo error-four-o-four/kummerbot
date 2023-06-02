@@ -98,17 +98,6 @@ export async function createFragment(prevModuleKey, moduleKey) {
   return fragment;
 }
 
-export async function injectContactsData(contacts) {
-  const { getContactsData } = await import(
-    '../../controller/data-controller.js'
-  );
-  const { error, data } = await getContactsData();
-
-  contacts.forEach((contact) => {
-    contact.injectData(error, data);
-  });
-}
-
 export function createErrorFragment() {
   // message template is cached by iife
   // in chat-message/utils.js

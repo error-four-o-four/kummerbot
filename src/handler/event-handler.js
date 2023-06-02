@@ -5,7 +5,7 @@ import renderer from '../renderer/renderer.js';
 // import { ROUTES } from '../router/config.js';
 
 import { anchorClass } from '../components/chat-link/utils.js';
-import { buttonKey, buttonClass } from '../components/contact-item/utils.js';
+import { buttonClass } from '../components/contact-list/utils.js';
 import { LINK_ATTR, TARGET_VAL } from '../components/components.js';
 
 import formController, { CONTACT_VAL } from '../controller/form-controller.js';
@@ -29,7 +29,7 @@ const isBackLink = (element) =>
   element.parentElement.getAttribute(LINK_ATTR.TARGET_KEY) === TARGET_VAL.BACK;
 
 const isContactLink = (element) =>
-  isLink(element) && element.classList.contains(buttonClass[buttonKey.message]);
+  isLink(element) && element.classList.contains(buttonClass.message);
 
 function handleClick(e) {
   const element = e.target;

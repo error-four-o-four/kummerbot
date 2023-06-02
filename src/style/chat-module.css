@@ -9,7 +9,7 @@ chat-module {
 }
 
 chat-message,
-contact-item {
+div.contact-item {
   margin: 0 0 1rem;
 
   background-color: var(--fill-primary);

@@ -2,7 +2,7 @@ import router from '../../router/router.js';
 import renderer from '../../renderer/renderer.js';
 import templates from '../../controller/templates.js';
 
-import { MESSAGE_TAG, CONTACT_TAG, LINK_TAG } from '../components.js';
+import { MESSAGE_TAG, LIST_TAG, LINK_TAG } from '../components.js';
 import { ERROR_KEY } from '../../controller/error-controller.js';
 import { setAttribute } from '../utils.js';
 
@@ -10,7 +10,6 @@ import {
   cloneFragment,
   createFragment,
   createErrorFragment,
-  injectContactsData,
 } from './renderer.js';
 
 import { CUSTOM_ATTR, CUSTOM_TAG } from './config.js';
@@ -43,8 +42,8 @@ export class ChatModule extends HTMLElement {
   get messages() {
     return [...this.querySelectorAll(MESSAGE_TAG)];
   }
-  get contacts() {
-    return [...this.querySelectorAll(CONTACT_TAG)];
+  get list() {
+    return this.querySelector(LIST_TAG);
   }
   get links() {
     return [...this.querySelectorAll(LINK_TAG)];
@@ -70,7 +69,7 @@ export class ChatModule extends HTMLElement {
       } ${cacheId} ChatModule ${moduleKey}`
     );
 
-    // debugger
+    // debugger;
 
     const fragment = isCached
       ? cloneFragment(templates.get(cacheId).content, prevModuleKey, moduleKey)
@@ -78,7 +77,7 @@ export class ChatModule extends HTMLElement {
 
     if (!fragment) {
       this.key = ERROR_KEY;
-      this.append(createErrorFragment(this.key, router.prevRoute));
+      this.append(createErrorFragment());
       this.next = null;
       return;
     }
@@ -86,14 +85,14 @@ export class ChatModule extends HTMLElement {
     this.key = moduleKey;
     this.append(fragment);
 
-    const deferCache = !!this.contacts.length;
+    const list = this.list;
 
-    if (!isCached && !deferCache) {
+    if (!isCached && !list) {
       templates.set(cacheId, this);
     }
 
-    if (!isCached && deferCache) {
-      injectContactsData(this.contacts).then(() => {
+    if (!isCached && !!list) {
+      list.render().then(() => {
         templates.set(cacheId, this, true);
       });
     }
