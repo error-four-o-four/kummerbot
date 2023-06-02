@@ -1,4 +1,5 @@
 import router from '../../router/router.js';
+import renderer from '../../renderer/renderer.js';
 import { CONTACT_VAL } from '../../controller/form-controller.js';
 
 import {
@@ -78,7 +79,7 @@ export function renderChildren(fragment, moduleKey) {
 export function updateChildren(fragment, prevModuleKey, moduleKey) {
   const [messages, contacts] = getComponents(fragment);
 
-  const moduleHref = router.getHref(moduleKey);
+  const moduleHref = renderer.getPathnameUrl(moduleKey);
   // update share link
   // update preview and captcha in /contact route
   messages
@@ -110,13 +111,12 @@ export function updateChildren(fragment, prevModuleKey, moduleKey) {
 // @todo
 function adjustLinks(fragment, hasContacts, prevModuleKey) {
   const links = [...fragment.querySelectorAll(LINK_TAG)];
-  const route = router.state;
 
   // always insert ChatLink back
   // and doublecheck position
   if (
-    (route.isChatRoute && !!prevModuleKey) ||
-    (!route.isChatRoute && !!route.prevRoute)
+    (router.isChatRoute && !!prevModuleKey) ||
+    (!router.isChatRoute && !!router.prevRoute)
   ) {
     let [linkHome, linkBack] = [TARGET_VAL.HOME, TARGET_VAL.BACK].map((value) =>
       links.find((link) => link.target === value)
@@ -133,13 +133,13 @@ function adjustLinks(fragment, hasContacts, prevModuleKey) {
     }
   }
 
-  if (route.isChatRoute && hasContacts) {
+  if (router.isChatRoute && hasContacts) {
     const linkShare = links.find((link) => link.target === TARGET_VAL.SHARE);
     setBooleanAttribute(linkShare, LINK_ATTR.REJECTED, false);
     setBooleanAttribute(linkShare, LINK_ATTR.SELECTED, false);
   }
 
-  if (route.isSharedRoute) {
+  if (router.isSharedRoute) {
     const linkShare = links.find((link) => link.target === TARGET_VAL.SHARE);
     setBooleanAttribute(linkShare, LINK_ATTR.REJECTED, true);
 
@@ -147,7 +147,7 @@ function adjustLinks(fragment, hasContacts, prevModuleKey) {
     // one single case: view all contacts
     let linkHome = links.find((link) => link.target === TARGET_VAL.HOME);
 
-    if (!route.prevRoute && !linkHome) {
+    if (!router.prevRoute && !linkHome) {
       linkHome = createChatLink(TARGET_VAL.HOME);
       links[0].before(linkHome);
       links.push(linkHome);

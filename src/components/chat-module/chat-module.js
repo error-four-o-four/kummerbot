@@ -1,9 +1,9 @@
-import { CUSTOM_ATTR, CUSTOM_TAG } from './config.js';
-
 import router from '../../router/router.js';
+import renderer from '../../renderer/renderer.js';
 import templates from '../../controller/templates.js';
 
 import { MESSAGE_TAG, CONTACT_TAG, LINK_TAG } from '../components.js';
+import { ERROR_KEY } from '../../controller/error-controller.js';
 import { setAttribute } from '../utils.js';
 
 import {
@@ -13,7 +13,7 @@ import {
   injectContactsData,
 } from './renderer.js';
 
-import { ERROR_KEY } from '../../controller/error-controller.js';
+import { CUSTOM_ATTR, CUSTOM_TAG } from './config.js';
 
 export class ChatModule extends HTMLElement {
   static get observedAttributes() {
@@ -53,12 +53,11 @@ export class ChatModule extends HTMLElement {
   // methods
 
   async render(relativeKeys) {
-    const route = router.state;
     // moduleKey represents the file name
     // special case: /contact route (one file stores several message templates)
     const prevModuleKey = relativeKeys[0];
-    const moduleKey = route.isContactRoute
-      ? [route.keys[0], route.keys[1]].join('-')
+    const moduleKey = router.isContactRoute
+      ? [renderer.keys[0], renderer.keys[1]].join('-')
       : relativeKeys[1];
     const nextModuleKey = relativeKeys[2];
 
@@ -79,7 +78,7 @@ export class ChatModule extends HTMLElement {
 
     if (!fragment) {
       this.key = ERROR_KEY;
-      this.append(createErrorFragment(this.key, route.prevRoute));
+      this.append(createErrorFragment(this.key, router.prevRoute));
       this.next = null;
       return;
     }
@@ -99,7 +98,7 @@ export class ChatModule extends HTMLElement {
       });
     }
 
-    route.isChatRoute && (this.next = nextModuleKey);
+    router.isChatRoute && (this.next = nextModuleKey);
   }
 
   attributeChangedCallback(name, _, next) {

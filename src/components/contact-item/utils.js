@@ -1,7 +1,8 @@
-import router, { ROUTES } from '../../router/router.js';
-
+import { ROUTES } from '../../router/config.js';
 import { isMobileDevice } from '../../renderer/utils.js';
-import { buttonSelector as actionSelector } from '../../handler/button-handler.js';
+
+import { anchorClass } from '../chat-link/utils.js';
+import { buttonClass as buttonActionClass } from '../../handler/button-handler.js';
 
 const elementSelector = {
   infoWrap: 'contact-info-wrap',
@@ -57,7 +58,7 @@ export const buttonKey = {
   phone: 'phone',
 };
 
-export const buttonSelector = Object.entries(buttonKey).reduce(
+export const buttonClass = Object.entries(buttonKey).reduce(
   (all, [key, value]) => {
     all[key] = elementSelector.button + '-' + value;
     return all;
@@ -69,19 +70,19 @@ const buttons = {
   message: {
     key: 'mail',
     label: 'Nachricht',
-    selector: buttonSelector[buttonKey.message],
+    class: buttonClass[buttonKey.message],
     html: anchorHtml,
   },
   mail: {
     key: 'mail',
     label: 'E-Mail',
-    selector: buttonSelector[buttonKey.mail],
+    class: buttonClass[buttonKey.mail],
     html: buttonHtml,
   },
   phone: {
     key: 'phone',
     label: 'Anruf',
-    selector: buttonSelector[buttonKey.phone],
+    class: buttonClass[buttonKey.phone],
     html: anchorHtml,
   },
 };
@@ -100,10 +101,12 @@ function buttonHtml(actionSelector = null) {
     >${this.label}</button>`;
 }
 
-function anchorHtml() {
+function anchorHtml(routedSelector = null) {
   return `
   <a
-    class="${elementSelector.button} ${this.selector}"
+    class="${elementSelector.button} ${routedSelector ? routedSelector : ''} ${
+    this.selector
+  }"
     >${this.label}</a>`;
 }
 
@@ -120,7 +123,9 @@ export function createFragment(title) {
         if (!isMobileDevice && key === buttonKey.phone) return html;
 
         key === buttonKey.mail
-          ? (html += props.html(actionSelector.copy))
+          ? (html += props.html(buttonActionClass.copy))
+          : key === buttonKey.message
+          ? (html += props.html(anchorClass.routed))
           : (html += props.html());
 
         return html;
@@ -141,7 +146,7 @@ export function injectContactData(component, contactData) {
   }, '');
 
   for (const [key, props] of Object.entries(buttons)) {
-    const button = wrapBtns.querySelector('.' + props.selector);
+    const button = wrapBtns.querySelector('.' + props.class);
 
     if (!button) continue;
 

@@ -1,4 +1,4 @@
-import router from '../router/router.js';
+import renderer from './renderer.js';
 import elements from '../elements/elements.js';
 import animation from './animation.js';
 
@@ -14,7 +14,7 @@ export async function removeAllEllements() {
 }
 
 export async function removeElements() {
-  const absoluteKeys = router.state.keys;
+  const absoluteKeys = renderer.getKeys();
   // remove incorrect elements
   // when back or reset button was clicked
   // router.keys.length will always be greater than 0

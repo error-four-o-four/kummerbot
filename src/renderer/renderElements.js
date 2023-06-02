@@ -1,16 +1,11 @@
-import router from '../router/router.js';
 import elements from '../elements/elements.js';
+import renderer from './renderer.js';
 import animation from './animation.js';
-import { state } from './utils.js';
 
 import { MODULE_TAG } from '../components/components.js';
 
 export async function renderElementsDelayed() {
-  if (state.initial) {
-    // console.log('initial render');
-  }
-
-  const absoluteKeys = router.state.keys;
+  const absoluteKeys = renderer.getKeys();
 
   for (let step = 0; step < absoluteKeys.length; step += 1) {
     // get prev, current and next key
@@ -97,8 +92,9 @@ export async function renderElementsImmediately() {
   // outlet was cleared beforehand
   elements.header.setIndicatorPending();
 
+  const moduleKey = renderer.getKeys()[0];
   const module = document.createElement(MODULE_TAG);
-  await module.render([null, router.state.keys[0], null]);
+  await module.render([null, moduleKey, null]);
 
   elements.outlet.append(module);
   elements.header.setIndicatorWaiting();

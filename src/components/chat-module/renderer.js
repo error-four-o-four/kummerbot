@@ -1,4 +1,5 @@
 import router from '../../router/router.js';
+import renderer from '../../renderer/renderer.js';
 import templates from '../../controller/templates.js';
 
 import { ERROR_KEY } from '../../controller/error-controller.js';
@@ -55,10 +56,8 @@ export async function createFragment(prevModuleKey, moduleKey) {
     }
   }
 
-  const route = router.state;
-
-  if (route.isContactRoute && route.keys[1] !== CONTACT_VAL[0]) {
-    const contactAttributes = getContactTmplAttributes(route.keys[1]);
+  if (router.isContactRoute && renderer.keys[1] !== CONTACT_VAL[0]) {
+    const contactAttributes = getContactTmplAttributes(renderer.keys[1]);
     // module isn't cached yet
     // componentNodes have initial state
     // (<chat-message template="awaiting-message"></chat-message>)

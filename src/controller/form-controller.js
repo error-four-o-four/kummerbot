@@ -1,9 +1,11 @@
-import router, { ROUTES } from '../router/router.js';
+import router from '../router/router.js';
 import elements from '../elements/elements.js';
 import renderer from '../renderer/renderer.js';
+import errorController from './error-controller.js';
+
 import { delay } from '../renderer/animation.js';
 
-import errorController from './error-controller.js';
+import { ROUTES } from '../router/config.js';
 
 const captchaValidator = {
   required: null,
@@ -99,13 +101,12 @@ export default {
       initiated = true;
     }
 
-    const route = router.state;
     if (
-      referrer !== route.prevRoute &&
-      !router.check(route.prevRoute, ROUTES.CONTACT)
+      referrer !== router.prevRoute &&
+      !router.check(router.prevRoute, ROUTES.CONTACT)
     ) {
       // update linkBack if state.index === 0;
-      referrer = route.prevRoute;
+      referrer = router.prevRoute;
     }
 
     if (!!value && value !== this.get()) {
@@ -147,11 +148,11 @@ async function submitCaptchaForm() {
   );
 
   if (!response.ok) {
-    const route = router.replace(ROUTES.ERROR);
     errorController.set(
       'Leider konnte deine Nachricht nicht versendet werden.'
     );
-    renderer.update(route);
+    router.update(ROUTES.ERROR);
+    renderer.update();
     return;
   }
 

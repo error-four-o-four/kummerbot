@@ -3,7 +3,8 @@ import templates from '../../controller/templates.js';
 import formController from '../../controller/form-controller.js';
 import { ERROR_KEY } from '../../controller/error-controller.js';
 
-import { buttonSelector } from '../../handler/button-handler.js';
+import { buttonClass } from '../../handler/button-handler.js';
+import { anchorClass } from '../chat-link/utils.js';
 import { MESSAGE_TAG } from '../components.js';
 
 (() => {
@@ -22,10 +23,14 @@ import { MESSAGE_TAG } from '../components.js';
 
 export function createShareLinkHtml(href) {
   return `
-  <p><a href="${href}">${href}</a></p>
+  <p>
+    <a
+      class="${anchorClass.routed}"
+      href="${href}">${href}</a>
+  </p>
   <p>
     <button
-      class="has-icon ${buttonSelector.copy}"
+      class="has-icon ${buttonClass.copy}"
       value="${href}"
       type="button"
       >URL Kopieren<svg><use href="#icon-copy-svg"></use></svg></button>
@@ -33,7 +38,7 @@ export function createShareLinkHtml(href) {
       !!navigator.canShare
         ? `
       <button
-        class="has-icon ${buttonSelector.share}"
+        class="has-icon ${buttonClass.share}"
         value="${href}"
         type="button"
         >URL Teilen<svg><use href="#icon-share-svg"></use></svg></button>`

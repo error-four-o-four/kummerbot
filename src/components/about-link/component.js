@@ -1,5 +1,6 @@
-import { ROUTES } from '../../router/router.js';
+import { ROUTES } from '../../router/config.js';
 import { setAttribute } from '../utils.js';
+import { anchorClass } from '../chat-link/utils.js';
 
 const htmlInactive = 'Details';
 const htmlActive = 'zur&uuml;ck';
@@ -31,6 +32,7 @@ export class AboutLink extends HTMLElement {
     this.child = document.createElement('a');
     this.child.href = ROUTES.ABOUT;
     this.child.innerHTML = htmlInactive;
+    this.classList.add(anchorClass.routed);
 
     this.appendChild(this.child);
     this.active = window.location.pathname.startsWith(ROUTES.ABOUT)
