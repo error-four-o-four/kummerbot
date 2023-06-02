@@ -47,7 +47,6 @@ export function createShareLinkHtml(href) {
   </p>`;
 }
 
-// @todo inject contact name
 function insertCaptcha(output) {
   // @todo
   // check if captcha exists beforehand

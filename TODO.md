@@ -3,9 +3,11 @@
 ### Routes
 
 - [ ] doublecheck each route when it's the landing page
-- [ ] doublecheck [adjustChatLinksToRoute(output, properties)](src/components/chat-module/render-utils.js) in each route
+- [x] doublecheck `adjustChatLinksToRoute(output, properties)` in each route
+- [x] consider moving `render-utils/adjustChatLinksToRoute(output, properties)` to renderer/renderElements.js
+- [ ] doublecheck ChatLink.target="back" in each route (use historyController) [@](src/components/chat-link/chat-link.js#72) [@](src/components/chat-link/chat-link.js#90) [@](src/components/chat-module/utils.js#111) [@](src/router/router.js#13) [@](src/router/router.js#159)
 
-- [ ] shared
+- [x] shared
 
   - [x] load 'message-tmpl-contacts-info' in /shared route when it's the landing page view
   - [x] remove attribute class 'is-transparent' from ContactItem when redirected from /chat or clean attributes _before_ (?) caching awaited/promised ContacItem components
@@ -13,12 +15,17 @@
 
 - [x] send user to a new route to send a message and when the message was send. Implies to remove 'renderer-page.js' and use the custom component ChatModule in every route: /chat, /shared, /message, /processed (or url param) and /about.
 
-  - [ ] use a message state to
+  - [x] use a contact state to
 
-    - [ ] redirect to /error from /message when `requiredEmailValue === null` [@](src/listener/form-handler.js#80) [@](src/router/router.js#136)
-    - [ ] redirect to /error when /processed when `processing === null`
+    - [x] redirect to /error from /message when `requiredEmailValue === null` [@](src/listener/form-handler.js#80) [@](src/router/router.js#136)
+    - [x] ~~redirect to /error when /processed when `processing === null`~~
 
-  - [ ] route validation
+  - [x] route validation
+  - [ ] `handleSubmit()` [@](src/handler/event-handler.js#56), router.onSubmit()
+
+- [x] create handler/errorHandler
+- [x] move data/index.js => handler/dataHandler, move formHandler (?)
+- [ ] formController.js
 
 ### Contents
 
@@ -26,81 +33,101 @@
 
 - [ ] about
 
+  - [ ] make AboutLink bigger => styles
+  - [ ] bug: back button doesn't work when routed from /contact => /about =/=> /contact
+
 - [ ] error
 
-  - [ ] handle and pass error messages to ChatMessage
+  - [x] handle and pass error messages to ChatMessage
+  - [ ] use a default message [@](src/controller/error-controller.js)
   - [ ] doublecheck possible cases
 
 - [x] contact
 
-  - [ ] create API to send messages [@](src/listener/form-handler.js#16)
-  - [ ] add email regex. might not be necessary because there's no user input
-  - [ ] adjust attribute 'cols' in 'resized' event [@](src/listener/form-handler.js#112)
+  - [ ] create API to send messages
+  - [ ] ~~add email regex. might not be necessary because there's no user input~~
+  - [ ] adjust attribute 'cols' in 'resized' event
+  - [ ] pass data key from button to contactHandler !
+  - [ ] refactor data and dataHandler => add property 'tags' which is associated with the loaded .html-file (requires updating renderer)
+  - [ ] security: sanitize textarea.value
+  - [ ] render dynamic ChatMessage contents [@](src/components/chat-message/chat-message.js#61) [@](src/components/chat-message/utils.js#54)
+  - [ ] captcha-validator [@](src/components/chat-message/utils.js#51)
+  - [ ] doublecheck css: disable resizable textarea (?)
 
 - [x] share - restructure or rewrite
   - [x] remove link to preview from options and add it as a chat message
   - [ ] ~~add QRCode image - add npm pkg~~
-  - [ ] Share API - navigator.canShare - Permissions
-  - [ ] Copy URL [@](src/listener/button-handler.js)
+  - [ ] Share API / navigator.canShare / Permissions [@](src/listener/button-handler.js)
+  - [x] Copy URL [@](src/listener/button-handler.js)
 
 ### Templates
 
 - [x] template / text block
 - [x] cache contents to reduce requests
 - [ ] add svgs to ['./elements.js'](src/elements/elements.js#18) (?)
-- [x] clearify [TMPL_ATTR](src/components/chat-message/component.js#11)
-- [ ] ~~restructure functions which are used by renderer.chat.js AND renderer.page.js~~
-- [ ] doublecheck selectors and keys. who's responsible? templates.js vs components
+- [x] clearify TMPL_ATTR
+- [x] ~~restructure functions which are used by renderer.chat.js AND renderer.page.js~~
+- [x] doublecheck selectors and keys. who's responsible? templates.js vs components => components
 - [x] create a template file for /share, /contact and /processed
-- [ ] remove needless elements and attributes of ChatModule with ContactItems before it's stored in cache
-- [ ] [refactor](src/templates/templates.js#21)
+- [x] remove needless elements and attributes of ChatModule with ContactItems before it's stored in cache
+- [x] ~~refactor~~
 
 ### Components
 
 - [ ] (re)move AboutLink ~~to elements.js~~ create HeaderComponent
 - [ ] create ContactForm component
-- [ ] fix route when clicked on header back button
+- [x] fix route when clicked on header back button (?)
+- [ ] chat-module/utils.js "@refactor styles 'is-hidden' @consider do not add any class attributes'" (?)
 
 #### ChatModule
 
 - [x] restructure chat-module/render.js
 - [x] refactor insertChatLinks
-- [ ] pass error message as argument [@](src/components/chat-module/component.js#67)
-- [x] ~~add a case to decide when to call ContactItem.update(href) [@](src/components/chat-module/render.js#50)~~ obsolete bc href value is static
+- [x] ~~pass error message as argument~~
+- [x] ~~add a case to decide when to call ContactItem.update(href)~~ obsolete bc href value is static
 
 #### ChatLink
 
-- [ ] add condition: do not always update the href value
+- [x] add condition: do not always update the href value
 - [ ] doublecheck possible cases
 
 #### ContactItem
 
 - [x] ChatContactItem component
 - [ ] convert characters to html entities in title [@](src/components/contact-item/utils.js#65)
-- [ ] refactor [injectContactData](src/components/contact-item/utils.js#95)
+- [x] refactor `injectContactData`
+- [ ] display loaded ContactItems after last ChatMessage has faded in
 
-### Animation
+### Renderer / Animation
 
 - [x] fadeIn
 - [x] fadeOut
 - [x] ~~calculate scrollTop instead of using scrollIntoView bc header overlaps section when section height is greater than 100 vh~~ smooth scroll
-- [x] add css attribute 'scroll-padding' [@](src/renderer/animation.js#4)
+- [x] add css attribute 'scroll-padding'
 - [x] move all fade animations to removeChatModules()
-- [ ] [initialRender](src/renderer/renderer-chat.js#33)
+- [ ] initialRender => use `router.hasChanged` and `router.hasPopped`
 - [x] pending indicator
-- [ ] [Error Message](src/renderer/renderer-chat.js#49)
+- [x] Error Message
 - [x] is writing indicator
 - [x] ~~ChatLink component should be responsible (?)~~
 - [ ] Loading Indicator on Page
 - [x] Animation when Back / Reset ChatLink was clicked
-- [ ] sometimes the attribute 'loading' is not set on ContactItem on load
-- [ ] finish all pending animation in popstate event [@](src/listener/listener.js#13) [@](src/renderer/animation.js#81)
-- [ ] deactive animations in /shared route when router.hasChanged [@](src/renderer/animation.js#86)
+- [ ] doublecheck - sometimes the attribute 'loading' is not set on ContactItem on load
+- [ ] finish all pending animation in popstate event [@](src/router/router.js#110)
+- [ ] deactive animations in /shared route when router.hasChanged
+- [ ] update 'renderAllElements()' animation and doublecheck in each route
+- [ ] fade ChatLink components in after elements have been removed
+- [ ] promisify animation (fadeChatLinksIn) has ended before displaying loaded contacts [@](src/renderer/animation.js#175) [@](src/renderer/renderElements.js#46)
+- [ ] change `renderer.transition`. it should be a property of `animation` [@](src/renderer/renderer.js)
+- [ ] add css attribute to reset pointer while `renderer.transition === true` [@](src/renderer/renderer.js#43)
+- [ ] move `isMobileDevice`. it could be a property of 'renderer'
 
 ### Refactor
 
 - [x] chained animation promises
 - [x] themes [css](src/style/theme.css#100)
+- [ ] renderer/renderElements.js `checkCurrentStep(step, next)` [@](src/renderer/renderElements.js#53)
+- [ ] code splitting
 - [ ] collect util functions
   - [ ] delay [@](src/renderer/animation.js#76)
-  - [ ] setBooleanAttribute()
+  - [x] setBooleanAttribute()

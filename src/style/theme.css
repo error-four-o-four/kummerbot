@@ -32,7 +32,6 @@
   --fill-primary: var(--shade-15);
   --fill-secondary: var(--shade-23);
 
-  /* @todo */
   --link-color: var(--powder-blue);
   --link-color-hover: var(--lavender);
 }

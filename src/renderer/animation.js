@@ -173,6 +173,8 @@ async function fadeLastChatModuleIn(module) {
   if (!module.contacts.length) return;
 
   // @todo check ContactItem attributes
+  // promisify animation (fadeChatLinksIn) has ended
+  // before displaying loaded contacts
   // console.log(module.contacts[0]);
 }
 
