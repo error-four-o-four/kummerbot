@@ -6,6 +6,11 @@
 - [x] doublecheck `adjustChatLinksToRoute(output, properties)` in each route
 - [x] consider moving `render-utils/adjustChatLinksToRoute(output, properties)` to renderer/renderElements.js
 - [ ] doublecheck ChatLink.target="back" in each route (use historyController) [@](src/components/chat-link/chat-link.js#72) [@](src/components/chat-link/chat-link.js#90) [@](src/components/chat-module/utils.js#111) [@](src/router/router.js#13) [@](src/router/router.js#159)
+  - [x] chat
+  - [x] shared
+  - [ ] contact
+  - [ ] about => first view !
+  - [x] error
 
 - [x] shared
 
@@ -41,6 +46,7 @@
   - [x] handle and pass error messages to ChatMessage
   - [ ] use a default message [@](src/controller/error-controller.js)
   - [ ] doublecheck possible cases
+  - [ ] doublecheck ContactList component error
 
 - [x] contact
 
@@ -112,12 +118,12 @@
 - [x] ~~ChatLink component should be responsible (?)~~
 - [ ] Loading Indicator on Page
 - [x] Animation when Back / Reset ChatLink was clicked
-- [ ] doublecheck - sometimes the attribute 'loading' is not set on ContactItem on load
+- [ ] ~~doublecheck - sometimes the attribute 'loading' is not set on ContactItem on load~~
 - [ ] finish all pending animation in popstate event [@](src/router/router.js#110)
 - [ ] deactive animations in /shared route when router.hasChanged
 - [ ] update 'renderAllElements()' animation and doublecheck in each route
 - [ ] fade ChatLink components in after elements have been removed
-- [ ] promisify animation (fadeChatLinksIn) has ended before displaying loaded contacts [@](src/renderer/animation.js#175) [@](src/renderer/renderElements.js#46)
+- [x] ~~promisify animation (fadeChatLinksIn) has ended before displaying loaded contacts~~ solved with ContactList component
 - [ ] change `renderer.transition`. it should be a property of `animation` [@](src/renderer/renderer.js)
 - [ ] add css attribute to reset pointer while `renderer.transition === true` [@](src/renderer/renderer.js#43)
 - [ ] move `isMobileDevice`. it could be a property of 'renderer'

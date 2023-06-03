@@ -1,4 +1,4 @@
-import { setBooleanAttribute } from '../utils.js';
+import { checkAttribute, setBooleanAttribute } from '../utils.js';
 
 import { CUSTOM_ATTR, CUSTOM_VAL } from './config.js';
 
@@ -9,9 +9,6 @@ import {
   getTargetLinkHtml,
 } from './utils.js';
 
-import router from '../../router/router.js';
-import renderer from '../../renderer/renderer.js';
-
 import { ROUTES } from '../../router/config.js';
 
 export class ChatLink extends HTMLElement {
@@ -21,6 +18,10 @@ export class ChatLink extends HTMLElement {
 
   get target() {
     return this.getAttribute(CUSTOM_ATTR.TARGET_KEY);
+  }
+
+  get isBackLink() {
+    return checkAttribute(this, CUSTOM_ATTR.TARGET_KEY, CUSTOM_VAL.BACK);
   }
 
   set selected(value) {
@@ -50,17 +51,17 @@ export class ChatLink extends HTMLElement {
     this.innerHTML += getTargetLinkHtml(text);
   }
 
-  update(parentHref) {
+  update(customHref) {
     const targetKey = this.target;
     const linkToParent = this.querySelector('.' + anchorClass.toParent);
     const linkToTarget = this.querySelector('.' + anchorClass.toTarget);
 
-    if (!!linkToParent && !!parentHref) {
+    if (!!linkToParent && !!customHref) {
       // was cached
-      if (linkToParent.href === parentHref) return;
+      if (linkToParent.href === customHref) return;
 
-      linkToParent.href = parentHref;
-      linkToTarget.href = parentHref + '/' + targetKey;
+      linkToParent.href = customHref;
+      linkToTarget.href = customHref + '/' + targetKey;
       return;
     }
 
@@ -71,27 +72,16 @@ export class ChatLink extends HTMLElement {
 
     if (targetKey !== CUSTOM_VAL.BACK && linkToParent === null) {
       console.warn("@todo: Missed a case in 'update(hrefToParent)'");
-      console.log(targetKey, parentHref, linkToParent, linkToTarget, this);
+      console.log(targetKey, customHref, linkToParent, linkToTarget, this);
       return;
     }
 
-    if (router.isChatRoute) {
-      const parentKey = parentHref.split('/').at(-1);
-      const prevIndex = renderer.keys.indexOf(parentKey) - 1;
-      const prevModuleHref = renderer.getPathnameUrl(renderer.keys[prevIndex]);
-
-      linkToTarget.href !== prevModuleHref &&
-        (linkToTarget.href = prevModuleHref);
+    if (!!customHref && linkToTarget.href !== customHref) {
+      linkToTarget.href = customHref;
       return;
     }
 
-    // linkBack exists only in /chat and /contact route
-
-    // @todo
-    // add cases
-    // nope
-    if (router.isContactRoute) {
-      linkToTarget.href = router.prevRoute;
-    }
+    console.warn("@todo: Missed a case in 'update(hrefToParent)'");
+    console.log(targetKey, customHref, linkToParent, linkToTarget, this);
   }
 }

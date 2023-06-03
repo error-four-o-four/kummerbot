@@ -60,6 +60,17 @@ export function constructChildren(fragment, children) {
 const getComponents = (fragment, ...tags) =>
   tags.map((tag) => [...fragment.querySelectorAll(tag)]);
 
+// const getTargetLinks = (links, ...values) =>
+//   links.filter((all, link) =>
+//     values.reduce(
+//       (bool, value) =>
+//         bool ? bool : checkAttribute(link, LINK_ATTR.TARGET_KEY, value),
+//       false
+//     )
+//   );
+const getTargetLinks = (links, ...values) =>
+  values.map((value) => links.find((link) => link.target === value));
+
 export function renderChildren(fragment, moduleKey) {
   const [messages, links] = getComponents(fragment, MESSAGE_TAG, LINK_TAG);
 
@@ -72,10 +83,9 @@ export function renderChildren(fragment, moduleKey) {
   return fragment;
 }
 
-export function updateChildren(fragment, prevModuleKey, moduleKey) {
+export function updateChildren(fragment, prevModuleKey, moduleKey, moduleHref) {
   const [messages] = getComponents(fragment, MESSAGE_TAG);
 
-  const moduleHref = renderer.getPathnameUrl(moduleKey);
   // update share link
   // update preview and captcha in /contact route
   messages
@@ -83,40 +93,36 @@ export function updateChildren(fragment, prevModuleKey, moduleKey) {
     .forEach((message) => message.update(moduleKey));
 
   const links = adjustLinks(fragment, prevModuleKey);
-  links.forEach((link) => link.update(moduleHref));
+  links
+    .filter((link) => !link.isBackLink)
+    .forEach((link) => link.update(moduleHref));
 
-  // gnaaaaaa
-  // one single case: view all contacts
-  // a home link is inserted
-  // if /shared route is the first view
-  // but it's obsolete in /chat route
-  let [linkHome, linkBack] = [TARGET_VAL.HOME, TARGET_VAL.BACK].map((value) =>
-    links.find((link) => link.target === value)
-  );
+  const [linkBack] = getTargetLinks(links, TARGET_VAL.BACK);
 
-  // remove it by comparing their href values
-  // which isn't possible in adjustLinks()
-  // bc href value isn't set / is set here
-  if (!!linkHome && !!linkBack) {
-    const linkHomeHref = linkHome.firstElementChild.href;
-    const linkBackHref = linkBack.firstElementChild.href;
-    linkHomeHref === linkBackHref && linkHome.remove();
+  if (!linkBack || (router.isChatRoute && !prevModuleKey)) return;
+
+  if (router.isChatRoute) {
+    const prevModuleHref = renderer.getPathnameUrl(prevModuleKey);
+    linkBack.update(prevModuleHref);
+    return;
   }
+
+  router.prevRoute && linkBack.update(router.prevRoute);
 }
 
-// @todo
 function adjustLinks(fragment, prevModuleKey) {
   const hasContacts = !!fragment.querySelector(LIST_TAG);
   const [links] = getComponents(fragment, LINK_TAG);
 
+  if (router.isAboutRoute) return [];
+
   // always insert ChatLink back
   // and doublecheck position
-  if (
-    (router.isChatRoute && !!prevModuleKey) ||
-    (!router.isChatRoute && !!router.prevRoute)
-  ) {
-    let [linkHome, linkBack] = [TARGET_VAL.HOME, TARGET_VAL.BACK].map((value) =>
-      links.find((link) => link.target === value)
+  if ((router.isChatRoute && !!prevModuleKey) || !router.isChatRoute) {
+    let [linkHome, linkBack] = getTargetLinks(
+      links,
+      TARGET_VAL.HOME,
+      TARGET_VAL.BACK
     );
 
     if (!linkBack) {
@@ -131,23 +137,61 @@ function adjustLinks(fragment, prevModuleKey) {
   }
 
   if (router.isChatRoute && hasContacts) {
-    const linkShare = links.find((link) => link.target === TARGET_VAL.SHARE);
+    let [linkHome, linkBack, linkShare] = getTargetLinks(
+      links,
+      TARGET_VAL.HOME,
+      TARGET_VAL.BACK,
+      TARGET_VAL.SHARE
+    );
     setBooleanAttribute(linkShare, LINK_ATTR.REJECTED, false);
     setBooleanAttribute(linkShare, LINK_ATTR.SELECTED, false);
+
+    // gnaaaaaa
+    // one single case: view all contacts
+    // a home link is inserted
+    // if /shared route is the first view
+    // but it's obsolete in /chat route
+    if (!linkHome && !linkBack) {
+      const linkHomeHref = linkHome.firstElementChild.href;
+      const linkBackHref = linkBack.firstElementChild.href;
+
+      // hide it by comparing their href values
+      // which isn't possible in adjustLinks()
+      // bc href value isn't set / is set here
+      if (linkHomeHref === linkBackHref) {
+        setBooleanAttribute(linkHome, LINK_ATTR.REJECTED, true);
+      }
+    }
   }
 
   if (router.isSharedRoute) {
-    const linkShare = links.find((link) => link.target === TARGET_VAL.SHARE);
+    let [linkHome, linkShare] = getTargetLinks(
+      links,
+      TARGET_VAL.HOME,
+      TARGET_VAL.SHARE
+    );
+
     setBooleanAttribute(linkShare, LINK_ATTR.REJECTED, true);
 
     // gnaaaaaa
     // one single case: view all contacts
-    let linkHome = links.find((link) => link.target === TARGET_VAL.HOME);
-
     if (!router.prevRoute && !linkHome) {
-      linkHome = createChatLink(TARGET_VAL.HOME);
-      links[0].before(linkHome);
-      links.push(linkHome);
+      setBooleanAttribute(linkHome, LINK_ATTR.REJECTED, false);
+      setBooleanAttribute(linkHome, LINK_ATTR.SELECTED, false);
+    }
+  }
+
+  if (!router.isChatRoute) {
+    let [linkBack] = getTargetLinks(links, TARGET_VAL.BACK);
+
+    // hide
+    !router.prevRoute &&
+      setBooleanAttribute(linkBack, LINK_ATTR.REJECTED, true);
+
+    // show
+    if (router.prevRoute && !!linkBack) {
+      setBooleanAttribute(linkBack, LINK_ATTR.REJECTED, false);
+      setBooleanAttribute(linkBack, LINK_ATTR.SELECTED, false);
     }
   }
 

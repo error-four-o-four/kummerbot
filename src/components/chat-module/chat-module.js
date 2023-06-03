@@ -59,6 +59,7 @@ export class ChatModule extends HTMLElement {
       ? [renderer.keys[0], renderer.keys[1]].join('-')
       : relativeKeys[1];
     const nextModuleKey = relativeKeys[2];
+    const moduleHref = renderer.getPathnameUrl(moduleKey);
 
     const cacheId = templates.getId(CUSTOM_TAG, moduleKey);
     const isCached = templates.isCached(cacheId);
@@ -72,12 +73,17 @@ export class ChatModule extends HTMLElement {
     // debugger;
 
     const fragment = isCached
-      ? cloneFragment(templates.get(cacheId).content, prevModuleKey, moduleKey)
-      : await createFragment(prevModuleKey, moduleKey);
+      ? cloneFragment(
+          templates.get(cacheId).content,
+          prevModuleKey,
+          moduleKey,
+          moduleHref
+        )
+      : await createFragment(prevModuleKey, moduleKey, moduleHref);
 
     if (!fragment) {
       this.key = ERROR_KEY;
-      this.append(createErrorFragment());
+      this.append(createErrorFragment(moduleHref));
       this.next = null;
       return;
     }
