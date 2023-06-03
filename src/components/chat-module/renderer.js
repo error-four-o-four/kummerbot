@@ -23,16 +23,16 @@ import {
   getContactTmplAttribute as getContactTmplAttributes,
 } from './utils.js';
 
-export function cloneFragment(input, prevModuleKey, moduleKey) {
+export function cloneFragment(input, prevModuleKey, moduleKey, moduleHref) {
   const fragment = new DocumentFragment();
 
   constructChildren(fragment, input.children);
-  updateChildren(fragment, prevModuleKey, moduleKey);
+  updateChildren(fragment, prevModuleKey, moduleKey, moduleHref);
 
   return fragment;
 }
 
-export async function createFragment(prevModuleKey, moduleKey) {
+export async function createFragment(prevModuleKey, moduleKey, moduleHref) {
   // handle /error route
   if (moduleKey === ERROR_KEY) return null;
 
@@ -75,7 +75,7 @@ export async function createFragment(prevModuleKey, moduleKey) {
 
   if (!templates.hasGlobalTemplates(fragment)) {
     renderChildren(fragment, moduleKey);
-    updateChildren(fragment, prevModuleKey, moduleKey);
+    updateChildren(fragment, prevModuleKey, moduleKey, moduleHref);
     return fragment;
   }
   // check global templates
@@ -93,12 +93,12 @@ export async function createFragment(prevModuleKey, moduleKey) {
   }
 
   renderChildren(fragment, moduleKey);
-  updateChildren(fragment, prevModuleKey, moduleKey);
+  updateChildren(fragment, prevModuleKey, moduleKey, moduleHref);
 
   return fragment;
 }
 
-export function createErrorFragment() {
+export function createErrorFragment(moduleHref) {
   // message template is cached by iife
   // in chat-message/utils.js
   const message = document.createElement(MESSAGE_TAG);
@@ -111,7 +111,7 @@ export function createErrorFragment() {
   fragment.appendChild(message);
   fragment.appendChild(link);
 
-  updateChildren(fragment, [null, ERROR_KEY, null]);
+  updateChildren(fragment, [null, ERROR_KEY, null], moduleHref);
 
   return fragment;
 }

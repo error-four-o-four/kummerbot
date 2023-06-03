@@ -10,6 +10,10 @@ export function setBooleanAttribute(component, attribute, value) {
     : component.removeAttribute(attribute);
 }
 
+export function checkAttribute(component, attribute, value) {
+  return component.getAttribute(attribute) === value;
+}
+
 export function defineComponent(componentTag, componentClass) {
   if (window.customElements.get(componentTag)) return;
 

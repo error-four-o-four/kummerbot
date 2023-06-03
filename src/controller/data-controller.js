@@ -53,6 +53,10 @@ export function getFilePath(moduleKey) {
     return base + '/chat-' + index + file;
   }
 
+  if (router.isContactRoute) {
+    return base + '/contact.html';
+  }
+
   // keys map to file names
   return base + file;
 }
