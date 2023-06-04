@@ -1,15 +1,15 @@
 import { ChatMessage } from '../chat-message/chat-message.js';
 import { setBooleanAttribute } from '../utils.js';
 
+import { ERROR_KEY } from '../../controller/error-controller.js';
+import { MESSAGE_ATTR } from '../components.js';
 import { CUSTOM_ATTR, CUSTOM_VAL } from './config.js';
 import { createItemHtml } from './utils.js';
 
-export class ContactList extends ChatMessage {
-  static get observedAttributes() {
-    // pending ??
-    // return [CUSTOM_ATTR.LOADED];
-  }
+import utils from '../../renderer/animation/utils.js';
+import config from '../../renderer/animation/config.js';
 
+export class ContactList extends ChatMessage {
   constructor() {
     super();
   }
@@ -18,18 +18,11 @@ export class ContactList extends ChatMessage {
     return this.getAttribute(CUSTOM_ATTR.KEY);
   }
 
-  set loading(value) {
-    this.toggleAttribute(CUSTOM_ATTR.LOADING, !!value);
-  }
-  get loading() {
-    return this.hasAttribute(CUSTOM_ATTR.LOADING);
-  }
-
-  set loaded(value) {
-    setBooleanAttribute(this, CUSTOM_ATTR.LOADED, value);
-  }
   get loaded() {
     return this.hasAttribute(CUSTOM_ATTR.LOADED);
+  }
+  set loaded(value) {
+    setBooleanAttribute(this, CUSTOM_ATTR.LOADED, !!value);
   }
 
   async render() {
@@ -39,10 +32,15 @@ export class ContactList extends ChatMessage {
     const { error, data } = await getContactsData();
 
     if (error) {
+      this.pending = false;
       // meh
       setBooleanAttribute(this, MESSAGE_ATTR.DYNAMIC, true);
+      this.loaded = true;
       this.innerHTML = templates.get('tmpl-' + ERROR_KEY).innerHTML;
       this.update();
+
+      this.classList.add(config.isTransparentClass);
+      utils.createFadeInAnimation(this).play();
       return;
     }
 
@@ -61,5 +59,10 @@ export class ContactList extends ChatMessage {
     }
 
     this.append(fragment);
+    this.pending = false;
+    this.loaded = true;
+
+    this.classList.add(config.isTransparentClass);
+    utils.createFadeInAnimation(this).play();
   }
 }
