@@ -1,19 +1,11 @@
-<template>
-  <div>
-    <p>
-      Hier ist eine Liste mit m&ouml;glichen Ansprechpartnern, um dich bei einer
-      Person zu beschweren, die bei pro liberis arbeitet:
-    </p>
-  </div>
-  <div data-contacts-list>
-    <p>Geschäftsführung</p>
-    <p>Qualitätsmanagement</p>
-    <p>Bereichsleitung</p>
-  </div>
-  <div data-contacts-info></div>
-</template>
+<chat-message>
+  <p>
+    Hier ist eine Liste mit m&ouml;glichen Ansprechpartnern, um dich bei einer
+    Person zu beschweren, die bei pro liberis arbeitet:
+  </p>
+</chat-message>
+<chat-message template="contacts-info"></chat-message>
+<contact-list key="internal-complaint"></contact-list>
 
-<template>
-  <chat-link target="root"></chat-link>
-  <chat-link target="share"></chat-link>
-</template>
+<chat-link target="home"></chat-link>
+<chat-link target="share"></chat-link>

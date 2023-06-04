@@ -1,15 +1,20 @@
 import './style/main.css';
 
 import './components/about-link/index.js';
-import './components/chat-link/index.js';
+import './components/components.js';
 
 import router from './router/router.js';
+import handler from './handler/handler.js';
+import elements from './elements/elements.js';
 import renderer from './renderer/renderer.js';
-import listener from './listener/listener.js';
 
-router.update();
+const headerHeight = elements.header.elt.offsetHeight + 8;
+document.documentElement.style.setProperty(
+  '--scroll-padding',
+  headerHeight + 'px'
+);
 
-(async () => {
-  await renderer.update();
-  listener.init();
-})();
+router.init();
+handler.init();
+
+renderer.update();

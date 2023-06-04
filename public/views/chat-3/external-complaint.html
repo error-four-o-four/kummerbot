@@ -1,19 +1,11 @@
-<template>
-  <div>
-    <p>
-      Hier ist eine Liste mit m&ouml;glichen Ansprechpartnern, um dich bei einer
-      au&szlig;enstehenden Person &uuml;ber pro liberis zu beschweren:
-    </p>
-  </div>
-  <div data-contacts-list>
-    <p>B.E.R.N.I.</p>
-    <p>Jugendamt</p>
-    <p>Landesjugendamt</p>
-  </div>
-  <div data-contacts-info></div>
-</template>
+<chat-message>
+  <p>
+    Hier ist eine Liste mit m&ouml;glichen Ansprechpartnern, um dich bei einer
+    au&szlig;enstehenden Person &uuml;ber pro liberis zu beschweren:
+  </p>
+</chat-message>
+<chat-message template="contacts-info"></chat-message>
+<contact-list key="external-complaint"></contact-list>
 
-<template>
-  <chat-link target="root"></chat-link>
-  <chat-link target="share"></chat-link>
-</template>
+<chat-link target="home"></chat-link>
+<chat-link target="share"></chat-link>

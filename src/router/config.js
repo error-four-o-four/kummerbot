@@ -1,24 +1,9 @@
-// export const routes = 'home contact view code about error'
-//   .split(' ')
-//   .reduce((all, key) => {
-//     all[key] = '/' + key;
-//     return all;
-//   }, {});
+export const ORIGIN = window.location.origin;
 
-export const KEYS = {
-  ROOT: 'root',
-  BACK: 'popstate',
-  RESET: 'resetstate',
-  SHARE: 'share',
-  COPY: 'copy',
-  CODE: 'code',
-};
-
-export const routes = {
-  [KEYS.ROOT]: '/chat',
-  view: '/view',
-  about: '/about',
-  code: '/code',
-  contact: '/contact',
-  error: '/error',
+export const ROUTES = {
+  HOME: '/chat',
+  ABOUT: '/about',
+  SHARED: '/display',
+  CONTACT: '/contact',
+  ERROR: '/error',
 };

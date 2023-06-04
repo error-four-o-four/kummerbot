@@ -1,26 +1,21 @@
-<template>
-  <div>
-    <p>Sehr gut 😤</p>
-  </div>
-  <div>
-    <p>
-      M&ouml;chtest du dich bei einer Person beschweren, die bei pro liberis
-      arbeitet
-    </p>
-    <p>oder</p>
-    <p>
-      m&ouml;chtest du dich bei einer au&szlig;enstehenden Person, die nicht bei
-      pro liberis arbeitet beschweren?
-    </p>
-  </div>
-</template>
+<chat-message>
+  <p>Sehr gut 😤</p>
+</chat-message>
+<chat-message>
+  <p>
+    M&ouml;chtest du dich bei einer Person beschweren, die bei pro liberis
+    arbeitet
+  </p>
+  <p>oder</p>
+  <p>
+    m&ouml;chtest du dich bei einer au&szlig;enstehenden Person, die nicht bei
+    pro liberis arbeitet beschweren?
+  </p>
+</chat-message>
 
-<template>
-  <chat-link
-    target="internal-complaint"
-    text="Ich m&ouml;chte mich bei pro liberis beschweren!"></chat-link>
-  <chat-link
-    target="external-complaint"
-    text="Ich m&ouml;chte mich bei einer außenstehenden Person
-    beschweren!"></chat-link>
-</template>
+<chat-link target="internal-complaint"
+  >Ich m&ouml;chte mich bei pro liberis beschweren!</chat-link
+>
+<chat-link target="external-complaint"
+  >Ich m&ouml;chte mich bei einer außenstehenden Person beschweren!</chat-link
+>

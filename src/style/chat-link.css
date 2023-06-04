@@ -1,0 +1,94 @@
+chat-link {
+  display: inline-block;
+  align-self: flex-end;
+  text-align: right;
+
+  max-width: 80%;
+  margin: 0 0 0.5rem;
+
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 1.25rem 0.875rem 0 1.25rem;
+
+  & > div,
+  & a.target-link {
+    display: block;
+    padding: 0.625rem 0.625rem;
+  }
+
+  & a,
+  & a:hover,
+  & a:active {
+    color: unset;
+    background-color: unset;
+    text-decoration: none;
+  }
+
+  & > div {
+    display: none;
+
+    & > span {
+      align-self: center;
+      flex: 1 1;
+    }
+
+    & > a.parent-link {
+      align-self: flex-start;
+      flex: 0 0 2rem;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      width: 2rem;
+      height: 2rem;
+      margin: -0.25rem 0.5rem -0.25rem -0.25rem;
+
+      border-radius: 50%;
+      outline: 1px solid var(--shade-88);
+      cursor: pointer;
+
+      color: var(--secondary-stroke);
+      &:visited {
+        color: var(--secondary-stroke);
+      }
+
+      &:hover {
+        /* @todo => theme.css ? */
+        color: #fff;
+        outline-width: 2px;
+      }
+    }
+  }
+}
+
+chat-link[rejected] {
+  display: none;
+}
+
+chat-link {
+  color: var(--primary-stroke);
+  border-color: var(--primary-stroke);
+  background-color: var(--primary-fill);
+}
+
+chat-link:not([selected]):hover {
+  color: var(--primary-stroke-hover);
+  border-color: var(--primary-stroke-accent);
+  background-color: var(--primary-fill-accent);
+}
+
+chat-link[selected] {
+  color: var(--secondary-stroke);
+  border-color: var(--secondary-stroke-accent);
+  background-color: var(--secondary-fill);
+  cursor: auto;
+
+  & > a {
+    display: none;
+  }
+
+  & > div {
+    display: inline-flex;
+  }
+}

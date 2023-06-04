@@ -1,21 +1,11 @@
-<template>
-  <div>
-    <p>
-      Bei Fragen zu Verh&uuml;tung, Schwangerschaft oder
-      Schwangerschaftsabbr&uuml;chen bietet 'pro familia' Beratungsangebote an.
-    </p>
-  </div>
-  <div>
-    <ul>
-      <li>
-        <p data-contact="contact-1" data-homepage="#">pro familia Oldenburg</p>
-      </li>
-    </ul>
-  </div>
-  <div data-info-contacts></div>
-</template>
+<chat-message>
+  <p>
+    Bei Fragen zu Verh&uuml;tung, Schwangerschaft oder
+    Schwangerschaftsabbr&uuml;chen bietet 'pro familia' Beratungsangebote an.
+  </p>
+</chat-message>
+<chat-message template="contacts-info"></chat-message>
+<contact-list key="pregnancy"></contact-list>
 
-<template>
-  <chat-link target="root"></chat-link>
-  <chat-link target="share"></chat-link>
-</template>
+<chat-link target="home"></chat-link>
+<chat-link target="share"></chat-link>

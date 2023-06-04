@@ -1,51 +1,50 @@
-import router from '../../router/router.js';
+import { ROUTES } from '../../router/config.js';
+import { setAttribute } from '../utils.js';
+import { anchorClass } from '../chat-link/utils.js';
 
-import { TEXT } from './config.js';
+const htmlInactive = 'Details';
+const htmlActive = 'zur&uuml;ck';
 
-export class AboutLink extends HTMLAnchorElement {
+const CUSTOM_ATTR = 'route';
+
+export class AboutLink extends HTMLElement {
+  static get observedAttributes() {
+    return [CUSTOM_ATTR];
+  }
   constructor() {
     super();
 
-    this.active = false;
-    this.prevPathname = router.routes.root;
+    this.child = null;
   }
 
   get href() {
-    return this.active
-      ? router.root + this.prevPathname
-      : router.root + router.routes.about;
+    return this.child.href;
   }
 
-  get displayedText() {
-    return this.active ? TEXT.BACK : TEXT.ABOUT;
+  set active(value) {
+    setAttribute(this, CUSTOM_ATTR, value);
+  }
+  get active() {
+    return this.hasAttribute(CUSTOM_ATTR);
   }
 
   connectedCallback() {
-    const isAboutRoute = window.location.pathname.startsWith(
-      router.routes.about
-    );
+    this.child = document.createElement('a');
+    this.child.href = ROUTES.ABOUT;
+    this.child.innerHTML = htmlInactive;
+    this.child.classList.add(anchorClass.routed);
 
-    if (isAboutRoute) {
-      this.active = true;
-    }
-
-    const anchor = document.createElement('a');
-    anchor.href = this.href;
-    anchor.innerHTML = this.displayedText;
-
-    this.appendChild(anchor);
+    this.appendChild(this.child);
   }
 
-  update(prevPathname) {
-    if (this.active && router.isAboutRoute) return;
+  attributeChangedCallback(_, prev, next) {
+    if (!!next) {
+      this.child.href = next;
+      this.child.innerHTML = htmlActive;
+      return;
+    }
 
-    if (!this.active && !router.isAboutRoute) return;
-
-    this.active = !this.active;
-    this.prevPathname = prevPathname;
-
-    const anchor = this.querySelector('a');
-    anchor.href = this.href;
-    anchor.innerHTML = this.displayedText;
+    this.child.href = ROUTES.ABOUT;
+    this.child.innerHTML = htmlInactive;
   }
 }

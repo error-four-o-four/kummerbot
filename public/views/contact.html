@@ -1,1 +1,26 @@
-<p>In dieser Ansicht ist das Kontaktformular zu sehen.</p>
+<chat-message template="awaiting-message"></chat-message>
+<chat-link target="home"></chat-link>
+
+<template id="awaiting-message">
+  <p>Was m&ouml;chtest du <span></span> mitteilen?</p>
+</template>
+
+<template id="preview-recipient">
+  <p>
+    Ich werde folgende, anonyme Nachricht an
+    <span></span> schicken:
+  </p>
+</template>
+
+<template id="awaiting-captcha">
+  <p>Aber bevor ich das tue, muss ich wissen, dass du ein Mensch bist.</p>
+  <p>Bitte l&ouml;se dazu folgende Aufgabe:</p>
+</template>
+
+<template id="awaiting-response">
+  <p>Deine Nachricht wird versendet ...</p>
+</template>
+
+<template id="response-success">
+  <p>Deine Nachricht wurde versendet 🎉</p>
+</template>

@@ -1,24 +1,22 @@
-import elements from '../elements.js';
+// const supportsTouchEvents = () => window && "ontouchstart" in window;
 
-export function clearOutlet() {
-  elements.outlet.innerHTML = '';
-}
+const getDeviceType = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+};
 
-const loadingIndicatorId = 'loading-indicator';
+// @todo renderer property
+export const isMobileDevice = getDeviceType();
 
-export function appendLoadingIndicator() {
-  // @todo animated spinner
-  const elt = document.createElement('div');
-  elt.id = loadingIndicatorId;
-  elt.innerHTML = 'Loading ...';
+export const createLoadingIndicator = () => {
+  const indicator = document.createElement('span');
+  indicator.id = 'page-loading-indicator';
+  indicator.innerHTML = `<svg><use xlink:href="#message-pending"></use></svg>`;
+  return indicator;
+};
 
-  elements.outlet.append(elt);
-}
-
-export function removeLoadingIndicator() {
-  const elt = document.getElementById(loadingIndicatorId);
-
-  if (!elt) return;
-
-  elt.remove();
-}
+export const removeLoadingIndicator = () => {
+  const indicator = document.getElementById('page-loading-indicator');
+  indicator.remove();
+};

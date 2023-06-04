@@ -1,21 +1,11 @@
-<template>
-  <div>
-    <p>
-      Wenn das Erlebnis mit einem sexuellen &Uuml;bergriff oder sexueller Gewalt
-      zu tun hat, dann kann dir 'Wildwasser e.V.' weiterhelfen.
-    </p>
-  </div>
-  <div>
-    <ul>
-      <li>
-        <p data-contact="contact-1" data-homepage="#">Wildwasser e.V.</p>
-      </li>
-    </ul>
-  </div>
-  <div data-info-contacts></div>
-</template>
+<chat-message>
+  <p>
+    Wenn das Erlebnis mit einem sexuellen &Uuml;bergriff oder sexueller Gewalt
+    zu tun hat, dann kann dir 'Wildwasser e.V.' weiterhelfen.
+  </p>
+</chat-message>
+<chat-message template="contacts-info"></chat-message>
+<contact-list key="assault"></contact-list>
 
-<template>
-  <chat-link target="root"></chat-link>
-  <chat-link target="share"></chat-link>
-</template>
+<chat-link target="home"></chat-link>
+<chat-link target="share"></chat-link>

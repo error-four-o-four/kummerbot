@@ -1,16 +1,9 @@
-<template>
-  <div>
-    <p>Danke 🙂</p>
-    <p>
-      Dadurch, dass du diese Informationen teilst, kannst du vielleicht einer
-      anderen Person weiterhelfen.
-    </p>
-  </div>
-  <div data-share-link></div>
-</template>
+<chat-message>
+  <p>Danke 🙂</p>
+  <p>Dadurch kannst du vielleicht einer anderen Person weiterhelfen.</p>
+</chat-message>
+<chat-message template="share-contact-items"></chat-message>
 
-<template>
-  <chat-link target="root"></chat-link>
-  <chat-link target="copy"></chat-link>
-  <chat-link target="code"></chat-link>
+<template id="share-contact-items">
+  <p>Um diese Informationen zu teilen, schicke der Person diesen Link:</p>
 </template>
