@@ -1,4 +1,4 @@
-import { delay } from '../renderer/animation.js';
+import { delay } from '../renderer/animation/utils.js';
 
 import router from '../router/router.js';
 import renderer from '../renderer/renderer.js';
@@ -72,7 +72,7 @@ export async function getContactsData() {
   };
 
   if (!contacts) {
-    await delay(1000);
+    await delay(3000);
     return new Promise(resolver)
       .then((data) => {
         contacts = data;

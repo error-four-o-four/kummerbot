@@ -1,5 +1,6 @@
 import router from '../router/router.js';
 import elements from '../elements/elements.js';
+import animator from './animation/animator.js';
 
 import formController from '../controller/form/form-controller.js';
 
@@ -24,7 +25,7 @@ export default {
   async update() {
     // @todo on first render
     // @todo hide app
-    // @todo show app when last element was rendered
+    // @todo show app when last element was loaded and rendered
     // improves UX
 
     // keys of rendered modules
@@ -51,31 +52,34 @@ export default {
       !router.isContactRoute && elements.form.visible && elements.form.hide();
     }
 
-    // case:
-    // called renderer in popstate event
-    if (this.transition) {
-      console.log('@todo renderer is active');
-      return;
+    // e.g. renderer is already in transition state
+    // 'popstate' event called renderer.update() again
+    const interrupt = animator.active;
+
+    // public property to prevent clicking transparent elements
+    // @todo add css attribute to reset pointer
+    animator.active = true;
+
+    // router.hasChanged && (await removeAllEllements(interrupt));
+
+    if (!router.isChatRoute || (router.isChatRoute && router.hasChanged)) {
+      await removeAllEllements(interrupt);
     }
 
-    // to prevent clicking transparent elements
-    // @todo add css attribute to reset pointer
-    this.transition = true;
-
-    router.hasChanged || router.isContactRoute || router.hasError
-      ? await removeAllEllements()
-      : await removeElements();
+    if (router.isChatRoute && !router.hasChanged && router.hasPopped) {
+      await removeElements(interrupt);
+    }
 
     router.isChatRoute
-      ? await renderElementsDelayed()
-      : await renderElementsImmediately();
+      ? await renderElementsDelayed(interrupt)
+      : await renderElementsImmediately(interrupt);
 
     // hides and shows input elements
     router.isContactRoute && formController.update();
 
-    this.transition = false;
+    animator.active = false;
 
-    console.log('transition end');
+    // console.log('transition end');
   },
 
   getShareUrl() {

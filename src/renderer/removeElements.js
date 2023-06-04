@@ -1,19 +1,19 @@
 import renderer from './renderer.js';
 import elements from '../elements/elements.js';
-import animation from './animation.js';
+import animator from './animation/animator.js';
 
-export async function removeAllEllements() {
+export async function removeAllEllements(signal) {
   const modules = [...elements.outlet.children];
 
   if (modules.length === 0) return;
 
-  modules[0] && animation.scrollToChatModule(modules[0]);
-  await animation.fadeFilteredChatModulesOut(modules);
+  modules[0] && animator.scrollToChatModule(modules[0]);
+  await animator.popAllChatModules(modules, signal);
 
   elements.outlet.innerHTML = '';
 }
 
-export async function removeElements() {
+export async function removeElements(signal) {
   const absoluteKeys = renderer.getKeys();
   // remove incorrect elements
   // when back or reset button was clicked
@@ -27,22 +27,11 @@ export async function removeElements() {
   const [lastModuleIndex, filteredModules] = filterChatModules(absoluteKeys);
   const lastModule = elements.outlet.children[lastModuleIndex];
 
-  // console.log(lastModuleIndex, lastModule);
   // order matters to achieve a smooth scroll animation
-
-  // make sure to update the appearance
-  // set rejected / selected attributes
-  animation.hideChatLinks(lastModule);
-  lastModule.next = null;
-
-  animation.scrollToChatModule(lastModule);
-  animation.fadeFilteredChatModulesOut(filteredModules);
-  await animation.fadeChatLinksIn(lastModule);
-
-  // remove elements after animation
-  for (const module of filteredModules) {
-    module.remove();
-  }
+  // @todo add scroll event listener ?!?!
+  // bc there's no way to adjust scroll duration / timing
+  animator.scrollToChatModule(lastModule);
+  await animator.popChatModule(filteredModules, lastModule, signal);
 }
 
 function filterChatModules(absoluteKeys) {

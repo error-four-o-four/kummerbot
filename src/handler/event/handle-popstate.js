@@ -6,7 +6,7 @@ import formController from '../../controller/form/form-controller.js';
 import { CONTACT_VAL } from '../../controller/form/config.js';
 import { ORIGIN, ROUTES } from '../../router/config.js';
 
-import { post, pre } from './event-handler.js';
+// import { post, pre } from './event-handler.js';
 
 export default (e) => {
   // debugger;
@@ -27,30 +27,13 @@ export default (e) => {
   if (e.state.index === historyController.index) {
     // router.pop() (sometimes) invokes a popstate event
     // prevent calling renderer.update() twice
+    // @todo case:
+    // do not return when first view was /chat route with multiple rendered modules
     return;
   }
 
   e.preventDefault();
-  pre(e);
-
-  // @todo finish animations !!!
-
-  // if (renderer.transition) {
-  //   e.preventDefault();
-
-  //   // check direction
-  //   const direction =
-  //     e.state.index < historyController.index ? 'forward' : 'back';
-
-  //   // go reversed direction
-  //   window.history[direction]();
-
-  //   // @todo finish animations
-  //   // instead of this
-  //   // @bug too many api calls
-  //   renderer.transition = false;
-  //   return;
-  // }
+  // pre(e);
 
   // compare current and previous index
   // to determine direction
@@ -94,7 +77,7 @@ export default (e) => {
         router.update(pathname);
         renderer.update();
         // @dev
-        post();
+        // post();
       }, 50);
 
       return;
@@ -116,7 +99,7 @@ export default (e) => {
     renderer.update();
 
     // @dev
-    post();
+    // post();
     return;
   }
 
@@ -124,10 +107,11 @@ export default (e) => {
   // but do not change the entries
   historyController.index = index;
   // update router props
-  router.hasPopped = true;
+  router.hasPopped = poppedBack;
   router.update(pathname);
   renderer.update();
 
   // @dev
-  post();
+  // post();
+  // console.log(router);
 };

@@ -9,7 +9,7 @@ import captchaValidator from './captcha-validator.js';
 
 import { CONTACT_VAL, messageData } from './config.js';
 
-import { delay } from '../../renderer/animation.js';
+import { delay } from '../../renderer/animation/utils.js';
 
 const state = {
   prev: 0,

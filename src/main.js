@@ -15,8 +15,6 @@ document.documentElement.style.setProperty(
 );
 
 router.init();
+handler.init();
 
-(async () => {
-  await renderer.update();
-  handler.init();
-})();
+renderer.update();
