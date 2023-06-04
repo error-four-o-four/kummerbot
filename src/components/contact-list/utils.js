@@ -3,6 +3,9 @@ import { isMobileDevice } from '../../renderer/utils.js';
 import { anchorClass } from '../chat-link/utils.js';
 import { buttonClass as buttonActionClass } from '../../handler/button-handler.js';
 
+import { ROUTES } from '../../router/config.js';
+import { CONTACT_VAL } from '../../controller/form/config.js';
+
 const elementClass = {
   infoWrap: 'contact-info-wrap',
   info: 'contact-info',
@@ -56,8 +59,11 @@ const buttons = [
     html(data) {
       return `
       <a
-        class="${elementClass.button} ${anchorClass.routed} ${buttonClass.message}"
-        href="${data}"
+        class="${elementClass.button} ${anchorClass.routed} ${
+        buttonClass.message
+      }"
+        href="${ROUTES.CONTACT + '/' + CONTACT_VAL[0]}"
+        data-email="${data}"
         >${this.label}</a>`;
     },
   },

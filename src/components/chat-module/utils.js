@@ -1,16 +1,9 @@
 import router from '../../router/router.js';
 import renderer from '../../renderer/renderer.js';
-import { CONTACT_VAL } from '../../controller/form-controller.js';
+import formController from '../../controller/form/form-controller.js';
+import { CONTACT_VAL } from '../../controller/form/config.js';
 
-import {
-  MESSAGE_TAG,
-  LIST_TAG,
-  LINK_TAG,
-  LINK_ATTR,
-  TARGET_VAL,
-} from '../components.js';
-
-import { setBooleanAttribute } from '../utils.js';
+import { MESSAGE_TAG, LINK_TAG, LINK_ATTR, TARGET_VAL } from '../components.js';
 
 const parser = new DOMParser();
 
@@ -111,7 +104,7 @@ export function updateChildren(fragment, prevModuleKey, moduleKey, moduleHref) {
 }
 
 function adjustLinks(fragment, prevModuleKey) {
-  const hasContacts = !!fragment.querySelector(LIST_TAG);
+  // const hasContacts = !!fragment.querySelector(LIST_TAG);
   const [links] = getComponents(fragment, LINK_TAG);
 
   if (router.isAboutRoute) return [];
@@ -136,65 +129,6 @@ function adjustLinks(fragment, prevModuleKey) {
     }
   }
 
-  if (router.isChatRoute && hasContacts) {
-    let [linkHome, linkBack, linkShare] = getTargetLinks(
-      links,
-      TARGET_VAL.HOME,
-      TARGET_VAL.BACK,
-      TARGET_VAL.SHARE
-    );
-    setBooleanAttribute(linkShare, LINK_ATTR.REJECTED, false);
-    setBooleanAttribute(linkShare, LINK_ATTR.SELECTED, false);
-
-    // gnaaaaaa
-    // one single case: view all contacts
-    // a home link is inserted
-    // if /shared route is the first view
-    // but it's obsolete in /chat route
-    if (!linkHome && !linkBack) {
-      const linkHomeHref = linkHome.firstElementChild.href;
-      const linkBackHref = linkBack.firstElementChild.href;
-
-      // hide it by comparing their href values
-      // which isn't possible in adjustLinks()
-      // bc href value isn't set / is set here
-      if (linkHomeHref === linkBackHref) {
-        setBooleanAttribute(linkHome, LINK_ATTR.REJECTED, true);
-      }
-    }
-  }
-
-  if (router.isSharedRoute) {
-    let [linkHome, linkShare] = getTargetLinks(
-      links,
-      TARGET_VAL.HOME,
-      TARGET_VAL.SHARE
-    );
-
-    setBooleanAttribute(linkShare, LINK_ATTR.REJECTED, true);
-
-    // gnaaaaaa
-    // one single case: view all contacts
-    if (!router.prevRoute && !linkHome) {
-      setBooleanAttribute(linkHome, LINK_ATTR.REJECTED, false);
-      setBooleanAttribute(linkHome, LINK_ATTR.SELECTED, false);
-    }
-  }
-
-  if (!router.isChatRoute) {
-    let [linkBack] = getTargetLinks(links, TARGET_VAL.BACK);
-
-    // hide
-    !router.prevRoute &&
-      setBooleanAttribute(linkBack, LINK_ATTR.REJECTED, true);
-
-    // show
-    if (router.prevRoute && !!linkBack) {
-      setBooleanAttribute(linkBack, LINK_ATTR.REJECTED, false);
-      setBooleanAttribute(linkBack, LINK_ATTR.SELECTED, false);
-    }
-  }
-
   return links;
 }
 
@@ -205,6 +139,100 @@ export function createChatLink(value) {
   return element;
 }
 
+// @todo refactor ChatLink setters
+// use a single state value instead of two boolean atttributes ??
+// these functions could be ChatLink methods
+function hideLink(link) {
+  link.rejected = true;
+  link.selected = false;
+}
+function showLink(link) {
+  link.rejected = false;
+  link.selected = false;
+}
+
+export function showSelectedLink(links, target) {
+  for (const link of links) {
+    if (link.target === target) {
+      link.rejected = false;
+      link.selected = true;
+      continue;
+    }
+
+    hideLink(link);
+  }
+}
+
+export function showAllLinks(module) {
+  const links = module.links;
+  const hasContacts = !!module.list;
+
+  if (router.isChatRoute && !hasContacts) {
+    for (const link of links) {
+      showLink(link);
+    }
+    return;
+  }
+
+  let [linkHome, linkBack, linkShare] = getTargetLinks(
+    links,
+    TARGET_VAL.HOME,
+    TARGET_VAL.BACK,
+    TARGET_VAL.SHARE
+  );
+
+  if (router.isChatRoute && hasContacts) {
+    // gnaaaaaa
+    // one single case: view all contacts
+    // a home link is inserted
+    // if /shared route is the first view
+    // but it's obsolete in /chat route
+    // if (!linkHome && !linkBack) {
+    const linkHomeHref = linkHome.firstElementChild.href;
+    const linkBackHref = linkBack.firstElementChild.href;
+
+    // hide it by comparing their href values
+    // which isn't possible in adjustLinks()
+    // bc href value isn't set / is set here
+    if (linkHomeHref === linkBackHref) {
+      hideLink(linkHome);
+      showLink(linkBack);
+    } else {
+      showLink(linkHome);
+      showLink(linkBack);
+    }
+    showLink(linkShare);
+    // }
+    return;
+  }
+
+  if (router.isSharedRoute) {
+    showLink(linkHome);
+    hideLink(linkShare);
+
+    if (!linkBack) {
+      console.log('@todo');
+      return;
+    }
+
+    !router.prevRoute ? hideLink(linkBack) : showLink(linkBack);
+    return;
+  }
+
+  // hide/show homeLink depending on formController status
+  if (router.isContactRoute) {
+    // show
+    formController.check(CONTACT_VAL[0]) && showLink(linkHome);
+    // hide
+    formController.check(CONTACT_VAL[1]) && hideLink(linkHome);
+  }
+
+  if (!router.isChatRoute && !!linkBack) {
+    // hide / show
+    !router.prevRoute ? hideLink(linkBack) : showLink(linkBack);
+  }
+}
+
 const contactTmplAttributes = [
   ['awaiting-message'],
   ['preview-recipient', 'awaiting-captcha'],
@@ -212,7 +240,7 @@ const contactTmplAttributes = [
   ['response-success'],
 ];
 
-export function getContactTmplAttribute(value) {
+export function getContactTmplAttributes(value) {
   const index = CONTACT_VAL.indexOf(value);
   return contactTmplAttributes[index];
 }

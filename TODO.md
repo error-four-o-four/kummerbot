@@ -5,13 +5,13 @@
 - [x] doublecheck each route when it's the landing page
 - [x] doublecheck `adjustChatLinksToRoute(output, properties)` in each route
 - [x] consider moving `render-utils/adjustChatLinksToRoute(output, properties)` to renderer/renderElements.js
-- [ ] doublecheck ChatLink.target="back" in each route (use historyController) [@](src/components/chat-link/chat-link.js#72) [@](src/components/chat-link/chat-link.js#90) [@](src/components/chat-module/utils.js#111) [@](src/router/router.js#13) [@](src/router/router.js#159)
+- [x] doublecheck ChatLink.target="back" in each route (use historyController) [@](src/components/chat-link/chat-link.js#72) [@](src/components/chat-link/chat-link.js#90) [@](src/components/chat-module/utils.js#111) [@](src/router/router.js#13) [@](src/router/router.js#159)
 
   - [x] chat
   - [x] shared
   - [x] contact
-  - [ ] about
-  - [ ] error; @bug: /error => /about: 'zurück' => /error: backLink => /about
+  - [x] about
+  - [x] error; @bug: /error => /about: 'zurück' => /error: backLink => /about
 
 - [ ] popstate event handling ! gnaaaaa !!!
 
