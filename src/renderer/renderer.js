@@ -5,6 +5,7 @@ import formController from '../controller/form/form-controller.js';
 
 import { ORIGIN, ROUTES } from '../router/config.js';
 import { TARGET_VAL } from '../components/components.js';
+import { ERROR_KEY } from '../controller/error-controller.js';
 
 import { removeElements, removeAllEllements } from './removeElements.js';
 
@@ -34,12 +35,21 @@ export default {
         .filter((key) => key),
     ];
 
-    router.hasChanged &&
-      (elements.header.link.active = router.isAboutRoute
-        ? router.prevRoute || ROUTES.HOME
-        : false);
+    if (router.hasChanged) {
+      // update about link
+      if (router.isAboutRoute) {
+        const target =
+          !!router.prevRoute && !router.prevRoute.includes(ERROR_KEY)
+            ? router.prevRoute
+            : ROUTES.HOME;
+        elements.header.link.active = target;
+      } else {
+        elements.header.link.active = false;
+      }
 
-    !router.isContactRoute && elements.form.visible && elements.form.hide();
+      // hide contact form
+      !router.isContactRoute && elements.form.visible && elements.form.hide();
+    }
 
     // case:
     // called renderer in popstate event

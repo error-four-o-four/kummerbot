@@ -32,12 +32,9 @@ export class AboutLink extends HTMLElement {
     this.child = document.createElement('a');
     this.child.href = ROUTES.ABOUT;
     this.child.innerHTML = htmlInactive;
-    this.classList.add(anchorClass.routed);
+    this.child.classList.add(anchorClass.routed);
 
     this.appendChild(this.child);
-    this.active = window.location.pathname.startsWith(ROUTES.ABOUT)
-      ? ROUTES.HOME
-      : false;
   }
 
   attributeChangedCallback(_, prev, next) {

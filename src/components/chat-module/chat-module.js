@@ -12,6 +12,7 @@ import {
   createErrorFragment,
 } from './renderer.js';
 
+import { showAllLinks, showSelectedLink } from './utils.js';
 import { CUSTOM_ATTR, CUSTOM_TAG } from './config.js';
 
 export class ChatModule extends HTMLElement {
@@ -84,12 +85,14 @@ export class ChatModule extends HTMLElement {
     if (!fragment) {
       this.key = ERROR_KEY;
       this.append(createErrorFragment(moduleHref));
+      showAllLinks(this);
       this.next = null;
       return;
     }
 
     this.key = moduleKey;
     this.append(fragment);
+    showAllLinks(this);
 
     const list = this.list;
 
@@ -103,29 +106,18 @@ export class ChatModule extends HTMLElement {
       });
     }
 
-    router.isChatRoute && (this.next = nextModuleKey);
+    this.next = nextModuleKey;
+    // router.isChatRoute && (this.next = nextModuleKey);
   }
 
   attributeChangedCallback(name, _, next) {
     if (name !== CUSTOM_ATTR.NEXT) return;
 
     if (next === null) {
-      for (const link of this.links) {
-        link.rejected = false;
-        link.selected = false;
-      }
+      showAllLinks(this.links);
       return;
     }
 
-    for (const link of this.links) {
-      if (link.target === next) {
-        link.rejected = false;
-        link.selected = true;
-        continue;
-      }
-
-      link.rejected = true;
-      link.selected = false;
-    }
+    showSelectedLink(this.links, next);
   }
 }
