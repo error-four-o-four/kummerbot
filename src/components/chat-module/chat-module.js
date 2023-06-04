@@ -114,7 +114,7 @@ export class ChatModule extends HTMLElement {
     if (name !== CUSTOM_ATTR.NEXT) return;
 
     if (next === null) {
-      showAllLinks(this.links);
+      showAllLinks(this);
       return;
     }
 

@@ -67,9 +67,15 @@ export default {
       : historyController.values[historyController.index - 1];
 
     this.hasError = this.route.includes(ERROR_KEY);
-    this.hasChanged = !this.prevRoute
-      ? true
-      : !this.check(this.route, this.prevRoute);
+
+    if (!this.prevRoute) {
+      this.hasChanged = true;
+    } else {
+      // case router.hasPopped back in /chat route
+      const prevRouteKey =
+        '/' + this.prevRoute?.split('/').filter((key) => !!key)[0] || null;
+      this.hasChanged = !this.check(this.route, prevRouteKey);
+    }
   },
 
   push({ href, pathname }) {

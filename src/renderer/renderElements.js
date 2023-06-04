@@ -1,10 +1,10 @@
 import elements from '../elements/elements.js';
 import renderer from './renderer.js';
-import animation from './animation.js';
+import animator from './animation/animator.js';
 
 import { MODULE_TAG } from '../components/components.js';
 
-export async function renderElementsDelayed() {
+export async function renderElementsDelayed(signal) {
   const absoluteKeys = renderer.getKeys();
 
   for (let step = 0; step < absoluteKeys.length; step += 1) {
@@ -16,7 +16,9 @@ export async function renderElementsDelayed() {
     // check if there's a rendered ChatModule component
     // for the currently iterated part of the pathname (router.keys)
     // play animation if necessary
-    const doContinue = await checkCurrentStep(step, relativeKeys[2]);
+    // debugger;
+
+    const doContinue = checkCurrentStep(step, relativeKeys[2]);
 
     if (doContinue) continue;
 
@@ -39,45 +41,22 @@ export async function renderElementsDelayed() {
     elements.header.setIndicatorWaiting();
 
     // skip animation if it's not the last module
-    if (module.next !== null) continue;
 
-    await animation.fadeLastChatModuleIn(module);
+    if (module.next !== null || relativeKeys[2] !== null) continue;
 
-    // @todo
-    // module.contacts.length > 0
-    // await promised contacts
-    // set loading = false
+    animator.scrollToChatModule(module);
+    await animator.pushChatModule(module, signal);
   }
 }
 
 // @todo @refactor
-async function checkCurrentStep(step, next) {
+function checkCurrentStep(step, next) {
   const renderedModule = elements.outlet.children[step];
 
   if (!renderedModule) return false;
 
-  const hasCorrectNextKey = renderedModule.next === next;
-  const hasSubsequentModules = !!next;
-  // wrong modules were removed in removeElemnts()
-  // skip if module and nextKey exist
-  if (hasSubsequentModules && hasCorrectNextKey) {
-    return true;
-  }
-
-  // @doublecheck
-  // make sure to update ChatLink appearance
-  // should be obsolete
-  if (hasSubsequentModules && !hasCorrectNextKey) {
+  if (!!next) {
     renderedModule.next = next;
-    return true;
-  }
-
-  // next key of last existing module was set to null
-  // animate last element
-  // @todo && initialRender
-  if (!hasSubsequentModules) {
-    // await animation.fadeLastChatModuleIn(renderedModule);
-    // await animation.fadeChatLinksIn(renderedModule);
     return true;
   }
 
@@ -87,7 +66,7 @@ async function checkCurrentStep(step, next) {
   return true;
 }
 
-export async function renderElementsImmediately() {
+export async function renderElementsImmediately(signal) {
   // function isn't called in /chat route
   // outlet was cleared beforehand
   elements.header.setIndicatorPending();
@@ -98,5 +77,5 @@ export async function renderElementsImmediately() {
 
   elements.outlet.append(module);
   elements.header.setIndicatorWaiting();
-  await animation.fadeLastChatModuleIn(module);
+  await animator.pushChatModuleImmediately(module, signal);
 }
