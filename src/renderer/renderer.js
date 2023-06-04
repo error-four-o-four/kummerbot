@@ -1,6 +1,8 @@
 import router from '../router/router.js';
 import elements from '../elements/elements.js';
 
+import formController from '../controller/form/form-controller.js';
+
 import { ORIGIN, ROUTES } from '../router/config.js';
 import { TARGET_VAL } from '../components/components.js';
 
@@ -32,12 +34,19 @@ export default {
         .filter((key) => key),
     ];
 
-    !router.isContactRoute && elements.form.visible && elements.form.hide();
-
     router.hasChanged &&
       (elements.header.link.active = router.isAboutRoute
-        ? router.prevRoute
+        ? router.prevRoute || ROUTES.HOME
         : false);
+
+    !router.isContactRoute && elements.form.visible && elements.form.hide();
+
+    // case:
+    // called renderer in popstate event
+    if (this.transition) {
+      console.log('@todo renderer is active');
+      return;
+    }
 
     // to prevent clicking transparent elements
     // @todo add css attribute to reset pointer
@@ -51,7 +60,12 @@ export default {
       ? await renderElementsDelayed()
       : await renderElementsImmediately();
 
+    // hides and shows input elements
+    router.isContactRoute && formController.update();
+
     this.transition = false;
+
+    console.log('transition end');
   },
 
   getShareUrl() {

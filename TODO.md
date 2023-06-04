@@ -2,15 +2,18 @@
 
 ### Routes
 
-- [ ] doublecheck each route when it's the landing page
+- [x] doublecheck each route when it's the landing page
 - [x] doublecheck `adjustChatLinksToRoute(output, properties)` in each route
 - [x] consider moving `render-utils/adjustChatLinksToRoute(output, properties)` to renderer/renderElements.js
 - [ ] doublecheck ChatLink.target="back" in each route (use historyController) [@](src/components/chat-link/chat-link.js#72) [@](src/components/chat-link/chat-link.js#90) [@](src/components/chat-module/utils.js#111) [@](src/router/router.js#13) [@](src/router/router.js#159)
+
   - [x] chat
   - [x] shared
-  - [ ] contact
-  - [ ] about => first view !
-  - [x] error
+  - [x] contact
+  - [ ] about
+  - [ ] error; @bug: /error => /about: 'zurück' => /error: backLink => /about
+
+- [ ] popstate event handling ! gnaaaaa !!!
 
 - [x] shared
 
@@ -26,7 +29,7 @@
     - [x] ~~redirect to /error when /processed when `processing === null`~~
 
   - [x] route validation
-  - [ ] `handleSubmit()` [@](src/handler/event-handler.js#56), router.onSubmit()
+  - [x] `handleSubmit()` [@](src/handler/event-handler.js#56), router.onSubmit()
 
 - [x] create handler/errorHandler
 - [x] move data/index.js => handler/dataHandler, move formHandler (?)
@@ -123,7 +126,7 @@
 - [ ] deactive animations in /shared route when router.hasChanged
 - [ ] update 'renderAllElements()' animation and doublecheck in each route
 - [ ] fade ChatLink components in after elements have been removed
-- [x] ~~promisify animation (fadeChatLinksIn) has ended before displaying loaded contacts~~ solved with ContactList component
+- [ ] promisify animation (fadeChatLinksIn) has ended before displaying loaded contacts
 - [ ] change `renderer.transition`. it should be a property of `animation` [@](src/renderer/renderer.js)
 - [ ] add css attribute to reset pointer while `renderer.transition === true` [@](src/renderer/renderer.js#43)
 - [ ] move `isMobileDevice`. it could be a property of 'renderer'

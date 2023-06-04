@@ -1,5 +1,5 @@
 import buttonHandler from './button-handler.js';
-import eventHandler from './event-handler.js';
+import eventHandler from './event/event-handler.js';
 
 export default {
   init() {

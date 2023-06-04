@@ -1,69 +1,36 @@
-import router from '../router/router.js';
-import elements from '../elements/elements.js';
-import renderer from '../renderer/renderer.js';
-import errorController from './error-controller.js';
+import router from '../../router/router.js';
+import elements from '../../elements/elements.js';
+import renderer from '../../renderer/renderer.js';
 
-import { delay } from '../renderer/animation.js';
+import { ROUTES } from '../../router/config.js';
 
-import { ROUTES } from '../router/config.js';
+import errorController from '../error-controller.js';
+import captchaValidator from './captcha-validator.js';
 
-const captchaValidator = {
-  required: null,
-  submitted: null,
-  index: 0,
-  messages: [
-    'Leider nein.',
-    'Nope!',
-    'Nö',
-    'Kann es sein, dass du kein Mensch bist?',
-  ],
-  get message() {
-    this.index = (this.index + 1) % this.messages.length;
-    return this.messages[this.index - 1];
-  },
-  onInput(e) {
-    this.submitted = e.target.valueAsNumber;
-  },
-  isValid() {
-    return this.required === this.submitted;
-  },
-};
+import { CONTACT_VAL, messageData } from './config.js';
 
-const _requiredValue = {
-  email: null,
-  message: null,
-  reset() {
-    this.email = null;
-    this.message = null;
-    elements.form.element.reset();
-  },
-};
-
-const VALUES = 'message captcha requesting responded'.split(' ');
+import { delay } from '../../renderer/animation.js';
 
 const state = {
   prev: 0,
   index: 0,
 };
 
-export { VALUES as CONTACT_VAL };
-
 let initiated = false;
-let referrer = null;
 
 export default {
   setContactData(value) {
-    _requiredValue.reset();
-    _requiredValue.email = value;
+    messageData.reset();
+    messageData.email = value;
   },
   getContactData() {
-    return _requiredValue.email;
+    return messageData.email;
   },
   setMessage() {
-    _requiredValue.message = elements.form.textarea.value;
+    messageData.message = elements.form.textarea.value;
   },
   getMessage() {
-    return _requiredValue.message;
+    return messageData.message;
   },
   hasCaptcha() {
     return false;
@@ -71,28 +38,33 @@ export default {
     // return !!_requiredValue.email;
   },
 
-  get() {
-    return VALUES[state.index];
+  check(value) {
+    const index = CONTACT_VAL.indexOf(value);
+    return state.index === index;
   },
+  get() {
+    return CONTACT_VAL[state.index];
+  },
+  // set(), back() and forward() are called before renderer.update()
   set(value) {
     state.prev = state.index;
-    state.index = VALUES.indexOf(value);
+    state.index = CONTACT_VAL.indexOf(value);
   },
   back() {
     state.prev = state.index;
     state.index = Math.max(state.index - 1, 0);
+
+    hideElements();
   },
   forward() {
     state.prev = state.index;
-    state.index = Math.min(state.index + 1, VALUES.length);
+    state.index = Math.min(state.index + 1, CONTACT_VAL.length);
 
-    state.index === 1 && elements.form.hide();
-
-    state.index === 2 && console.log('submitted captcha');
+    hideElements();
   },
 
-  update(value) {
-    // called post render
+  // update() is called after renderer.update()
+  update() {
     if (!initiated) {
       // @consider => code splitting!
       !initiated &&
@@ -101,28 +73,22 @@ export default {
       initiated = true;
     }
 
-    if (
-      referrer !== router.prevRoute &&
-      !router.check(router.prevRoute, ROUTES.CONTACT)
-    ) {
-      // update linkBack if state.index === 0;
-      referrer = router.prevRoute;
-    }
-
-    if (!!value && value !== this.get()) {
-      this.set(value);
-    }
-
-    if (state.index === 0) {
-      const linkBack = elements.outlet.querySelector('chat-link[target=back]');
-      !!linkBack && (linkBack.firstElementChild.href = referrer);
-      elements.form.show();
-    }
-
-    // @todo
-    // _state.index === 1 && elements.form.captcha.show()
+    showElements();
   },
 };
+
+function hideElements() {
+  state.index === 1 && elements.form.visible && elements.form.hide();
+
+  state.index === 2 && console.log('submitted captcha');
+}
+
+function showElements() {
+  state.index === 0 && elements.form.show();
+
+  // @todo
+  // _state.index === 1 && elements.form.captcha.show()
+}
 
 async function submitCaptchaForm() {
   const isValid = captchaValidator.validate();
@@ -142,10 +108,7 @@ async function submitCaptchaForm() {
   state.next();
   // renderer.update(router.state);
 
-  const response = await sendMessage(
-    _requiredValue.email,
-    _requiredValue.message
-  );
+  const response = await sendMessage(messageData.email, messageData.message);
 
   if (!response.ok) {
     errorController.set(
@@ -156,7 +119,7 @@ async function submitCaptchaForm() {
     return;
   }
 
-  _requiredValue.reset();
+  messageData.reset();
 
   state.next();
   // renderer.update(router.state);

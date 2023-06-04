@@ -1,7 +1,7 @@
 import router from '../../router/router.js';
 import renderer from '../../renderer/renderer.js';
 import templates from '../../controller/templates.js';
-import formController from '../../controller/form-controller.js';
+import formController from '../../controller/form/form-controller.js';
 
 import { TARGET_VAL } from '../components.js';
 import { setBooleanAttribute } from '../utils.js';
