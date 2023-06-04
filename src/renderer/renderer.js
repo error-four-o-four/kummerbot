@@ -16,8 +16,6 @@ import {
 } from './renderElements.js';
 
 export default {
-  // @todo move to animation.js
-  transition: false,
   keys: [],
   getKeys() {
     return router.isSharedRoute ? this.keys.slice(2) : this.keys;

@@ -16,7 +16,6 @@ export async function renderElementsDelayed(signal) {
     // check if there's a rendered ChatModule component
     // for the currently iterated part of the pathname (router.keys)
     // play animation if necessary
-    // debugger;
 
     const doContinue = checkCurrentStep(step, relativeKeys[2]);
 
@@ -34,14 +33,10 @@ export async function renderElementsDelayed(signal) {
     // render contents depending on route
     await module.render(relativeKeys);
 
-    // @todo
-    // if state.initial hide elements
-
     elements.outlet.append(module);
     elements.header.setIndicatorWaiting();
 
     // skip animation if it's not the last module
-
     if (module.next !== null || relativeKeys[2] !== null) continue;
 
     animator.scrollToChatModule(module);
