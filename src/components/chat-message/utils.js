@@ -1,6 +1,6 @@
 import elements from '../../elements/elements.js';
 import templates from '../../controller/templates.js';
-import formController from '../../controller/form-controller.js';
+import formController from '../../controller/form/form-controller.js';
 import { ERROR_KEY } from '../../controller/error-controller.js';
 
 import { buttonClass } from '../../handler/button-handler.js';

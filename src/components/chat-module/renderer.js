@@ -3,15 +3,15 @@ import renderer from '../../renderer/renderer.js';
 import templates from '../../controller/templates.js';
 
 import { ERROR_KEY } from '../../controller/error-controller.js';
-import { CONTACT_VAL } from '../../controller/form-controller.js';
+import { CONTACT_VAL } from '../../controller/form/config.js';
+import { MESSAGE_ATTR, MESSAGE_TAG, TARGET_VAL } from '../components.js';
+import { setBooleanAttribute } from '../utils.js';
+
 import {
   isFetched,
   getData,
   getFilePath,
 } from '../../controller/data-controller.js';
-
-import { MESSAGE_ATTR, MESSAGE_TAG, TARGET_VAL } from '../components.js';
-import { setBooleanAttribute } from '../utils.js';
 
 import {
   parseDataString,
@@ -20,7 +20,7 @@ import {
   renderChildren,
   updateChildren,
   createChatLink,
-  getContactTmplAttribute as getContactTmplAttributes,
+  getContactTmplAttributes,
 } from './utils.js';
 
 export function cloneFragment(input, prevModuleKey, moduleKey, moduleHref) {

@@ -2,15 +2,19 @@ import { ORIGIN, ROUTES } from './config.js';
 
 import historyController from '../controller/history-controller.js';
 import errorController, { ERROR_KEY } from '../controller/error-controller.js';
-import formController from '../controller/form-controller.js';
+import formController from '../controller/form/form-controller.js';
 
-// import renderer from '../renderer/renderer.js';
+const entries = {
+  isChatRoute: ROUTES.HOME,
+  isAboutRoute: ROUTES.ABOUT,
+  isSharedRoute: ROUTES.SHARED,
+  isContactRoute: ROUTES.CONTACT,
+};
 
 const getPathname = () => window.location.pathname;
 
-const router = {
+export default {
   route: null,
-  // @todo => getter historyController.values[historyController.index - 1]
   prevRoute: null,
   hasError: false,
   hasPopped: false,
@@ -23,109 +27,113 @@ const router = {
   init() {
     let pathname = getPathname();
 
+    if (window.history.state === null) {
+      window.history.replaceState({ isFirstState: true }, '', null);
+    }
+
     if (!this.validate(pathname)) {
       errorController.set('Die angegebene Adresse ist nicht erreichbar.');
       pathname = ROUTES.ERROR;
     }
 
-    // on page load
+    // on page load => event-handler
     // redirect from '/' to '/chat'
-    // @consider condition ? history.state or historyItems.values.length
-    if (window.history.state === null) {
-      pathname = pathname === '/' ? ROUTES.HOME : pathname;
-    }
+    pathname = pathname === '/' ? ROUTES.HOME : pathname;
 
+    // @todo case
+    // popped back from another page
+    // example.com - history.back() - this
+    // replace state removes the possibility
+    // to invoke a popstate forward
     const href = ORIGIN + pathname;
-    const index = historyController.push(pathname);
-    window.history.replaceState({ href, index }, '', href);
-
-    updateProps(pathname);
-  },
-
-  push({ href, pathname }) {
-    // @todo
-    // adjust pathname and href
-    // call formController.forward()
-    // const { isContactRoute: wasContactRoute } = renderer.props;
-    // const isContactRoute = router.check(pathname, ROUTES.CONTACT);
-
     const index = historyController.push(pathname);
     window.history.pushState({ href, index }, '', href);
 
-    console.log(index, historyController.values);
-
-    this.hasPopped = false;
-    updateProps(pathname);
-
-    // console.log(
-    //   `post\n${historyItems.join(
-    //     ', '
-    //   )}\nlocation.pathname: ${getRoute()}\nthis.route: ${
-    //     this.route
-    //   }\nthis.prevRoute: ${this.prevRoute}\nhistory:`,
-    //   window.history.length,
-    //   window.history.state
-    // );
+    this.update(pathname);
   },
 
-  replace({ href, pathname }) {
-    // called when user clicked on ChatLink Back or ChatLink linkToParent
-    let [delta, index] = historyController.set(pathname);
+  update(pathname) {
+    let tmp = this.route;
+    this.route = pathname;
 
-    // @todo
-    // call formController.back()
-    // const { isContactRoute: wasContactRoute } = renderer.props;
-    // const isContactRoute = router.check(pathname, ROUTES.CONTACT);
+    Object.entries(entries).forEach(
+      ([key, value]) => (this[key] = this.check(this.route, value))
+    );
 
-    if (!!delta) {
-      window.history.go(delta);
-      // window.history.replaceState({ href, index }, '', href);
-      return;
+    // @todo doublecheck conditions
+    // historyController.index < historyController.values.length - 1
+    this.prevRoute = !this.isContactRoute
+      ? tmp
+      : historyController.values[historyController.index - 1];
+
+    this.hasError = this.route.includes(ERROR_KEY);
+    this.hasChanged = !this.prevRoute
+      ? true
+      : !this.check(this.route, this.prevRoute);
+  },
+
+  push({ href, pathname }) {
+    // @reminder
+    // /contact route is handled in even-handler.js
+    if (historyController.get() === ROUTES.ERROR) {
+      const index = historyController.index;
+      historyController.values[index] = pathname;
+      window.history.replaceState({ href, index }, '', href);
     } else {
-      // case
-      // first view was /chat route with multiple rendered ChatModule components
-      index = historyController.push(pathname);
+      const index = historyController.push(pathname);
       window.history.pushState({ href, index }, '', href);
     }
 
-    this.hasPopped = true;
-    updateProps(pathname);
+    // this.update() depends on historyController
+    this.update(pathname);
+    this.hasPopped = false;
   },
 
-  onSubmit(e) {},
+  pop({ href, pathname }) {
+    // @reminder
+    // /contact route is handled by event-handler and this.set()
 
-  onPopstate(e) {
-    const { href, index } = e.state;
-    const pathname = href.replace(ORIGIN, '');
+    // when the historyController has no prior entries
+    // case: first view was /chat route with multiple rendered ChatModule components
+    if (historyController.index === 0) {
+      let prevHref = ORIGIN + historyController.get();
+      historyController.values.unshift(pathname);
+      window.history.replaceState({ href, index: 0 }, '', href);
+      // @consider
+      // push a state for each existing entry?
+      window.history.pushState({ href: prevHref, index: 1 }, '', href);
+      window.history.go(-1);
+      this.update(pathname);
+      this.hasPopped = true;
+      return;
+    }
 
-    // console.log(index, href);
-
-    // if (renderer.transition) {
-    //   e.preventDefault();
-
-    //   // check direction
-    //   const direction =
-    //     e.state.index < historyController.index ? 'forward' : 'back';
-
-    //   // go reversed direction
-    //   window.history[direction]();
-
-    //   // @todo finish animations
-    //   // instead of this
-    //   // @bug too many api calls
-    //   renderer.transition = false;
-    //   return;
-    // }
-
-    historyController.index = index;
+    // called when user clicked on ChatLink Back or ChatLink linkToParent
+    // updates the current historyController.index
+    let delta = historyController.set(pathname);
 
     // @todo
-    // validate contact page
-    // do not move forward in /contact/message route
-    // history.back();
+    if (historyController.index < 0) {
+      console.log('wat?', e, this);
+    }
 
+    // @doublecheck
+    // is a popstate event dispatched ??
+    window.history.go(delta);
+
+    this.update(pathname);
     this.hasPopped = true;
-    updateProps(pathname);
+  },
+
+  replace({ href, index }) {
+    const pathname = href.replace(ORIGIN, '');
+    window.history.replaceState({ href, index }, '', href);
+
+    this.update(pathname);
+  },
+
+  check(route, request) {
+    return !!route && route.startsWith(request);
   },
 
   validate(pathname) {
@@ -133,7 +141,6 @@ const router = {
 
     if (route === '/') return true;
 
-    // @todo move to formController and call historyController
     if (this.check(route, ROUTES.CONTACT) && !formController.getContactData()) {
       return false;
     }
@@ -143,84 +150,4 @@ const router = {
       false
     );
   },
-
-  check(route, request) {
-    return !!route && route.startsWith(request);
-  },
 };
-
-export default router;
-
-const entries = {
-  isChatRoute: ROUTES.HOME,
-  isAboutRoute: ROUTES.ABOUT,
-  isSharedRoute: ROUTES.SHARED,
-  isContactRoute: ROUTES.CONTACT,
-};
-
-function updateProps(pathname) {
-  // @todo
-  // prevRoute =
-  //    isChatRoute &&
-  //    !historyItems.values[historyItems.index - 1]
-  //      ?
-  //      :
-  router.prevRoute = router.route;
-  router.route = pathname;
-
-  Object.entries(entries).forEach(
-    ([key, value]) => (router[key] = router.check(router.route, value))
-  );
-
-  router.hasError = router.route.includes(ERROR_KEY);
-  router.hasChanged = !router.prevRoute
-    ? true
-    : !router.check(router.route, router.prevRoute);
-}
-
-// handle(e) {
-// const { target, type } = e;
-// e.preventDefault();
-// if (type !== 'submit') {
-//   // get target location
-//   const pathname =
-//     type === 'popstate' ? window.location.pathname : target.pathname;
-//   const isContactRoute = check(pathname, ROUTES.CONTACT);
-//   const wasContactRoute = check(state.route, ROUTES.CONTACT);
-//   // just preventDefault and pushState
-//   if (!isContactRoute || (isContactRoute && !wasContactRoute)) {
-//     const href =
-//       // routed from ContactItem
-//       isContactRoute && !wasContactRoute
-//         ? ORIGIN + ROUTES.CONTACT + '/' + CONTACT_VAL[0]
-//         : target.href;
-//     window.history.pushState({ href }, '', href);
-//     update();
-//     return state;
-//   }
-//   const href = ORIGIN + ROUTES.CONTACT + '/' + formController.step;
-//   window.history.pushState({ href }, '', href);
-//   update();
-//   return state;
-// }
-// // handle submit
-// // if step < CONTACT_VAL[1] => pushState
-// // else replaceState
-// const href = ORIGIN + ROUTES.CONTACT + '/' + formController.step;
-// window.history.pushState({ href }, '', href);
-// update();
-// return state;
-// if (type === 'popstate') {
-//   validate(window.location.pathname)
-//     ? serialize()
-//     : this.replace(ROUTES.ERROR);
-//   return state;
-// }
-// if (type === 'submit') {
-//   const href = ORIGIN + ROUTES.CONTACT + '/' + contactHandler.step;
-//   // use replaceState when message was send
-//   window.history.pushState({ href }, '', href);
-//   serialize();
-//   return state;
-// }
-// },

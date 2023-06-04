@@ -13,7 +13,8 @@ export default {
   },
   pop() {
     this.values.pop();
-    this.index = this.values.length - 1;
+    this.index =
+      this.index > this.values.length - 1 ? this.values.length - 1 : this.index;
 
     return this.index;
   },
@@ -21,14 +22,9 @@ export default {
     return this.values[this.index];
   },
   set(pathname) {
-    let index = this.values.length - 1;
-
-    // first view was /chat route
-    // and multiple modules were rendered
-    if (index <= 0) {
-      return [null, null];
-    }
-
+    // used by router.pop()
+    // change index but keep values
+    let index = this.index;
     let delta = 0;
     while (index >= 0) {
       if (pathname === this.values[index]) {
@@ -40,7 +36,6 @@ export default {
     }
 
     this.index = index;
-    this.values.splice(this.index + 1);
-    return [delta, this.index];
+    return delta;
   },
 };
