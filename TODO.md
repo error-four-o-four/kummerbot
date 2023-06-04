@@ -5,7 +5,7 @@
 - [x] doublecheck each route when it's the landing page
 - [x] doublecheck `adjustChatLinksToRoute(output, properties)` in each route
 - [x] consider moving `render-utils/adjustChatLinksToRoute(output, properties)` to renderer/renderElements.js
-- [x] doublecheck ChatLink.target="back" in each route (use historyController) [@](src/components/chat-link/chat-link.js#72) [@](src/components/chat-link/chat-link.js#90) [@](src/components/chat-module/utils.js#111) [@](src/router/router.js#13) [@](src/router/router.js#159)
+- [x] doublecheck ChatLink.target="back" in each route (use historyController)
 
   - [x] chat
   - [x] shared
@@ -13,7 +13,7 @@
   - [x] about
   - [x] error; @bug: /error => /about: 'zurück' => /error: backLink => /about
 
-- [ ] popstate event handling ! gnaaaaa !!!
+- [ ] popstate event handling ! gnaaaaa !!! [@](src/handler/event/handle-popstate.js#30) [@](src/handler/event/handle-popstate.js#73) [@](src/router/router.js#43)
 
 - [x] shared
 
@@ -25,11 +25,11 @@
 
   - [x] use a contact state to
 
-    - [x] redirect to /error from /message when `requiredEmailValue === null` [@](src/listener/form-handler.js#80) [@](src/router/router.js#136)
-    - [x] ~~redirect to /error when /processed when `processing === null`~~
+    - [x] redirect to /error from /message when `requiredEmailValue === null`
+    - [ ] ~~redirect to /error when /processed when `processing === null`~~
 
   - [x] route validation
-  - [x] `handleSubmit()` [@](src/handler/event-handler.js#56), router.onSubmit()
+  - [x] `handleSubmit()`
 
 - [x] create handler/errorHandler
 - [x] move data/index.js => handler/dataHandler, move formHandler (?)
@@ -67,7 +67,7 @@
   - [x] remove link to preview from options and add it as a chat message
   - [ ] ~~add QRCode image - add npm pkg~~
   - [ ] Share API / navigator.canShare / Permissions [@](src/listener/button-handler.js)
-  - [x] Copy URL [@](src/listener/button-handler.js)
+  - [x] Copy URL
 
 ### Templates
 
@@ -98,12 +98,13 @@
 #### ChatLink
 
 - [x] add condition: do not always update the href value
-- [ ] doublecheck possible cases
+- [x] doublecheck possible cases
+- [ ] refactor ChatLink setters [@](src/components/chat-module/utils.js#142)
 
 #### ~~ContactItem~~ => ContacList
 
 - [x] ChatContactItem component
-- [x] convert characters to html entities in title [@](src/components/contact-item/utils.js#65)
+- [x] convert characters to html entities in title
 - [x] refactor `injectContactData`
 - [x] display loaded ContactItems after last ChatMessage has faded in
 
@@ -122,21 +123,23 @@
 - [ ] Loading Indicator on Page
 - [x] Animation when Back / Reset ChatLink was clicked
 - [ ] ~~doublecheck - sometimes the attribute 'loading' is not set on ContactItem on load~~
-- [ ] finish all pending animation in popstate event [@](src/router/router.js#110)
-- [ ] deactive animations in /shared route when router.hasChanged
-- [ ] update 'renderAllElements()' animation and doublecheck in each route
-- [ ] fade ChatLink components in after elements have been removed
-- [ ] promisify animation (fadeChatLinksIn) has ended before displaying loaded contacts
-- [ ] change `renderer.transition`. it should be a property of `animation` [@](src/renderer/renderer.js)
+- [x] finish all pending animation in popstate event
+- [x] deactive animations in /shared route when router.hasChanged
+- [x] update 'renderAllElements()' animation and doublecheck in each route
+- [x] fade ChatLink components in after elements have been removed
+- [x] promisify animation (fadeChatLinksIn) has ended before displaying loaded contacts
+- [x] change `renderer.transition`. it should be a property of `animation`
 - [ ] add css attribute to reset pointer while `renderer.transition === true` [@](src/renderer/renderer.js#43)
 - [ ] move `isMobileDevice`. it could be a property of 'renderer'
+- [ ] add scroll event listener (?!?!) to be able to control scroll animations (scrollIntoView) [@](src/renderer/removeElements.js#31)
 
 ### Refactor
 
 - [x] chained animation promises
 - [x] themes [css](src/style/theme.css#100)
-- [ ] renderer/renderElements.js `checkCurrentStep(step, next)` [@](src/renderer/renderElements.js#53)
+- [x] renderer/renderElements.js `checkCurrentStep(step, next)`
 - [ ] code splitting
 - [ ] collect util functions
-  - [ ] delay [@](src/renderer/animation.js#76)
+  - [ ] delay [@](src/renderer/animation/utils.js)
   - [x] setBooleanAttribute()
+- [ ] playAnimations [@](src/renderer/animation/animator.js#150)

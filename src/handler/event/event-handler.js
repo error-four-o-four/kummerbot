@@ -4,8 +4,6 @@ import handlePopstate from './handle-popstate.js';
 
 import historyController from '../../controller/history-controller.js';
 
-// @todo onload handler
-
 export default {
   click: handleClick,
   submit: handleSubmit,
