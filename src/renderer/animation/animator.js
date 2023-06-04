@@ -70,10 +70,8 @@ function playDelayedChainedAnimations(animations) {
       element.pending = false;
     }
 
-    if (element.localName === LIST_TAG) {
+    if (element.localName === LIST_TAG && !element.loaded) {
       element.pending = true;
-      await delay(150);
-      element.pending = false;
     }
 
     return utils.promiseAnimation(animation);
@@ -178,6 +176,13 @@ function playAnimations(animations) {
 async function playChainedAnimations(animations) {
   const reducer = async (chain, animation) => {
     await chain;
+
+    const element = animation.effect.target;
+
+    if (element.localName === LIST_TAG && !element.loaded) {
+      element.pending = true;
+    }
+
     return utils.promiseAnimation(animation);
   };
   return animations.reduce(reducer, Promise.resolve());
