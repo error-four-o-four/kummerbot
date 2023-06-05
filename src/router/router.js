@@ -80,7 +80,7 @@ export default {
 
   push({ href, pathname }) {
     // @reminder
-    // /contact route is handled in even-handler.js
+    // /contact route is handled in event-handler.js
     if (historyController.get() === ROUTES.ERROR) {
       const index = historyController.index;
       historyController.values[index] = pathname;
@@ -92,7 +92,7 @@ export default {
 
     // this.update() depends on historyController
     this.update(pathname);
-    this.hasPopped = false;
+    this.hasPopped = pathname === ROUTES.HOME ? true : false;
   },
 
   pop({ href, pathname }) {
@@ -118,9 +118,9 @@ export default {
     // updates the current historyController.index
     let delta = historyController.set(pathname);
 
-    // @todo
+    // @todo use pushState when routing from /contact/message to /about
     if (historyController.index < 0) {
-      console.log('wat?', e, this);
+      console.log('wat?', this);
     }
 
     // @doublecheck

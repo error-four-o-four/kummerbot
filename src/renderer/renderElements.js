@@ -45,7 +45,6 @@ export async function renderElementsDelayed(signal) {
   }
 }
 
-// @todo @refactor
 function checkCurrentStep(step, next) {
   const renderedModule = elements.outlet.children[step];
 
@@ -56,9 +55,7 @@ function checkCurrentStep(step, next) {
     return true;
   }
 
-  // @doublecheck
-  // missed a case
-  console.warn('missed a case in renderElments.js checkCurrentStep');
+  renderedModule.next = null;
   return true;
 }
 
