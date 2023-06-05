@@ -34,13 +34,14 @@ export async function renderElementsDelayed(signal) {
     await module.render(relativeKeys);
 
     elements.outlet.append(module);
-    elements.header.setIndicatorWaiting();
 
     // skip animation if it's not the last module
     if (module.next !== null || relativeKeys[2] !== null) continue;
 
     animator.scrollToChatModule(module);
     await animator.pushChatModule(module, signal);
+
+    elements.header.setIndicatorWaiting();
   }
 }
 
@@ -71,6 +72,6 @@ export async function renderElementsImmediately(signal) {
   await module.render([null, moduleKey, null]);
 
   elements.outlet.append(module);
-  elements.header.setIndicatorWaiting();
   await animator.pushChatModuleImmediately(module, signal);
+  elements.header.setIndicatorWaiting();
 }

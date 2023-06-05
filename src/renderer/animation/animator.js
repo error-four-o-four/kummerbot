@@ -47,12 +47,6 @@ function pushChatModule(component, interrupt) {
 
     await playDelayedChainedAnimations(activeAnimations);
 
-    const list = component.list;
-
-    if (!!list) {
-      // set attribute 'loaded'
-    }
-
     activeAnimations.length = 0;
     resolve();
   });
@@ -72,6 +66,8 @@ function playDelayedChainedAnimations(animations) {
 
     if (element.localName === LIST_TAG && !element.loaded) {
       element.pending = true;
+      await element.loadedPromise;
+      element.pending = false;
     }
 
     return utils.promiseAnimation(animation);
@@ -98,12 +94,6 @@ function pushChatModuleImmediately(component, interrupt) {
     }
 
     await playChainedAnimations(activeAnimations);
-
-    const list = component.list;
-
-    if (!!list) {
-      // set attribute 'loaded'
-    }
 
     activeAnimations.length = 0;
     resolve();
@@ -181,6 +171,8 @@ async function playChainedAnimations(animations) {
 
     if (element.localName === LIST_TAG && !element.loaded) {
       element.pending = true;
+      await element.loadedPromise;
+      element.pending = false;
     }
 
     return utils.promiseAnimation(animation);

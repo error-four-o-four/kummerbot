@@ -9,6 +9,8 @@ import { createItemHtml } from './utils.js';
 import utils from '../../renderer/animation/utils.js';
 import config from '../../renderer/animation/config.js';
 
+import { getContactsData } from '../../controller/data-controller.js';
+
 export class ContactList extends ChatMessage {
   constructor() {
     super();
@@ -26,13 +28,17 @@ export class ContactList extends ChatMessage {
   }
 
   async render() {
-    const { getContactsData } = await import(
-      '../../controller/data-controller.js'
+    this.resolvePromise = null;
+    this.loadedPromise = new Promise(
+      (resolve) => (this.resolvePromise = resolve)
     );
+
+    // const { getContactsData } = await import(
+    //   '../../controller/data-controller.js'
+    // );
     const { error, data } = await getContactsData();
 
     if (error) {
-      this.pending = false;
       // meh
       setBooleanAttribute(this, MESSAGE_ATTR.DYNAMIC, true);
       this.loaded = true;
@@ -59,10 +65,7 @@ export class ContactList extends ChatMessage {
     }
 
     this.append(fragment);
-    this.pending = false;
     this.loaded = true;
-
-    this.classList.add(config.isTransparentClass);
-    utils.createFadeInAnimation(this).play();
+    this.resolvePromise();
   }
 }

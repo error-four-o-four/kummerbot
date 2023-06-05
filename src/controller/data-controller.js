@@ -72,7 +72,7 @@ export async function getContactsData() {
   };
 
   if (!contacts) {
-    // await delay(3000);
+    // await delay(5000);
     return new Promise(resolver)
       .then((data) => {
         contacts = data;
