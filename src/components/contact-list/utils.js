@@ -1,7 +1,11 @@
 import { isMobileDevice } from '../../renderer/utils.js';
 
 import { anchorClass } from '../chat-link/utils.js';
-import { buttonClass as buttonActionClass } from '../../handler/button-handler.js';
+
+import {
+  buttonClass as buttonActionClass,
+  buttonAttribute as buttonActionAttribute,
+} from '../../handler/button-handler.js';
 
 import { ROUTES } from '../../router/config.js';
 import { CONTACT_VAL } from '../../controller/form/config.js';
@@ -63,7 +67,7 @@ const buttons = [
         buttonClass.message
       }"
         href="${ROUTES.CONTACT + '/' + CONTACT_VAL[0]}"
-        data-email="${data}"
+        ${buttonActionAttribute.id}="${data}"
         >${this.label}</a>`;
     },
   },
@@ -74,7 +78,7 @@ const buttons = [
       return `
       <button
         type="button"
-        value="${data}"
+        ${buttonActionAttribute.id}="${data}"
         class="${elementClass.button} ${buttonActionClass.copy} ${buttonClass.mail}"
         >${this.label}</button>`;
     },
@@ -116,7 +120,7 @@ export function createItemHtml(data) {
           if (!isMobileDevice && props.key === buttonKey.phone) return html;
 
           const value = data[props.key];
-          if (!!value) html += props.html(value);
+          if (!!value) html += props.html(data._id);
           return html;
         }, '')}
     </div>

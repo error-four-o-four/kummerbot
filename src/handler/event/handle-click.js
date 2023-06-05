@@ -3,12 +3,15 @@ import renderer from '../../renderer/renderer.js';
 
 import { anchorClass } from '../../components/chat-link/utils.js';
 import { buttonClass } from '../../components/contact-list/utils.js';
+import { buttonAttribute } from '../button-handler.js';
 import { LINK_ATTR, TARGET_VAL } from '../../components/components.js';
 import { checkAttribute } from '../../components/utils.js';
 
 import historyController from '../../controller/history-controller.js';
 import formController from '../../controller/form/form-controller.js';
+import contacts from '../../data/contacts.js';
 import { CONTACT_VAL } from '../../controller/form/config.js';
+import { ORIGIN, ROUTES } from '../../router/config.js';
 
 // import { pre, post } from './event-handler.js';
 
@@ -60,8 +63,20 @@ export default (e) => {
   if (!router.isContactRoute) {
     // clicked link to /contact route
     if (isContactLink(element)) {
-      // @todo use identifier
-      formController.setContactData(element.getAttribute('data-email'));
+      const id = 1 * element.getAttribute(buttonAttribute.id);
+      const contact = contacts.find((contact) => contact._id === id);
+
+      if (!contact) {
+        const state = {
+          href: ORIGIN + ROUTES.ERROR,
+          pathname: ROUTES.ERROR,
+        };
+        router.push(state);
+        renderer.update();
+        return;
+      }
+
+      formController.setContactData(contact);
       formController.set(CONTACT_VAL[0]);
 
       console.log(formController.get(), formController.getContactData());

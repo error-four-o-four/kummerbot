@@ -64,9 +64,9 @@ function playDelayedChainedAnimations(animations) {
       element.pending = false;
     }
 
-    if (element.localName === LIST_TAG && !element.loaded) {
+    if (element.localName === LIST_TAG) {
       element.pending = true;
-      await element.loadedPromise;
+      await delay(200);
       element.pending = false;
     }
 
@@ -169,9 +169,9 @@ async function playChainedAnimations(animations) {
 
     const element = animation.effect.target;
 
-    if (element.localName === LIST_TAG && !element.loaded) {
+    if (element.localName === LIST_TAG) {
       element.pending = true;
-      await element.loadedPromise;
+      await delay(200);
       element.pending = false;
     }
 

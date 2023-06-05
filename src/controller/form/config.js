@@ -1,10 +1,15 @@
 import elements from '../../elements/elements.js';
 
 export const messageData = {
-  email: null,
+  name: null,
+  mail: null,
   message: null,
+  set({ name, mail }) {
+    this.name = name;
+    this.mail = mail;
+  },
   reset() {
-    this.email = null;
+    this.mail = null;
     this.message = null;
     elements.form.element.reset();
   },

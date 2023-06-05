@@ -1,5 +1,6 @@
 export default [
   {
+    _id: 0,
     name: 'Harald L&uuml;schow (er/ihm)',
     dscr: 'Gesch&auml;ftsf&uuml;hrung',
     url: null,
@@ -8,6 +9,7 @@ export default [
     tag: ['internal-complaint'],
   },
   {
+    _id: 1,
     name: 'Alexander Steinweg (er/ihm)',
     dscr: 'Qualit&auml;tsmanagement',
     url: 'https://www.pro-liberis.de/pages/ueber-uns/qualitaetsmanagement.php',
@@ -16,6 +18,7 @@ export default [
     tag: ['internal-complaint', 'internal-event'],
   },
   {
+    _id: 2,
     name: 'Jugendamt Ammerland',
     dsrc: null,
     url: 'https://www.ammerland.de/Landkreis/Kreisverwaltung/Fach%C3%A4mter/Jugendamt',
@@ -24,6 +27,7 @@ export default [
     tag: ['external-complaint'],
   },
   {
+    _id: 3,
     name: 'Nieders&auml;chsisches Landesjugendamt',
     dscr: 'Fachgruppe Kinder, Jugend und Familie',
     url: 'https://soziales.niedersachsen.de/startseite/kinder_jugend_amp_familie/landesjugendamt/organisation/landesjugendamt-360.html',
@@ -32,6 +36,7 @@ export default [
     tag: ['external-complaint'],
   },
   {
+    _id: 4,
     name: 'Weisser Ring e.V.',
     dscr: 'Opferhilfe',
     url: 'https://oldenburg-niedersachsen.weisser-ring.de/',
@@ -40,6 +45,7 @@ export default [
     tag: ['assault', 'violence'],
   },
   {
+    _id: 5,
     name: 'Wildwasser e.V.',
     dscr: null,
     url: 'http://www.wildwasser-oldenburg.de/Start/Index.aspx',
@@ -48,6 +54,7 @@ export default [
     tag: ['assault'],
   },
   {
+    _id: 6,
     name: 'pro familia',
     dscr: 'Beratungsstelle Oldenburg',
     url: 'https://www.profamilia.de/oldenburg',
@@ -56,6 +63,7 @@ export default [
     tag: ['identity', 'pregnancy'],
   },
   {
+    _id: 7,
     name: 'Trans*beratung Weser-Ems',
     dscr: null,
     url: 'https://transberatung-weser-ems.de/',
@@ -64,6 +72,7 @@ export default [
     tag: ['identity'],
   },
   {
+    _id: 8,
     name: 'Kinderschutz-Zentrum Oldenburg',
     dscr: 'Verein zur Verhütung von Kindesmisshandlung e. V.',
     url: 'https://www.kinderschutz-ol.de/',

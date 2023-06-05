@@ -19,12 +19,12 @@ const state = {
 let initiated = false;
 
 export default {
-  setContactData(value) {
+  setContactData(contact) {
     messageData.reset();
-    messageData.email = value;
+    messageData.set(contact);
   },
   getContactData() {
-    return messageData.email;
+    return messageData.name;
   },
   setMessage() {
     messageData.message = elements.form.textarea.value;

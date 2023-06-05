@@ -63,34 +63,34 @@ export function getFilePath(moduleKey) {
 
 // ########################################
 
-let contacts;
+// let contacts;
 
-export async function getContactsData() {
-  const resolver = async (resolve) => {
-    // await import does not work on ff mobile (?)
-    const data = await import('../data/contacts.js');
-    resolve(data.default);
-  };
+// export async function getContactsData() {
+//   const resolver = async (resolve) => {
+//     // await import does not work on ff mobile (?)
+//     const data = await import('../data/contacts.js');
+//     resolve(data.default);
+//   };
 
-  if (!contacts) {
-    // await delay(5000);
-    return new Promise(resolver)
-      .then((data) => {
-        contacts = data;
-        return {
-          error: null,
-          data,
-        };
-      })
-      .catch((error) => {
-        console.warn(error);
-        return {
-          error: 'An Error occured. Please try to refresh the page',
-          data: null,
-        };
-      });
-    // fetch again ??
-  }
+//   if (!contacts) {
+//     // await delay(5000);
+//     return new Promise(resolver)
+//       .then((data) => {
+//         contacts = data;
+//         return {
+//           error: null,
+//           data,
+//         };
+//       })
+//       .catch((error) => {
+//         console.warn(error);
+//         return {
+//           error: 'An Error occured. Please try to refresh the page',
+//           data: null,
+//         };
+//       });
+//     // fetch again ??
+//   }
 
-  return { error: null, data: contacts };
-}
+//   return { error: null, data: contacts };
+// }
