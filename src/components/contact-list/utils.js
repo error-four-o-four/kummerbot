@@ -83,7 +83,7 @@ const buttons = [
     key: 'phone',
     label: 'Anruf',
     html(data) {
-      const href = 'tel:+49' + data.replaceAll(/\s/, '').substring(1);
+      const href = 'tel:+49' + data.replaceAll(/\s/g, '').substring(1);
       return `
       <a
         href="${href}"
