@@ -78,8 +78,6 @@ export default (e) => {
 
       formController.setContactData(contact);
       formController.set(CONTACT_VAL[0]);
-
-      console.log(formController.get(), formController.getContactData());
     }
 
     if (

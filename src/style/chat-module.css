@@ -4,7 +4,7 @@ chat-module {
   padding: 0.5rem 0 1rem;
 
   &:last-of-type {
-    min-height: calc(100vh - var(--scroll-padding, 72px));
+    min-height: calc(100vh - var(--scroll-padding, 72px) - 2.5rem);
   }
 }
 
@@ -38,4 +38,15 @@ chat-message {
     width: 1.375rem;
     height: 1.375rem;
   }
+}
+
+.contact-data-message {
+  margin: 0 -0.25rem 0.5rem;
+  padding: 0.5rem 0.75rem 1rem;
+  background-color: #0003;
+  border-color: var(--fill-secondary);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.625rem 0.625rem 0.825rem;
+  box-shadow: inset 0 0 0.5rem 0rem #0003;
 }

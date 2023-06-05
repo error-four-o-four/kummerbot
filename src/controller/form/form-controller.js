@@ -1,15 +1,9 @@
-import router from '../../router/router.js';
 import elements from '../../elements/elements.js';
-import renderer from '../../renderer/renderer.js';
-
-import { ROUTES } from '../../router/config.js';
-
-import errorController from '../error-controller.js';
 import captchaValidator from './captcha-validator.js';
 
 import { CONTACT_VAL, messageData } from './config.js';
 
-import { delay } from '../../renderer/animation/utils.js';
+// import { delay } from '../../renderer/animation/utils.js';
 
 const state = {
   prev: 0,
@@ -19,23 +13,32 @@ const state = {
 let initiated = false;
 
 export default {
+  hasContactData() {
+    return messageData.mail !== null;
+  },
   setContactData(contact) {
     messageData.reset();
     messageData.set(contact);
   },
-  getContactData() {
-    return messageData.name;
-  },
   setMessage() {
     messageData.message = elements.form.textarea.value;
   },
-  getMessage() {
+  get name() {
+    return messageData.name;
+  },
+  get mail() {
+    return messageData.mail;
+  },
+  get message() {
     return messageData.message;
   },
-  hasCaptcha() {
-    return false;
-    // @todo
-    // return !!_requiredValue.email;
+  getRandomCaptchaValues() {
+    const numA = Math.floor(5 + Math.random() * 9);
+    const numB = Math.floor(1 + Math.random() * 9);
+
+    captchaValidator.required = numA + numB;
+
+    return [numA, numB];
   },
 
   check(value) {
@@ -86,81 +89,8 @@ function hideElements() {
 function showElements() {
   state.index === 0 && elements.form.show();
 
+  // @todo call adjustTextareaValue
+
   // @todo
   // _state.index === 1 && elements.form.captcha.show()
-}
-
-async function submitCaptchaForm() {
-  const isValid = captchaValidator.validate();
-
-  if (!isValid) {
-    elements.form.captcha.setCustomValidity(captchaValidator.message);
-    elements.form.checkValidity();
-    elements.form.captcha.setCustomValidity('');
-    return;
-  }
-
-  //   elements.form.captcha.removeEventListener(
-  //     'input',
-  //     captchaValidator.onInput.bind(captchaValidator)
-  //   );
-
-  state.next();
-  // renderer.update(router.state);
-
-  const response = await sendMessage(messageData.email, messageData.message);
-
-  if (!response.ok) {
-    errorController.set(
-      'Leider konnte deine Nachricht nicht versendet werden.'
-    );
-    router.update(ROUTES.ERROR);
-    renderer.update();
-    return;
-  }
-
-  messageData.reset();
-
-  state.next();
-  // renderer.update(router.state);
-}
-
-// pseudo functionality
-async function sendMessage(email, message) {
-  await delay(5000);
-  console.log('send', email, message);
-
-  return {
-    ok: true,
-    // ok: false,
-  };
-}
-
-// @todo window resized listener
-// set cols of footer textarea
-
-function adjustTextareaValue() {
-  const { form } = elements;
-  const maxColsCount = form.textarea.cols * 1;
-
-  const output = [];
-
-  let rows = form.textarea.value.split('\n');
-
-  for (let i = 0; i < rows.length; i += 1) {
-    let line = rows[i];
-
-    if (line.length <= maxColsCount) {
-      output.push(line);
-      continue;
-    }
-
-    output.push(line.slice(0, maxColsCount), line.slice(maxColsCount));
-  }
-
-  if (form.rowsCount !== output.length) {
-    form.rowsCount = Math.min(10, output.length);
-    form.textarea.rows = form.rowsCount;
-    form.textarea.value = output.join('\n');
-  }
 }

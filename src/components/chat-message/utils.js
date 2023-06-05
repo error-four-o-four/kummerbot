@@ -1,11 +1,9 @@
-import elements from '../../elements/elements.js';
 import templates from '../../controller/templates.js';
 import formController from '../../controller/form/form-controller.js';
 import { ERROR_KEY } from '../../controller/error-controller.js';
 
 import { buttonClass } from '../../handler/button-handler.js';
 import { anchorClass } from '../chat-link/utils.js';
-import { MESSAGE_TAG } from '../components.js';
 
 (() => {
   const template = document.createElement('template');
@@ -47,19 +45,30 @@ export function createShareLinkHtml(href) {
   </p>`;
 }
 
-function insertCaptcha(output) {
-  // @todo
-  // check if captcha exists beforehand
+export function updateShareLink(component, href) {
+  const anchor = component.querySelector('a');
 
-  // @todo
-  // insert recipient and message in first ChatModule
-  const numA = Math.floor(5 + Math.random() * 9);
-  const numB = Math.floor(1 + Math.random() * 9);
+  if (anchor.href === href) return;
 
-  formController.captcha = numA + numB;
+  component
+    .querySelectorAll('button')
+    .forEach((button) => button.setAttribute('value', href));
+  anchor.href = href;
+  anchor.innerText = href;
+  return;
+}
 
-  const para = document.createElement('p');
-  para.innerHTML = `${numA} + ${numB} = ${elements.form.createCaptchaHtml()}`;
+export function injectContactName(component) {
+  const span = component.querySelector('b');
+  span.innerHTML = string;
+}
 
-  output.querySelector(MESSAGE_TAG).append(para);
+export function injectContactMessage(component, string) {
+  component.lastElementChild.innerText = string;
+  component.lastElementChild.classList.add('contact-data-message');
+}
+
+export function setCaptchaValue(component) {
+  const [numA, numB] = formController.getRandomCaptchaValues();
+  component.lastElementChild.innerText = `${numA} + ${numB} = ?`;
 }
