@@ -67,6 +67,7 @@ let contacts;
 
 export async function getContactsData() {
   const resolver = async (resolve) => {
+    // await import does not work on ff mobile (?)
     const data = await import('../data/contacts.js');
     resolve(data.default);
   };
