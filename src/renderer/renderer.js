@@ -3,6 +3,7 @@ import elements from '../elements/elements.js';
 import animator from './animation/animator.js';
 
 import formController from '../controller/form/form-controller.js';
+import messageForm from '../elements/form-message.js';
 
 import { ORIGIN, ROUTES } from '../router/config.js';
 import { TARGET_VAL } from '../components/components.js';
@@ -47,7 +48,7 @@ export default {
       }
 
       // hide contact form
-      !router.isContactRoute && elements.form.visible && elements.form.hide();
+      !router.isContactRoute && messageForm.visible && messageForm.hide();
     }
 
     // e.g. renderer is already in transition state

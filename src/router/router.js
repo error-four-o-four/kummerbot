@@ -147,7 +147,7 @@ export default {
 
     if (route === '/') return true;
 
-    if (this.check(route, ROUTES.CONTACT) && !formController.getContactData()) {
+    if (this.check(route, ROUTES.CONTACT) && !formController.hasContactData()) {
       return false;
     }
 

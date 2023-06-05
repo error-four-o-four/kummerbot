@@ -1,5 +1,3 @@
-import elements from '../../elements/elements.js';
-
 export const CONTACT_VAL = 'message captcha requesting responded'.split(' ');
 
 export const messageData = {
@@ -13,6 +11,5 @@ export const messageData = {
   reset() {
     this.mail = null;
     this.message = null;
-    elements.form.element.reset();
   },
 };

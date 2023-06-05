@@ -1,5 +1,3 @@
-import form from './form.js';
-
 const app = document.getElementById('app');
 
 const htmlPending = 'Schreibt ...';
@@ -28,5 +26,4 @@ export default {
   app,
   header,
   outlet,
-  form,
 };

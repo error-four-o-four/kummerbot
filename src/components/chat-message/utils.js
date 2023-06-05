@@ -60,11 +60,11 @@ export function updateShareLink(component, href) {
 
 export function injectContactName(component) {
   const span = component.querySelector('b');
-  span.innerHTML = string;
+  span.innerHTML = formController.name;
 }
 
-export function injectContactMessage(component, string) {
-  component.lastElementChild.innerText = string;
+export function injectContactMessage(component) {
+  component.lastElementChild.innerText = formController.message;
   component.lastElementChild.classList.add('contact-data-message');
 }
 

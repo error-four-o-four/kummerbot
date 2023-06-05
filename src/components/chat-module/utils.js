@@ -219,17 +219,20 @@ export function showAllLinks(module) {
     return;
   }
 
+  if (!router.isChatRoute && !!linkBack) {
+    // hide / show
+    !router.prevRoute ? hideLink(linkBack) : showLink(linkBack);
+  }
+
   // hide/show homeLink depending on formController status
   if (router.isContactRoute) {
     // show
     formController.check(CONTACT_VAL[0]) && showLink(linkHome);
     // hide
     formController.check(CONTACT_VAL[1]) && hideLink(linkHome);
-  }
 
-  if (!router.isChatRoute && !!linkBack) {
-    // hide / show
-    !router.prevRoute ? hideLink(linkBack) : showLink(linkBack);
+    formController.check(CONTACT_VAL[2]) && hideLink(linkHome);
+    formController.check(CONTACT_VAL[2]) && hideLink(linkBack);
   }
 }
 

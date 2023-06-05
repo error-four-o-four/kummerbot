@@ -11,6 +11,7 @@
   - [x] shared
   - [x] contact
   - [x] about
+  - [ ] bug: use pushState when routing from /contact/message to /about
   - [x] error; @bug: /error => /about: 'zurück' => /error: backLink => /about
 
 - [ ] popstate event handling ! gnaaaaa !!! [@](src/handler/event/handle-popstate.js#30) [@](src/handler/event/handle-popstate.js#73) [@](src/router/router.js#43)
@@ -25,7 +26,8 @@
 
   - [x] use a contact state to
 
-    - [x] redirect to /error from /message when `requiredEmailValue === null`
+    - [x] redirect to /error from /contact/message when `requiredEmailValue === null`
+    - [x] redirect to /error from /contact/captcha when `requiredEmailValue === null`
     - [ ] ~~redirect to /error when /processed when `processing === null`~~
 
   - [x] route validation
@@ -33,7 +35,7 @@
 
 - [x] create handler/errorHandler
 - [x] move data/index.js => handler/dataHandler, move formHandler (?)
-- [ ] formController.js
+- [x] formController.js
 
 ### Contents
 
@@ -55,12 +57,12 @@
 
   - [ ] create API to send messages
   - [ ] ~~add email regex. might not be necessary because there's no user input~~
-  - [ ] adjust attribute 'cols' in 'resized' event
-  - [ ] pass data key from button to contactHandler !
+  - [x] adjust attribute 'cols' in 'resized' event
+  - [x] pass data key from button to contactHandler !
   - [x] refactor data and dataHandler => add property 'tags' which is associated with the loaded .html-file (requires updating renderer)
   - [ ] security: sanitize textarea.value
-  - [ ] render dynamic ChatMessage contents [@](src/components/chat-message/chat-message.js#61) [@](src/components/chat-message/utils.js#54)
-  - [ ] captcha-validator [@](src/components/chat-message/utils.js#51)
+  - [x] render dynamic ChatMessage contents
+  - [x] captcha-validator
   - [ ] doublecheck css: disable resizable textarea (?)
 
 - [x] share - restructure or rewrite
@@ -143,3 +145,5 @@
   - [ ] delay [@](src/renderer/animation/utils.js)
   - [x] setBooleanAttribute()
 - [ ] playAnimations [@](src/renderer/animation/animator.js#150)
+- [ ] bug: 'elt is not defined' in createAnimation createFadeOutAnimation when moving forward in history (popstate event) twice
+- [ ] bug: /chat : history.forward() : /chat/contacts : history.forward() : /chat/contacts/share doesn't interrupt fade In Animation of /chat/contacts; fade in is played twice
