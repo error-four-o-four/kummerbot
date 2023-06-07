@@ -44,9 +44,9 @@ export default {
           !!router.prevRoute && !router.prevRoute.includes(ERROR_KEY)
             ? router.prevRoute
             : ROUTES.HOME;
-        header.link.active = target;
+        header.updateLink(target);
       } else {
-        header.link.active = false;
+        header.updateLink();
       }
 
       // hide contact form

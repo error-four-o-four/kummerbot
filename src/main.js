@@ -1,6 +1,4 @@
 import './style/main.css';
-
-import './components/about-link/index.js';
 import './components/components.js';
 
 import router from './router/router.js';
