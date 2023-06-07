@@ -1,9 +1,9 @@
 import router from '../router/router.js';
-import elements from '../elements/elements.js';
 import animator from './animation/animator.js';
 
-import formController from '../controller/form/form-controller.js';
+import header from '../elements/header.js';
 import messageForm from '../elements/form-message.js';
+import formController from '../controller/form/form-controller.js';
 
 import { ORIGIN, ROUTES } from '../router/config.js';
 import { TARGET_VAL } from '../components/components.js';
@@ -17,6 +17,7 @@ import {
 } from './renderElements.js';
 
 export default {
+  outlet: document.getElementById('outlet'),
   keys: [],
   getKeys() {
     return router.isSharedRoute ? this.keys.slice(2) : this.keys;
@@ -26,6 +27,7 @@ export default {
     // @todo hide app
     // @todo show app when last element was loaded and rendered
     // improves UX
+    // => code splitting
 
     // keys of rendered modules
     this.keys = [
@@ -42,9 +44,9 @@ export default {
           !!router.prevRoute && !router.prevRoute.includes(ERROR_KEY)
             ? router.prevRoute
             : ROUTES.HOME;
-        elements.header.link.active = target;
+        header.link.active = target;
       } else {
-        elements.header.link.active = false;
+        header.link.active = false;
       }
 
       // hide contact form
@@ -69,9 +71,13 @@ export default {
       await removeElements(interrupt);
     }
 
+    header.setIndicatorPending();
+
     router.isChatRoute
       ? await renderElementsDelayed(interrupt)
       : await renderElementsImmediately(interrupt);
+
+    header.setIndicatorWaiting();
 
     // hides and shows input elements
     router.isContactRoute && formController.update();

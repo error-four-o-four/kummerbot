@@ -1,4 +1,3 @@
-import elements from '../elements/elements.js';
 import renderer from './renderer.js';
 import animator from './animation/animator.js';
 
@@ -21,32 +20,27 @@ export async function renderElementsDelayed(signal) {
 
     if (doContinue) continue;
 
-    // else create a new ChatModule component
-    elements.header.setIndicatorPending();
-
     // @reminder
     // cloneNode() method of an element within a template does not call the constructor
     // it's necessary to call the constructor to make setters, getters and methods available
-    const module = document.createElement(MODULE_TAG);
+    const moduleElt = document.createElement(MODULE_TAG);
 
     // use moduleKey to fetch and store .html-file initially
     // render contents depending on route
-    await module.render(relativeKeys);
+    await moduleElt.render(relativeKeys);
 
-    elements.outlet.append(module);
+    renderer.outlet.append(moduleElt);
 
     // skip animation if it's not the last module
-    if (module.next !== null || relativeKeys[2] !== null) continue;
+    if (moduleElt.next !== null || relativeKeys[2] !== null) continue;
 
-    animator.scrollToChatModule(module);
-    await animator.pushChatModule(module, signal);
-
-    elements.header.setIndicatorWaiting();
+    animator.scrollToChatModule(moduleElt);
+    await animator.pushChatModule(moduleElt, signal);
   }
 }
 
 function checkCurrentStep(step, next) {
-  const renderedModule = elements.outlet.children[step];
+  const renderedModule = renderer.outlet.children[step];
 
   if (!renderedModule) return false;
 
@@ -62,13 +56,11 @@ function checkCurrentStep(step, next) {
 export async function renderElementsImmediately(signal) {
   // function isn't called in /chat route
   // outlet was cleared beforehand
-  elements.header.setIndicatorPending();
 
   const moduleKey = renderer.getKeys()[0];
-  const module = document.createElement(MODULE_TAG);
-  await module.render([null, moduleKey, null]);
+  const moduleElt = document.createElement(MODULE_TAG);
+  await moduleElt.render([null, moduleKey, null]);
 
-  elements.outlet.append(module);
-  await animator.pushChatModuleImmediately(module, signal);
-  elements.header.setIndicatorWaiting();
+  renderer.outlet.append(moduleElt);
+  await animator.pushChatModuleImmediately(moduleElt, signal);
 }
