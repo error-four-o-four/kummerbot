@@ -6,7 +6,11 @@ export async function removeAllEllements(signal) {
 
   if (modules.length === 0) return;
 
+  // console.log(modules[0], modules);
+
+  // @todo scroll to top
   modules[0] && animator.scrollToChatModule(modules[0]);
+  // @todo check modules
   await animator.popAllChatModules(modules, signal);
 
   renderer.outlet.innerHTML = '';

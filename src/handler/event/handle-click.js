@@ -135,7 +135,6 @@ async function handleContactBackLink(element, state) {
 
   if (state === CONTACT_VAL[1]) {
     // the user should NOT be able to go back to the captcha form
-    // @todo => adjust handleSubmit
     // [/chat/**/*, /contact/message,  @/contact/captcha] => [/chat/**/*, @/contact/message]
     formController.back();
     historyController.back();

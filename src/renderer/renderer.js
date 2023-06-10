@@ -4,6 +4,7 @@ import animator from './animation/animator.js';
 import header from '../elements/header.js';
 import messageForm from '../elements/form-message.js';
 import formController from '../controller/form/form-controller.js';
+// import historyController from '../controller/history-controller.js';
 
 import { ORIGIN, ROUTES } from '../router/config.js';
 import { TARGET_VAL } from '../components/components.js';
@@ -24,8 +25,7 @@ export default {
   },
   async update() {
     // @todo on first render
-    // @todo hide app
-    // @todo show app when last element was loaded and rendered
+    // hide app and show app when last element was loaded and rendered
     // improves UX
     // => code splitting
 
@@ -36,6 +36,19 @@ export default {
         .split('/')
         .filter((key) => key),
     ];
+
+    // @dev
+    // console.log(
+    //   // historyController.index,
+    //   '[' +
+    //     historyController.values
+    //       .map((item, index) =>
+    //         index === historyController.index ? item.toLocaleUpperCase() : item
+    //       )
+    //       .join(', ') +
+    //     ']',
+    //   router.hasChanged
+    // );
 
     if (router.hasChanged) {
       // update about link
