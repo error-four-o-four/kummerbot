@@ -59,21 +59,22 @@ export class ChatMessage extends HTMLElement {
     }
 
     if (router.isContactRoute) {
+      const formState = formController.get();
+      const templateValues = getContactTmplAttributes(formState);
       const attributeValue = this.getAttribute(CUSTOM_ATTR.TEMPLATE);
-      const templateValues = getContactTmplAttributes(formController.get());
 
-      if (!formController.hasContactData()) {
+      if (formState === CONTACT_VAL[0] && !formController.hasContactData()) {
         console.log('@todo route to /error');
         return;
       }
 
-      if (formController.check(CONTACT_VAL[0])) {
+      if (formState === CONTACT_VAL[0]) {
         injectContactName(this);
         return;
       }
 
       if (
-        formController.check(CONTACT_VAL[1]) &&
+        formState === CONTACT_VAL[1] &&
         attributeValue === templateValues[0]
       ) {
         // message was set in handleSubmit()
@@ -83,7 +84,7 @@ export class ChatMessage extends HTMLElement {
       }
 
       if (
-        formController.check(CONTACT_VAL[1]) &&
+        formState === CONTACT_VAL[1] &&
         attributeValue === templateValues[1]
       ) {
         setCaptchaValue(this);

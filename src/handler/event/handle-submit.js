@@ -2,85 +2,73 @@ import router from '../../router/router.js';
 import renderer from '../../renderer/renderer.js';
 
 import historyController from '../../controller/history-controller.js';
+import errorController from '../../controller/error-controller.js';
 import formController from '../../controller/form/form-controller.js';
 import messageForm from '../../elements/form-message.js';
-import captchaForm from '../../elements/form-captcha.js';
-import { CONTACT_VAL } from '../../controller/form/config.js';
+
+import { CONTACT_VAL, SUBMIT_ATTR } from '../../controller/form/config.js';
 import { ORIGIN, ROUTES } from '../../router/config.js';
-// import { post, pre } from './event-handler.js';
+import { delay } from '../../renderer/animation/utils.js';
 
 export default (e) => {
   e.preventDefault();
 
-  // @dev
-  // pre(e);
+  const isValid = formController.checkValidity();
 
-  // submitted message
-  if (
-    formController.check(CONTACT_VAL[0]) &&
-    !messageForm.element.reportValidity()
-  ) {
-    return;
+  if (!isValid) return;
+
+  // update state
+  const formState = formController.forward();
+
+  // set route
+  let pathname = ROUTES.CONTACT + '/' + formState;
+
+  // push: /contact/message, /contact/captcha
+  // update historyController index
+  if (formState === CONTACT_VAL[1]) {
+    historyController.add(pathname);
   }
 
-  if (formController.check(CONTACT_VAL[0])) {
-    formController.setMessage();
+  // /contact/message
+  // pop: /contact/requesting
+  if (formState === CONTACT_VAL[2]) {
+    historyController.back();
+    // dispatch another submit event
+    // when message has been send
+    sendMessage();
   }
 
-  // submitted captcha
-  if (formController.check(CONTACT_VAL[1])) {
-    const isValid = captchaForm.validate();
-
-    if (!isValid) return;
+  // replace: /contact/responded
+  if (formState === CONTACT_VAL[3]) {
+    // check response status
+    // sendMessage adds attribute to submitter 'form'
+    if (e.submitter.hasAttribute(SUBMIT_ATTR)) {
+      e.submitter.removeAttribute(SUBMIT_ATTR);
+      formController.resetContactData();
+    } else {
+      // message was send
+      // but an error occured
+      // @todo
+      // fix: message is not displayed (?)
+      errorController.set(
+        'Leider konnte deine Nachricht nicht zugestellt werden.'
+      );
+      pathname = ROUTES.ERROR;
+    }
   }
 
-  formController.forward();
-
-  const pathname = ROUTES.CONTACT + '/' + formController.get();
   const href = ORIGIN + pathname;
-
-  const index = historyController.push(pathname);
-  router.replace({ href, index });
+  router.replace({ href, pathname });
   renderer.update();
-
-  // @dev
-  // post();
 };
 
-// async function submitCaptchaForm() {
+async function sendMessage() {
+  await delay(1500);
 
-//   //   elements.form.captcha.removeEventListener(
-//   //     'input',
-//   //     captchaValidator.onInput.bind(captchaValidator)
-//   //   );
+  // handle error
+  // only set attribute when response status was ok
+  messageForm.element.setAttribute(SUBMIT_ATTR, true);
 
-//   state.next();
-//   // renderer.update(router.state);
-
-//   const response = await sendMessage(messageData.email, messageData.message);
-
-//   if (!response.ok) {
-//     errorController.set(
-//       'Leider konnte deine Nachricht nicht versendet werden.'
-//     );
-//     router.update(ROUTES.ERROR);
-//     renderer.update();
-//     return;
-//   }
-
-//   messageData.reset();
-
-//   state.next();
-//   // renderer.update(router.state);
-// }
-
-// // pseudo functionality
-// async function sendMessage(email, message) {
-//   await delay(5000);
-//   console.log('send', email, message);
-
-//   return {
-//     ok: true,
-//     // ok: false,
-//   };
-// }
+  const e = new SubmitEvent('submit', { submitter: messageForm.element });
+  window.dispatchEvent(e);
+}

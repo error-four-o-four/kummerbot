@@ -1,7 +1,7 @@
 export default {
   index: -1,
   values: [],
-  push(item) {
+  add(item) {
     if (this.index < this.values.length - 1) {
       this.values = this.values.slice(0, this.index + 1);
     }
@@ -11,17 +11,14 @@ export default {
 
     return this.index;
   },
-  pop() {
+  back() {
     this.values.pop();
     this.index =
       this.index > this.values.length - 1 ? this.values.length - 1 : this.index;
 
     return this.index;
   },
-  get() {
-    return this.values[this.index];
-  },
-  set(pathname) {
+  go(pathname) {
     // used by router.pop()
     // change index but keep values
     let index = this.index;
@@ -37,5 +34,8 @@ export default {
 
     this.index = index;
     return delta;
+  },
+  get() {
+    return this.values[this.index];
   },
 };

@@ -226,13 +226,14 @@ export function showAllLinks(module) {
 
   // hide/show homeLink depending on formController status
   if (router.isContactRoute) {
-    // show
-    formController.check(CONTACT_VAL[0]) && showLink(linkHome);
+    const formState = formController.get();
+    formState === CONTACT_VAL[0] && showLink(linkHome);
     // hide
-    formController.check(CONTACT_VAL[1]) && hideLink(linkHome);
-
-    formController.check(CONTACT_VAL[2]) && hideLink(linkHome);
-    formController.check(CONTACT_VAL[2]) && hideLink(linkBack);
+    formState === CONTACT_VAL[1] && hideLink(linkHome);
+    formState === CONTACT_VAL[2] && hideLink(linkHome);
+    formState === CONTACT_VAL[2] && hideLink(linkBack);
+    formState === CONTACT_VAL[3] && showLink(linkHome);
+    formState === CONTACT_VAL[3] && showLink(linkBack);
   }
 }
 

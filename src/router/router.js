@@ -4,6 +4,8 @@ import historyController from '../controller/history-controller.js';
 import errorController, { ERROR_KEY } from '../controller/error-controller.js';
 import formController from '../controller/form/form-controller.js';
 
+import handlePopstate from '../handler/event/handle-popstate.js';
+
 const entries = {
   isChatRoute: ROUTES.HOME,
   isAboutRoute: ROUTES.ABOUT,
@@ -46,7 +48,7 @@ export default {
     // replace state removes the possibility
     // to invoke a popstate forward
     const href = ORIGIN + pathname;
-    const index = historyController.push(pathname);
+    const index = historyController.add(pathname);
     window.history.pushState({ href, index }, '', href);
 
     this.update(pathname);
@@ -68,6 +70,7 @@ export default {
 
     this.hasError = this.route.includes(ERROR_KEY);
 
+    // @todo => hasChanged => history.state
     if (!this.prevRoute) {
       this.hasChanged = true;
     } else {
@@ -79,14 +82,13 @@ export default {
   },
 
   push({ href, pathname }) {
-    // @reminder
-    // /contact route is handled in event-handler.js
+    // @todo doublecheck error route
     if (historyController.get() === ROUTES.ERROR) {
       const index = historyController.index;
       historyController.values[index] = pathname;
       window.history.replaceState({ href, index }, '', href);
     } else {
-      const index = historyController.push(pathname);
+      const index = historyController.add(pathname);
       window.history.pushState({ href, index }, '', href);
     }
 
@@ -96,43 +98,46 @@ export default {
   },
 
   pop({ href, pathname }) {
-    // @reminder
-    // /contact route is handled by event-handler and this.set()
+    // required when router.push() is called afterwards
+    const addListener = (resolvePromise) => {
+      setTimeout(() => {
+        window.addEventListener('popstate', handlePopstate);
+        resolvePromise();
+      }, 50);
+    };
 
-    // when the historyController has no prior entries
-    // case: first view was /chat route with multiple rendered ChatModule components
-    if (historyController.index === 0) {
-      let prevHref = ORIGIN + historyController.get();
-      historyController.values.unshift(pathname);
-      window.history.replaceState({ href, index: 0 }, '', href);
-      // @consider
-      // push a state for each existing entry?
-      window.history.pushState({ href: prevHref, index: 1 }, '', href);
-      window.history.go(-1);
-      this.update(pathname);
-      this.hasPopped = true;
-      return;
-    }
-
-    // called when user clicked on ChatLink Back or ChatLink linkToParent
-    // updates the current historyController.index
-    let delta = historyController.set(pathname);
-
-    // @todo use pushState when routing from /contact/message to /about
-    if (historyController.index < 0) {
-      console.log('wat?', this);
-    }
-
-    // @doublecheck
-    // is a popstate event dispatched ??
-    window.history.go(delta);
-
-    this.update(pathname);
+    window.removeEventListener('popstate', handlePopstate);
     this.hasPopped = true;
+
+    return new Promise((resolve) => {
+      // when the historyController has no prior entries
+      // case: first view was /chat route with multiple rendered ChatModule components
+      if (historyController.index === 0) {
+        historyUnshiftState(href, pathname);
+        this.update(pathname);
+        addListener(resolve);
+        return;
+      }
+
+      // called when user clicked on ChatLink Back or ChatLink linkToParent
+      // updates the current historyController.index
+      let delta = historyController.go(pathname);
+
+      // @todo use pushState when routing from /contact/message to /about
+      if (historyController.index < 0) {
+        console.log('wat?', this);
+      }
+
+      window.history.go(delta);
+
+      this.update(pathname);
+      addListener(resolve);
+    });
   },
 
-  replace({ href, index }) {
-    const pathname = href.replace(ORIGIN, '');
+  replace({ href, pathname }) {
+    const index = historyController.index;
+    historyController.values[index] = pathname;
     window.history.replaceState({ href, index }, '', href);
 
     this.update(pathname);
@@ -157,3 +162,14 @@ export default {
     );
   },
 };
+
+function historyUnshiftState(href, pathname) {
+  let prevHref = ORIGIN + historyController.get();
+  historyController.values.unshift(pathname);
+  // @todo add isFirstState
+  window.history.replaceState({ href, index: 0 }, '', href);
+  // @consider
+  // push a state for each existing entry?
+  window.history.pushState({ href: prevHref, index: 1 }, '', href);
+  window.history.go(-1);
+}

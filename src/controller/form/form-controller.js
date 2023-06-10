@@ -4,21 +4,28 @@ import captchaValidator from './captcha-validator.js';
 
 import { CONTACT_VAL, messageData } from './config.js';
 
-// import { delay } from '../../renderer/animation/utils.js';
-
 let state = 0;
 
 export default {
+  resetContactData() {
+    messageData.reset();
+    messageForm.element.reset();
+    captchaForm.element.reset();
+  },
+  setContactData(contact) {
+    this.resetContactData();
+    messageData.set(contact);
+  },
   hasContactData() {
     return messageData.mail !== null;
   },
-  setContactData(contact) {
-    messageForm.element.reset();
-    messageData.reset();
-    messageData.set(contact);
-  },
-  setMessage() {
-    messageData.message = messageForm.get();
+  getRandomCaptchaValues() {
+    const numA = Math.floor(5 + Math.random() * 9);
+    const numB = Math.floor(1 + Math.random() * 9);
+
+    captchaValidator.required = numA + numB;
+
+    return [numA, numB];
   },
   get name() {
     return messageData.name;
@@ -29,19 +36,7 @@ export default {
   get message() {
     return messageData.message;
   },
-  getRandomCaptchaValues() {
-    const numA = Math.floor(5 + Math.random() * 9);
-    const numB = Math.floor(1 + Math.random() * 9);
 
-    captchaValidator.required = numA + numB;
-
-    return [numA, numB];
-  },
-
-  check(value) {
-    const index = CONTACT_VAL.indexOf(value);
-    return state === index;
-  },
   get() {
     return CONTACT_VAL[state];
   },
@@ -52,10 +47,33 @@ export default {
   back() {
     state = Math.max(state - 1, 0);
     hideElements();
+
+    // @todo popstate event captcha => message
+    // hide captcha => handle popstate
   },
   forward() {
     state = Math.min(state + 1, CONTACT_VAL.length);
     hideElements();
+
+    return CONTACT_VAL[state];
+  },
+  checkValidity() {
+    if (state === 0) {
+      // /contact/message
+      if (!messageForm.element.reportValidity()) {
+        return false;
+      } else {
+        messageData.message = messageForm.get();
+        return true;
+      }
+    }
+
+    if (state === 1) {
+      // /contact/captcha
+      return captchaForm.validate();
+    }
+
+    return true;
   },
 
   // update() is called after renderer.update()
@@ -63,18 +81,12 @@ export default {
     messageForm.init();
     captchaForm.init();
 
-    showElements();
+    state === 0 && messageForm.show();
+    state === 1 && captchaForm.show();
   },
 };
 
 function hideElements() {
-  state === 1 && messageForm.visible && messageForm.hide();
-
-  state === 2 && captchaForm.hide();
-}
-
-function showElements() {
-  state === 0 && messageForm.show();
-
-  state === 1 && captchaForm.show();
+  messageForm.visible && messageForm.hide();
+  captchaForm.visible && captchaForm.hide();
 }
