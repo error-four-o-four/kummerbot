@@ -1,34 +1,16 @@
 # todos
 
 - [ ] consider using a default error message [@](src/controller/error-controller.js)
-- [x] doublecheck each route when it's the landing page
-- [x] doublecheck possible error cases
-
-  - [x] /contact route is first view => replace /chat
-  - [ ] ~~ContactList component error~~ error handling is not required because the contacts aren't imported asynchronous at the moment => consider using dynamic import()
-  - [x] `handleLinkToContact()` ~~use replaceState when the contact data can not be found => /error~~ use router.restore()
+- [ ] ~~ContactList component error~~ error handling is not required because the contacts aren't imported asynchronous at the moment => consider using dynamic import()
 
 - [ ] doublecheck href vs pathname ChatLink.update()
 - [ ] doublecheck when user clicked on historyLink but history.state.index === 0 => router.js historyUnshiftState() await timeout (?)
-- [x] ~~hide about link in /contact route or~~ hide captcha form in /about route, find /contact/message in historyController.values - [x] doublecheck ChatLink **back** in each route (use historyController/router.prevroute)
-
-  - [x] chat
-  - [x] shared
-  - [x] about (either /chat or prevRoute)
-  - [x] error
-  - [x] contact
-
-- [x] doublecheck ChatLink **home** in each route
-
-  - [x] chat
-  - [x] shared
-  - [x] error
-  - [x] contact
 
 - [x] update document.title
 - [ ] alert user when user clicked on link to contact route if message has not been send yet (!!messageForm.textarea.value)
 - [ ] Share API / navigator.canShare / Permissions [@](src/listener/button-handler.js)
 - [ ] security: sanitize textarea.value
+
 - [ ] popstate event handling ! gnaaaaa !!! [@](src/handler/event/handle-popstate.js#30) [@](src/handler/event/handle-popstate.js#73) [@](src/router/router.js#43)
   - [ ] hide captchaForm
   - [ ] doublecheck when `history.state.isfirstPage` should be set
@@ -44,9 +26,6 @@
 - [ ] indicate when a url/mail has been copied
 - [ ] use scrollToTop in `removeAllElements()`
 - [ ] doublecheck router.hasPopped to decide if `removeAllElements()` vs `removeElements()` should be called
-
-  - [ ] /chat/contacts/share => didn't remove last ChatModule, router.hasPopped should be true (?)
-
 - [ ] render immediately when cached / popstate forward ?
 
 ### Styles
