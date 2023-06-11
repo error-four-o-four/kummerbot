@@ -70,7 +70,6 @@ export default (e) => {
       router.pop(element);
     }
     renderer.update();
-
     return;
   }
 
@@ -78,17 +77,18 @@ export default (e) => {
   // use history.replaceState and history.pushState to prevent popstate events
   const formState = formController.get();
 
-  if (isHomeLink(element)) {
-    handleContactHomeLink(element);
-    return;
-  }
-
   if (isBackLink(element)) {
     handleContactBackLink(element, formState);
     return;
   }
 
-  console.log('@todo handleClick(): wat?', e);
+  if (isHomeLink(element)) {
+    handleContactHomeLink(element);
+    return;
+  }
+
+  router.push(element);
+  renderer.update();
 };
 
 function handleLinkToContact(element) {
@@ -108,6 +108,9 @@ function handleLinkToContact(element) {
     return;
   }
 
+  // @todo
+  // alert when previous message has not been send
+
   // reset state, email etc
   formController.setContactData(contact);
   formController.set(CONTACT_VAL[0]);
@@ -115,12 +118,12 @@ function handleLinkToContact(element) {
   renderer.update();
 }
 
-function handleContactHomeLink(element) {
+async function handleContactHomeLink(element) {
   // the user should NOT be able to go back to the massage form
-  // [/chat/**/*, @(/contact/message || /contact/responded)] => [/chat/**/*, @/chat]
+  // [/chat/**/*, (/CONTACT/MESSAGE || /CONTACT/RESPONDED)] => [/chat/**/*, /chat]
   // @todo router.hasChanged => history.state !!! ?
-  router.replace(element);
-  router.hasChanged = true;
+  const prevPathname = historyController.get(-1);
+  await router.restore(prevPathname, element.pathname);
   renderer.update();
 }
 
@@ -128,33 +131,32 @@ async function handleContactBackLink(element, state) {
   // backlink was clicked in /contact/*
   if (state === CONTACT_VAL[0]) {
     // the user should be able to go back to the massage form
-    // [/chat/**/*, @/contact/message] => [@/chat/**/*, /contact/message]
+    // [/chat/**/*, /CONTACT/MESSAGE] => [/CHAT/**/*, /contact/message]
+    const nextPathname = historyController.get();
     // temporarily remove popstate listener
-    router.pop(element);
+    // special case: clicked about link inbetween
+    await router.restore(element.pathname, nextPathname);
+    await router.pop(element);
   }
 
   if (state === CONTACT_VAL[1]) {
     // the user should NOT be able to go back to the captcha form
-    // [/chat/**/*, /contact/message,  @/contact/captcha] => [/chat/**/*, @/contact/message]
+    // [/chat/**/*, /contact/message,  /CONTACT/CAPTCHA] => [/chat/**/*, /CONTACT/MESSAGE]
     formController.back();
-    historyController.back();
-    router.replace(element);
+    historyController.go(ROUTES.CONTACT + '/' + formController.get());
+    const prevPathname = historyController.get(-1);
+    await router.restore(prevPathname, element.pathname);
   }
 
   // state === CONTACT_VAL[2] does not have any links
 
   if (state === CONTACT_VAL[3]) {
     // the user should NOT be able to go back to /contact/responded
-    // [/chat, /chat/contacts, **/contact/responded**] => [/chat, **/chat/contacts**]
-    const pathname = historyController.values[historyController.index - 2];
-    const target = {
-      href: ORIGIN + pathname,
-      pathname,
-    };
-    // await history.go()
-    await router.pop(target);
-    router.push(element);
-    router.hasChanged = true;
+    // [/chat, /chat/contacts, /CONTACT/RESPONDED] => [/chat, /CHAT/CONTACTS]
+    // special case /shared route: there's no history state before /shared
+    const nextPathname = historyController.get(-1);
+    const prevPathname = historyController.get(-2);
+    await router.restore(prevPathname, nextPathname);
   }
   renderer.update();
 }

@@ -48,6 +48,7 @@ export default {
   show() {
     this.visible = true;
     this.element.style.display = 'grid';
+    form.reset();
     footer.show();
     input.focus();
   },

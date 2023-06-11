@@ -16,8 +16,8 @@ const entries = {
 const getPathname = () => window.location.pathname;
 
 export default {
-  route: null,
-  prevRoute: null,
+  pathname: null,
+  prevPathname: null,
   hasError: false,
   hasPopped: false,
   hasChanged: false,
@@ -55,37 +55,29 @@ export default {
   },
 
   update(pathname) {
-    let tmp = this.route;
-    this.route = pathname;
+    this.prevPathname = this.pathname;
+    this.pathname = pathname;
 
     Object.entries(entries).forEach(
-      ([key, value]) => (this[key] = this.check(this.route, value))
+      ([key, value]) => (this[key] = this.check(this.pathname, value))
     );
 
-    // @todo doublecheck conditions
-    // historyController.index < historyController.values.length - 1
-    this.prevRoute = !this.isContactRoute
-      ? tmp
-      : historyController.values[historyController.index - 1];
+    this.hasError = this.pathname.includes(ERROR_KEY);
 
-    this.hasError = this.route.includes(ERROR_KEY);
-
-    // @todo => hasChanged => history.state
-    if (!this.prevRoute) {
+    if (!this.prevPathname) {
       this.hasChanged = true;
     } else {
       // case router.hasPopped back in /chat route
       const prevRouteKey =
-        '/' + this.prevRoute?.split('/').filter((key) => !!key)[0] || null;
-      this.hasChanged = !this.check(this.route, prevRouteKey);
+        '/' + this.prevPathname?.split('/').filter((key) => !!key)[0] || null;
+      this.hasChanged = !this.check(this.pathname, prevRouteKey);
     }
   },
 
   push({ href, pathname }) {
     // @todo doublecheck error route
     if (historyController.get() === ROUTES.ERROR) {
-      const index = historyController.index;
-      historyController.values[index] = pathname;
+      const index = historyController.replace(pathname);
       window.history.replaceState({ href, index }, '', href);
     } else {
       const index = historyController.add(pathname);
@@ -93,35 +85,28 @@ export default {
     }
 
     // this.update() depends on historyController
-    this.update(pathname);
     this.hasPopped = pathname === ROUTES.HOME ? true : false;
+    this.update(pathname);
   },
 
   pop({ href, pathname }) {
-    // required when router.push() is called afterwards
-    const addListener = (resolvePromise) => {
-      setTimeout(() => {
-        window.addEventListener('popstate', handlePopstate);
-        resolvePromise();
-      }, 50);
-    };
-
-    window.removeEventListener('popstate', handlePopstate);
+    removePopstateListener();
     this.hasPopped = true;
 
     return new Promise((resolve) => {
       // when the historyController has no prior entries
       // case: first view was /chat route with multiple rendered ChatModule components
       if (historyController.index === 0) {
+        // @todo await history.go() timeout
         historyUnshiftState(href, pathname);
         this.update(pathname);
-        addListener(resolve);
+        restorePopstateListener(resolve);
         return;
       }
 
       // called when user clicked on ChatLink Back or ChatLink linkToParent
       // updates the current historyController.index
-      let delta = historyController.go(pathname);
+      const delta = historyController.go(pathname);
 
       // @todo use pushState when routing from /contact/message to /about
       if (historyController.index < 0) {
@@ -131,13 +116,35 @@ export default {
       window.history.go(delta);
 
       this.update(pathname);
-      addListener(resolve);
+      restorePopstateListener(resolve);
+    });
+  },
+
+  restore(prevPathname, nextPathname) {
+    removePopstateListener();
+
+    return new Promise((resolve) => {
+      const delta = !!prevPathname
+        ? historyController.go(prevPathname)
+        : -1 * historyController.index - 1;
+
+      window.history.go(delta);
+
+      setTimeout(() => {
+        console.log(window.history.state);
+
+        const index = !!prevPathname ? historyController.add(nextPathname) : 0;
+        const href = ORIGIN + nextPathname;
+        window.history.pushState({ href, index }, '', href);
+
+        this.update(nextPathname);
+        restorePopstateListener(resolve);
+      }, 10);
     });
   },
 
   replace({ href, pathname }) {
-    const index = historyController.index;
-    historyController.values[index] = pathname;
+    const index = historyController.replace(pathname);
     window.history.replaceState({ href, index }, '', href);
 
     this.update(pathname);
@@ -161,6 +168,18 @@ export default {
       false
     );
   },
+  // @dev
+  log() {
+    return [
+      ...Object.keys(this).reduce((all, key) => {
+        if (typeof this[key] === 'function' || !this[key]) return all;
+        typeof this[key] === 'boolean'
+          ? all.push(key)
+          : all.push(`${key}:`, this[key]);
+        return all;
+      }, []),
+    ];
+  },
 };
 
 function historyUnshiftState(href, pathname) {
@@ -172,4 +191,15 @@ function historyUnshiftState(href, pathname) {
   // push a state for each existing entry?
   window.history.pushState({ href: prevHref, index: 1 }, '', href);
   window.history.go(-1);
+}
+
+function removePopstateListener() {
+  window.removeEventListener('popstate', handlePopstate);
+}
+
+function restorePopstateListener(resolvePromise) {
+  setTimeout(() => {
+    window.addEventListener('popstate', handlePopstate);
+    resolvePromise();
+  }, 50);
 }

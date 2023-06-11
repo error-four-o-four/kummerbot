@@ -1,5 +1,7 @@
 import router from '../../router/router.js';
 import renderer from '../../renderer/renderer.js';
+
+import historyController from '../../controller/history-controller.js';
 import formController from '../../controller/form/form-controller.js';
 import { CONTACT_VAL } from '../../controller/form/config.js';
 
@@ -95,12 +97,13 @@ export function updateChildren(fragment, prevModuleKey, moduleKey, moduleHref) {
   if (!linkBack || (router.isChatRoute && !prevModuleKey)) return;
 
   if (router.isChatRoute) {
-    const prevModuleHref = renderer.getPathnameUrl(prevModuleKey);
-    linkBack.update(prevModuleHref);
+    const prevModulePathname = renderer.getPathnameUrl(prevModuleKey);
+    linkBack.update(prevModulePathname);
     return;
   }
 
-  router.prevRoute && linkBack.update(router.prevRoute);
+  const prevPathname = historyController.get(-1);
+  !!prevPathname && linkBack.update(prevPathname);
 }
 
 function adjustLinks(fragment, prevModuleKey) {
@@ -209,19 +212,13 @@ export function showAllLinks(module) {
   if (router.isSharedRoute) {
     showLink(linkHome);
     hideLink(linkShare);
-
-    if (!linkBack) {
-      console.log('@todo');
-      return;
-    }
-
-    !router.prevRoute ? hideLink(linkBack) : showLink(linkBack);
-    return;
   }
+
+  const prevPathname = historyController.get(-1);
 
   if (!router.isChatRoute && !!linkBack) {
     // hide / show
-    !router.prevRoute ? hideLink(linkBack) : showLink(linkBack);
+    !prevPathname ? hideLink(linkBack) : showLink(linkBack);
   }
 
   // hide/show homeLink depending on formController status

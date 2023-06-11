@@ -3,8 +3,9 @@ import animator from './animation/animator.js';
 
 import header from '../elements/header.js';
 import messageForm from '../elements/form-message.js';
+import captchaForm from '../elements/form-captcha.js';
 import formController from '../controller/form/form-controller.js';
-// import historyController from '../controller/history-controller.js';
+import historyController from '../controller/history-controller.js';
 
 import { ORIGIN, ROUTES } from '../router/config.js';
 import { TARGET_VAL } from '../components/components.js';
@@ -29,41 +30,34 @@ export default {
     // improves UX
     // => code splitting
 
+    console.log(...router.log(), ...historyController.log());
+
     // keys of rendered modules
     this.keys = [
-      ...router.route
+      ...router.pathname
         .substring(1)
         .split('/')
         .filter((key) => key),
     ];
 
-    // @dev
-    // console.log(
-    //   // historyController.index,
-    //   '[' +
-    //     historyController.values
-    //       .map((item, index) =>
-    //         index === historyController.index ? item.toLocaleUpperCase() : item
-    //       )
-    //       .join(', ') +
-    //     ']',
-    //   router.hasChanged
-    // );
-
     if (router.hasChanged) {
       // update about link
       if (router.isAboutRoute) {
+        // @consider use historyController
         const target =
-          !!router.prevRoute && !router.prevRoute.includes(ERROR_KEY)
-            ? router.prevRoute
+          !!router.prevPathname && !router.prevPathname.includes(ERROR_KEY)
+            ? router.prevPathname
             : ROUTES.HOME;
         header.updateLink(target);
       } else {
         header.updateLink();
       }
 
-      // hide contact form
-      !router.isContactRoute && messageForm.visible && messageForm.hide();
+      if (!router.isContactRoute) {
+        // hide contact form
+        messageForm.visible && messageForm.hide();
+        captchaForm.visible && captchaForm.hide();
+      }
     }
 
     // e.g. renderer is already in transition state
@@ -109,8 +103,6 @@ export default {
   },
 
   getPathnameUrl(value) {
-    // @doublecheck isContactRoute
-
     // const index = typeof value === 'string' ? this.getIndex(value) : value;
     const index = this.keys.indexOf(value);
     const pathname = '/' + this.keys.slice(0, index + 1).join('/');
