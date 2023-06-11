@@ -52,6 +52,7 @@ export class ChatLink extends HTMLElement {
   }
 
   update(customHref) {
+    // @todo refactor href vs pathname
     const targetKey = this.target;
     const linkToParent = this.querySelector('.' + anchorClass.toParent);
     const linkToTarget = this.querySelector('.' + anchorClass.toTarget);

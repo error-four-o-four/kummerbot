@@ -4,39 +4,50 @@
 - [ ] doublecheck each route when it's the landing page
 - [ ] doublecheck possible error cases
 
-  - [ ] /contact route is first view
+  - [ ] /contact route is first view => replace /chat
   - [ ] ContactList component error
   - [ ] `handleLinkToContact()` use replaceState when the contact data can not be found => /error
 
-- [ ] doublecheck ChatLink **back** in each route (use historyController/router.prevroute)
+- [ ] doublecheck href vs pathname ChatLink.update()
+- [ ] doublecheck when user clicked on historyLink but history.state.index === 0 => router.js historyUnshiftState() await timeout (?)
+- [x] ~~hide about link in /contact route or~~ hide captcha form in /about route, find /contact/message in historyController.values - [ ] doublecheck ChatLink **back** in each route (use historyController/router.prevroute)
 
-  - [ ] chat
-  - [ ] shared
-  - [ ] about
+  - [x] chat
+  - [x] shared
+  - [x] about (either /chat or prevRoute)
   - [ ] error
-  - [ ] contact
+  - [x] contact
 
 - [ ] doublecheck ChatLink **home** in each route
 
-  - [ ] chat
-  - [ ] shared
-  - [ ] about
+  - [x] chat
+  - [x] shared
   - [ ] error
-  - [ ] contact
+  - [x] contact
 
+- [ ] update document.title
+- [ ] alert user when user clicked on link to contact route if message has not been send yet (!!messageForm.textarea.value)
 - [ ] Share API / navigator.canShare / Permissions [@](src/listener/button-handler.js)
 - [ ] security: sanitize textarea.value
 - [ ] popstate event handling ! gnaaaaa !!! [@](src/handler/event/handle-popstate.js#30) [@](src/handler/event/handle-popstate.js#73) [@](src/router/router.js#43)
   - [ ] hide captchaForm
   - [ ] doublecheck when `history.state.isfirstPage` should be set
-  - [ ] consider setting `router.hasChanged` as a property of history.state to use it in popstate events
+  - [ ] consider ~~setting `router.hasChanged` as a property of history.state to use it in popstate events~~ doublecheck in router, compare pathname.length, set router.hasChanged (case: go to /chat (home))
+  - [ ] /about => 'zurück': /contact/message => history.forward() (/about) didn't call renderer.update()
+  - [ ] /contact/requesting => pop back: alert() or prevent
+  - [ ] /chat : history.forward() : /chat/contacts : history.forward() : /chat/contacts/share doesn't interrupt fade In Animation of /chat/contacts; fade in is played twice ???
 
 ### Renderer / Animation
 
 - [ ] create/use a svg factory (cross browser! ChatLink icons)
 - [ ] Loading Indicator on Page when it's the first/initial render and the html hasn't been fetched yet => use `router.hasChanged` and `router.hasPopped`
+- [ ] indicate when a url/mail has been copied
 - [ ] use scrollToTop in `removeAllElements()`
-- [ ] doublecheck when `removeAllElements()` vs `removeElements()` should be called
+- [ ] doublecheck router.hasPopped to decide if `removeAllElements()` vs `removeElements()` should be called
+
+  - [ ] /chat/contacts/share => didn't remove last ChatModule, router.hasPopped should be true (?)
+
+- [ ] render immediately when cached / popstate forward ?
 
 ### Styles
 
@@ -51,8 +62,6 @@
 
 ### Refactor
 
-next)`
-
 - [ ] collect util functions
 - [ ] playAnimations [@](src/renderer/animation/animator.js#150)
 - [ ] move `isMobileDevice`. it could be a property of 'renderer'
@@ -61,7 +70,5 @@ next)`
 ### Bug
 
 - [ ] 'elt is not defined' in createAnimation createFadeOutAnimation when moving forward in history (popstate event) twice
-- [ ] /chat : history.forward() : /chat/contacts : history.forward() : /chat/contacts/share doesn't interrupt fade In Animation of /chat/contacts; fade in is played twice ???
-- [ ] back button doesn't work when routed from /contact => /about =/=> /contact
-- [ ] use pushState when routing from /contact/message to /about
+- [x] use pushState when routing from /contact/message to /about
 - [ ] error message is not displayed in /contact/responded

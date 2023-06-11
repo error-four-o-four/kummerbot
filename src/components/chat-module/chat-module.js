@@ -65,11 +65,11 @@ export class ChatModule extends HTMLElement {
     const cacheId = templates.getId(CUSTOM_TAG, moduleKey);
     const isCached = templates.isCached(cacheId);
 
-    console.log(
-      `rendering a ${
-        isCached ? 'cached' : 'new'
-      } ${cacheId} ChatModule ${moduleKey}`
-    );
+    // console.log(
+    //   `rendering a ${
+    //     isCached ? 'cached' : 'new'
+    //   } ${cacheId} ChatModule ${moduleKey}`
+    // );
 
     // debugger;
 
