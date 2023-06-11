@@ -2,8 +2,9 @@
 
 - [ ] consider using a default error message [@](src/controller/error-controller.js)
 - [ ] ~~ContactList component error~~ error handling is not required because the contacts aren't imported asynchronous at the moment => consider using dynamic import()
+- [ ] doublecheck href of linkBack in /error when mesage could not be send (router.replcae ??)
 
-- [ ] doublecheck href vs pathname ChatLink.update()
+- [x] doublecheck href vs pathname ChatLink.update() and router
 - [ ] doublecheck when user clicked on historyLink but history.state.index === 0 => router.js historyUnshiftState() await timeout (?)
 
 - [x] update document.title
@@ -12,10 +13,10 @@
 - [ ] security: sanitize textarea.value
 
 - [ ] popstate event handling ! gnaaaaa !!! [@](src/handler/event/handle-popstate.js#30) [@](src/handler/event/handle-popstate.js#73) [@](src/router/router.js#43)
-  - [ ] hide captchaForm
+  - [x] hide captchaForm
   - [ ] doublecheck when `history.state.isfirstPage` should be set
-  - [ ] consider ~~setting `router.hasChanged` as a property of history.state to use it in popstate events~~ doublecheck in router, compare pathname.length, set router.hasChanged (case: go to /chat (home))
-  - [ ] /about => 'zurück': /contact/message => history.forward() (/about) didn't call renderer.update()
+  - [x] consider ~~setting `router.hasChanged` as a property of history.state to use it in popstate events~~ doublecheck in renderer, compare pathname.length, set router.hasChanged (case: go to /chat (home))
+  - [x] /about => 'zurück': /contact/message => history.forward() (/about) didn't call renderer.update()
   - [ ] /contact/requesting => pop back: alert() or prevent
   - [ ] /chat : history.forward() : /chat/contacts : history.forward() : /chat/contacts/share doesn't interrupt fade In Animation of /chat/contacts; fade in is played twice ???
 
@@ -25,8 +26,8 @@
 - [ ] Loading Indicator on Page when it's the first/initial render and the html hasn't been fetched yet => use `router.hasChanged` and `router.hasPopped`
 - [ ] indicate when a url/mail has been copied
 - [ ] use scrollToTop in `removeAllElements()`
-- [ ] doublecheck router.hasPopped to decide if `removeAllElements()` vs `removeElements()` should be called
-- [ ] render immediately when cached / popstate forward ?
+- [x] doublecheck renderer.hasPopped to decide if `removeAllElements()` vs `removeElements()` should be called
+- [x] render immediately when cached / popstate forward ?
 
 ### Styles
 
@@ -50,4 +51,4 @@
 
 - [ ] 'elt is not defined' in createAnimation createFadeOutAnimation when moving forward in history (popstate event) twice
 - [x] use pushState when routing from /contact/message to /about
-- [ ] error message is not displayed in /contact/responded
+- [x] error message is not displayed in /contact/responded

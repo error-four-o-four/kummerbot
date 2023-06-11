@@ -10,8 +10,9 @@ import { checkAttribute } from '../../components/utils.js';
 import historyController from '../../controller/history-controller.js';
 import formController from '../../controller/form/form-controller.js';
 import contacts from '../../data/contacts.js';
+
 import { CONTACT_VAL } from '../../controller/form/config.js';
-import { ORIGIN, ROUTES } from '../../router/config.js';
+import { ROUTES } from '../../router/config.js';
 
 const isLink = (element) => element.localName === 'a';
 
@@ -106,11 +107,7 @@ function handleLinkToContact(element) {
 
   // handle error
   if (!contact) {
-    const state = {
-      href: ORIGIN + ROUTES.ERROR,
-      pathname: ROUTES.ERROR,
-    };
-    router.push(state);
+    router.push({ pathname: ROUTES.ERROR });
     renderer.update();
     return;
   }
@@ -128,7 +125,6 @@ function handleLinkToContact(element) {
 async function handleContactHomeLink(element) {
   // the user should NOT be able to go back to the massage form
   // [/chat/**/*, (/CONTACT/MESSAGE || /CONTACT/RESPONDED)] => [/chat/**/*, /chat]
-  // @todo router.hasChanged => history.state !!! ?
   const prevPathname = historyController.get(-1);
   await router.restore(prevPathname, element.pathname);
   renderer.update();

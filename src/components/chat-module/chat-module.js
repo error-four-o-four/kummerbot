@@ -62,10 +62,11 @@ export class ChatModule extends HTMLElement {
       ? [renderer.keys[0], renderer.keys[1]].join('-')
       : relativeKeys[1];
     const nextModuleKey = relativeKeys[2];
-    const moduleHref = renderer.getPathnameUrl(moduleKey);
+    const modulePathname = renderer.getPathnameUrl(moduleKey);
 
     // render /error route
     if (moduleKey === ERROR_KEY) {
+      this.key = moduleKey;
       return;
     }
 
@@ -85,9 +86,9 @@ export class ChatModule extends HTMLElement {
           templates.get(cacheId).content,
           prevModuleKey,
           moduleKey,
-          moduleHref
+          modulePathname
         )
-      : await createFragment(prevModuleKey, moduleKey, moduleHref);
+      : await createFragment(prevModuleKey, moduleKey, modulePathname);
 
     if (!fragment) {
       this.key = ERROR_KEY;

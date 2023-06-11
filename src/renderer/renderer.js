@@ -20,6 +20,7 @@ import {
 
 export default {
   outlet: document.getElementById('outlet'),
+  hasPopped: false,
   keys: [],
   getKeys() {
     return router.isSharedRoute ? this.keys.slice(2) : this.keys;
@@ -30,6 +31,8 @@ export default {
     // improves UX
     // => code splitting
 
+    const prevKeysCount = this.keys.length;
+
     console.log(...router.log(), ...historyController.log());
 
     // keys of rendered modules
@@ -39,6 +42,8 @@ export default {
         .split('/')
         .filter((key) => key),
     ];
+
+    this.hasPopped = this.keys.length <= prevKeysCount;
 
     if (router.hasChanged) {
       // update about link
@@ -68,13 +73,11 @@ export default {
     // @todo add css attribute to reset pointer
     animator.active = true;
 
-    // router.hasChanged && (await removeAllEllements(interrupt));
-
     if (!router.isChatRoute || (router.isChatRoute && router.hasChanged)) {
       await removeAllEllements(interrupt);
     }
 
-    if (router.isChatRoute && !router.hasChanged && router.hasPopped) {
+    if (router.isChatRoute && !router.hasChanged && this.hasPopped) {
       await removeElements(interrupt);
     }
 
@@ -90,8 +93,6 @@ export default {
     router.isContactRoute && formController.update();
 
     animator.active = false;
-
-    // console.log('transition end');
   },
 
   getShareUrl() {
@@ -103,7 +104,6 @@ export default {
   },
 
   getPathnameUrl(value) {
-    // const index = typeof value === 'string' ? this.getIndex(value) : value;
     const index = this.keys.indexOf(value);
     const pathname = '/' + this.keys.slice(0, index + 1).join('/');
     return pathname;

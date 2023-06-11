@@ -4,9 +4,9 @@ import animator from './animation/animator.js';
 
 import errorController from '../controller/error-controller.js';
 
-import { MODULE_TAG } from '../components/components.js';
+import { ROUTES } from '../router/config.js';
 import { ERROR_KEY } from '../controller/error-controller.js';
-import { ORIGIN, ROUTES } from '../router/config.js';
+import { MODULE_TAG } from '../components/components.js';
 
 export async function renderElementsDelayed(signal) {
   const absoluteKeys = renderer.getKeys();
@@ -46,7 +46,12 @@ export async function renderElementsDelayed(signal) {
     if (moduleElt.next !== null) continue;
 
     animator.scrollToChatModule(moduleElt);
-    await animator.pushChatModule(moduleElt, signal);
+
+    if (router.isPopstateEvent) {
+      await animator.pushChatModuleImmediately(moduleElt, signal);
+    } else {
+      await animator.pushChatModule(moduleElt, signal);
+    }
 
     if (moduleElt.key === ERROR_KEY) break;
   }
@@ -76,14 +81,7 @@ export async function renderElementsImmediately(signal) {
 
   // requested .html-file could not be fetched
   if (moduleElt.key === ERROR_KEY) {
-    const pathname = ROUTES.ERROR;
-    const target = {
-      href: ORIGIN + pathname,
-      pathname,
-    };
-    router.replace(target);
-
-    errorController.set('Morp');
+    router.replace({ pathname: ROUTES.ERROR });
     moduleElt.renderError();
   }
 

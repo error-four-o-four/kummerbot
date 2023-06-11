@@ -5,7 +5,7 @@ import historyController from '../../controller/history-controller.js';
 import errorController from '../../controller/error-controller.js';
 import formController from '../../controller/form/form-controller.js';
 
-import { ORIGIN, ROUTES } from '../../router/config.js';
+import { ROUTES } from '../../router/config.js';
 import { CONTACT_VAL } from '../../controller/form/config.js';
 import { delay } from '../../renderer/animation/utils.js';
 
@@ -25,8 +25,7 @@ export default async (e) => {
   // update historyController index
   if (formState === CONTACT_VAL[1]) {
     historyController.add(pathname);
-    const href = ORIGIN + pathname;
-    router.replace({ href, pathname });
+    router.replace({ pathname });
     renderer.update();
     return;
   }
@@ -48,16 +47,13 @@ export default async (e) => {
       formController.resetContactData();
       pathname = ROUTES.CONTACT + '/' + formState;
     } else {
-      // @todo
-      // fix: message is not displayed (?)
       errorController.set(
         'Leider konnte deine Nachricht nicht zugestellt werden.'
       );
       pathname = ROUTES.ERROR;
     }
 
-    const href = ORIGIN + pathname;
-    router.replace({ href, pathname });
+    router.replace({ pathname });
     renderer.update();
   }
 };

@@ -70,7 +70,12 @@ export function renderChildren(fragment, moduleKey) {
   return fragment;
 }
 
-export function updateChildren(fragment, prevModuleKey, moduleKey, moduleHref) {
+export function updateChildren(
+  fragment,
+  prevModuleKey,
+  moduleKey,
+  modulePathname
+) {
   const [messages] = getComponents(fragment, MESSAGE_TAG);
 
   // update share link
@@ -82,7 +87,7 @@ export function updateChildren(fragment, prevModuleKey, moduleKey, moduleHref) {
   const links = adjustLinks(fragment, prevModuleKey);
   links
     .filter((link) => !link.isBackLink)
-    .forEach((link) => link.update(moduleHref));
+    .forEach((link) => link.update(modulePathname));
 
   const [linkBack] = getTargetLinks(links, TARGET_VAL.BACK);
 

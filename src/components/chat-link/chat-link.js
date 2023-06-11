@@ -1,3 +1,4 @@
+import { ROUTES } from '../../router/config.js';
 import { checkAttribute, setBooleanAttribute } from '../utils.js';
 
 import { CUSTOM_ATTR, CUSTOM_VAL } from './config.js';
@@ -8,8 +9,6 @@ import {
   getParentLinkHtml,
   getTargetLinkHtml,
 } from './utils.js';
-
-import { ROUTES } from '../../router/config.js';
 
 export class ChatLink extends HTMLElement {
   constructor() {
@@ -51,38 +50,49 @@ export class ChatLink extends HTMLElement {
     this.innerHTML += getTargetLinkHtml(text);
   }
 
-  update(customHref) {
+  update(customPathname) {
     // @todo refactor href vs pathname
     const targetKey = this.target;
     const linkToParent = this.querySelector('.' + anchorClass.toParent);
     const linkToTarget = this.querySelector('.' + anchorClass.toTarget);
 
-    if (!!linkToParent && !!customHref) {
+    if (!!linkToParent && !!customPathname) {
       // was cached
-      if (linkToParent.href === customHref) return;
+      if (linkToParent.pathname === customPathname) return;
 
-      linkToParent.href = customHref;
-      linkToTarget.href = customHref + '/' + targetKey;
+      linkToParent.href = customPathname;
+      linkToTarget.href = customPathname + '/' + targetKey;
       return;
     }
 
     if (targetKey === CUSTOM_VAL.HOME) {
-      linkToTarget.href !== ROUTES.HOME && (linkToTarget.href = ROUTES.HOME);
+      linkToTarget.pathname !== ROUTES.HOME &&
+        (linkToTarget.href = ROUTES.HOME);
       return;
     }
 
     if (targetKey !== CUSTOM_VAL.BACK && linkToParent === null) {
       console.warn("@todo: Missed a case in 'update(hrefToParent)'");
-      console.log(targetKey, customHref, linkToParent, linkToTarget, this);
+      console.log(targetKey, customPathname, linkToParent, linkToTarget, this);
       return;
     }
 
-    if (!!customHref && linkToTarget.href !== customHref) {
-      linkToTarget.href = customHref;
+    if (!!customPathname && linkToTarget.pathname === customPathname) {
+      return;
+    }
+
+    if (!!customPathname) {
+      linkToTarget.href = customPathname;
       return;
     }
 
     console.warn("@todo: Missed a case in 'update(hrefToParent)'");
-    console.log(targetKey, customHref, linkToParent, linkToTarget, this);
+    console.log(
+      targetKey,
+      customPathname,
+      linkToParent?.pathname,
+      linkToTarget.pathname,
+      this
+    );
   }
 }

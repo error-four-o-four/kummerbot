@@ -23,16 +23,16 @@ import {
   getContactTmplAttributes,
 } from './utils.js';
 
-export function cloneFragment(input, prevModuleKey, moduleKey, moduleHref) {
+export function cloneFragment(input, prevModuleKey, moduleKey, modulePathname) {
   const fragment = new DocumentFragment();
 
   constructChildren(fragment, input.children);
-  updateChildren(fragment, prevModuleKey, moduleKey, moduleHref);
+  updateChildren(fragment, prevModuleKey, moduleKey, modulePathname);
 
   return fragment;
 }
 
-export async function createFragment(prevModuleKey, moduleKey, moduleHref) {
+export async function createFragment(prevModuleKey, moduleKey, modulePathname) {
   let path = getFilePath(moduleKey);
   let data = await getData(path);
 
@@ -73,7 +73,7 @@ export async function createFragment(prevModuleKey, moduleKey, moduleHref) {
 
   if (!templates.hasGlobalTemplates(fragment)) {
     renderChildren(fragment, moduleKey);
-    updateChildren(fragment, prevModuleKey, moduleKey, moduleHref);
+    updateChildren(fragment, prevModuleKey, moduleKey, modulePathname);
     return fragment;
   }
   // check global templates
@@ -91,7 +91,7 @@ export async function createFragment(prevModuleKey, moduleKey, moduleHref) {
   }
 
   renderChildren(fragment, moduleKey);
-  updateChildren(fragment, prevModuleKey, moduleKey, moduleHref);
+  updateChildren(fragment, prevModuleKey, moduleKey, modulePathname);
 
   return fragment;
 }
