@@ -10,10 +10,7 @@ export default {
   ],
   get message() {
     this.index = (this.index + 1) % this.messages.length;
-    return this.messages[this.index - 1];
-  },
-  onInput(e) {
-    this.submitted = e.target.valueAsNumber;
+    return this.messages[this.index];
   },
   isValid() {
     return this.required === this.submitted;

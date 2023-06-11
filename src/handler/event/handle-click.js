@@ -3,14 +3,16 @@ import renderer from '../../renderer/renderer.js';
 
 import { anchorClass } from '../../components/chat-link/utils.js';
 import { buttonClass } from '../../components/contact-list/utils.js';
+import { buttonAttribute } from '../button-handler.js';
 import { LINK_ATTR, TARGET_VAL } from '../../components/components.js';
 import { checkAttribute } from '../../components/utils.js';
 
 import historyController from '../../controller/history-controller.js';
 import formController from '../../controller/form/form-controller.js';
-import { CONTACT_VAL } from '../../controller/form/config.js';
+import contacts from '../../data/contacts.js';
 
-// import { pre, post } from './event-handler.js';
+import { CONTACT_VAL } from '../../controller/form/config.js';
+import { ROUTES } from '../../router/config.js';
 
 const isLink = (element) => element.localName === 'a';
 
@@ -42,29 +44,18 @@ export default (e) => {
   if (!isRouterLink(element)) return;
 
   e.preventDefault();
+  e.stopImmediatePropagation();
 
-  // @dev
-  // pre(e);
-
-  // add /chat entry
-  // homeLink is hidden in /contact route
-  // when formController.state === 1
-  if (isHomeLink(element)) {
-    router.push(element);
-    renderer.update();
-    // @dev
-    // post();
+  if (!router.isChatRoute && router.hasError) {
+    handleErrorBackLink(element);
     return;
   }
 
   if (!router.isContactRoute) {
-    // clicked link to /contact route
     if (isContactLink(element)) {
-      // @todo use identifier
-      formController.setContactData(element.getAttribute('data-email'));
-      formController.set(CONTACT_VAL[0]);
-
-      console.log(formController.get(), formController.getContactData());
+      // clicked link to /contact route
+      handleLinkToContact(element);
+      return;
     }
 
     if (
@@ -72,41 +63,103 @@ export default (e) => {
       !isBackLink(element) &&
       !router.isAboutRoute
     ) {
-      // @reminder routed link href is /contact/message
-      // push a history entry
+      // push a history state
       router.push(element);
     } else {
-      // history.back()
+      // uses history.go();
+      // temporarily removes popstate listener (setTimeout(_, 50))
+      // to prevent calling renderer.update() twice
       router.pop(element);
     }
-
-    // handle /contact route explicetly
     renderer.update();
-    // @dev
-    // post();
     return;
   }
 
-  // homeLink was handled in advance
-  // clicked element will be the linkBack
+  // handle /contact route explicetly
+  // use history.replaceState and history.pushState to prevent popstate events
+  const formState = formController.get();
 
-  if (formController.check(CONTACT_VAL[0])) {
-    // replace/push is handled by handleSubmit()
-    // call history.back()
-    router.pop(element);
+  if (isBackLink(element)) {
+    handleContactBackLink(element, formState);
+    return;
   }
 
-  // always use replaceState in /contact route
-  // to prevent popstate forward !
-  // but push a history entry
-  // to make ChatLinks (esp. back) work (href is retrieved from historyController)
-  if (formController.check(CONTACT_VAL[1])) {
-    const index = historyController.pop();
-    formController.set(CONTACT_VAL[0]);
-    router.replace({ href: element.href, index });
+  if (isHomeLink(element)) {
+    handleContactHomeLink(element);
+    return;
   }
 
+  router.push(element);
   renderer.update();
-  // @dev
-  // post();
 };
+
+async function handleErrorBackLink(element) {
+  // console.log('@todo check state.isFirstPage, historyController.values');
+  const prevPathname = historyController.get(-2);
+  await router.restore(prevPathname, element.pathname);
+  renderer.update();
+}
+
+function handleLinkToContact(element) {
+  // used in /chat or /shared route => /contact/message
+  const id = 1 * element.getAttribute(buttonAttribute.id);
+  const contact = contacts.find((contact) => contact._id === id);
+
+  // handle error
+  if (!contact) {
+    router.push({ pathname: ROUTES.ERROR });
+    renderer.update();
+    return;
+  }
+
+  // @todo
+  // alert when previous message has not been send
+
+  // reset state, email etc
+  formController.setContactData(contact);
+  formController.set(CONTACT_VAL[0]);
+  router.push(element);
+  renderer.update();
+}
+
+async function handleContactHomeLink(element) {
+  // the user should NOT be able to go back to the massage form
+  // [/chat/**/*, (/CONTACT/MESSAGE || /CONTACT/RESPONDED)] => [/chat/**/*, /chat]
+  const prevPathname = historyController.get(-1);
+  await router.restore(prevPathname, element.pathname);
+  renderer.update();
+}
+
+async function handleContactBackLink(element, state) {
+  // backlink was clicked in /contact/*
+  if (state === CONTACT_VAL[0]) {
+    // the user should be able to go back to the massage form
+    // [/chat/**/*, /CONTACT/MESSAGE] => [/CHAT/**/*, /contact/message]
+    const nextPathname = historyController.get();
+    // temporarily remove popstate listener
+    // special case: clicked about link inbetween
+    await router.restore(element.pathname, nextPathname);
+    await router.pop(element);
+  }
+
+  if (state === CONTACT_VAL[1]) {
+    // the user should NOT be able to go back to the captcha form
+    // [/chat/**/*, /contact/message,  /CONTACT/CAPTCHA] => [/chat/**/*, /CONTACT/MESSAGE]
+    formController.back();
+    historyController.go(ROUTES.CONTACT + '/' + formController.get());
+    const prevPathname = historyController.get(-1);
+    await router.restore(prevPathname, element.pathname);
+  }
+
+  // state === CONTACT_VAL[2] does not have any links
+
+  if (state === CONTACT_VAL[3]) {
+    // the user should NOT be able to go back to /contact/responded
+    // [/chat, /chat/contacts, /CONTACT/RESPONDED] => [/chat, /CHAT/CONTACTS]
+    // special case /shared route: there's no history state before /shared
+    const nextPathname = historyController.get(-1);
+    const prevPathname = historyController.get(-2);
+    await router.restore(prevPathname, nextPathname);
+  }
+  renderer.update();
+}

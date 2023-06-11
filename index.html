@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="shortcut icon" href="/assets/favicon.svg" type="image/x-icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KummerBot</title>
+    <title>KummerBot a2Bs</title>
   </head>
   <body>
     <div class="app">
@@ -28,33 +28,17 @@
         </div>
         <div>
           <h1>KummerBot a2BS</h1>
-          <span id="status-indicator">Online</span>
+          <span id="status-indicator"></span>
         </div>
         <div>
-          <about-link></about-link>
+          <!-- inject routed /about anchor -->
         </div>
       </header>
       <main id="outlet"></main>
     </div>
 
     <!-- footer -->
-    <footer aria-hidden="true">
-      <form id="contact-form">
-        <div>
-          <textarea
-            id="contact-message"
-            name="contact-message"
-            cols="30"
-            rows="1"
-            required
-            placeholder="Nachricht"
-            maxlength="500"></textarea>
-        </div>
-        <div>
-          <button type="submit">Absenden</button>
-        </div>
-      </form>
-    </footer>
+    <footer aria-hidden="true"></footer>
 
     <!-- reusable svg icons <use xlink:href="id"></use> -->
     <svg

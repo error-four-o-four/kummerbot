@@ -1,8 +1,11 @@
 import { ORIGIN, ROUTES } from './config.js';
 
+import handlePopstate from '../handler/event/handle-popstate.js';
+
 import historyController from '../controller/history-controller.js';
 import errorController, { ERROR_KEY } from '../controller/error-controller.js';
-import formController from '../controller/form/form-controller.js';
+
+const title = document.title;
 
 const entries = {
   isChatRoute: ROUTES.HOME,
@@ -14,11 +17,11 @@ const entries = {
 const getPathname = () => window.location.pathname;
 
 export default {
-  route: null,
-  prevRoute: null,
+  pathname: null,
+  prevPathname: null,
   hasError: false,
-  hasPopped: false,
   hasChanged: false,
+  isPopstateEvent: false,
   isChatRoute: false,
   isAboutRoute: false,
   isSharedRoute: false,
@@ -31,109 +34,131 @@ export default {
       window.history.replaceState({ isFirstState: true }, '', null);
     }
 
-    if (!this.validate(pathname)) {
+    if (!validate(pathname)) {
+      // user went to an invalid url
       errorController.set('Die angegebene Adresse ist nicht erreichbar.');
       pathname = ROUTES.ERROR;
     }
 
     // on page load => event-handler
-    // redirect from '/' to '/chat'
-    pathname = pathname === '/' ? ROUTES.HOME : pathname;
+    // redirect from '/' and '/contact' to '/chat'
+    pathname =
+      pathname === '/' || this.check(pathname, ROUTES.CONTACT)
+        ? ROUTES.HOME
+        : pathname;
 
     // @todo case
     // popped back from another page
     // example.com - history.back() - this
-    // replace state removes the possibility
+    // pushState removes the possibility
     // to invoke a popstate forward
     const href = ORIGIN + pathname;
-    const index = historyController.push(pathname);
-    window.history.pushState({ href, index }, '', href);
+    const index = historyController.add(pathname);
+    window.history.pushState({ pathname, index }, '', href);
 
     this.update(pathname);
   },
 
   update(pathname) {
-    let tmp = this.route;
-    this.route = pathname;
+    this.prevPathname = this.pathname;
+    this.pathname = pathname;
+
+    this.isPopstateEvent = false;
 
     Object.entries(entries).forEach(
-      ([key, value]) => (this[key] = this.check(this.route, value))
+      ([key, value]) => (this[key] = this.check(this.pathname, value))
     );
 
-    // @todo doublecheck conditions
-    // historyController.index < historyController.values.length - 1
-    this.prevRoute = !this.isContactRoute
-      ? tmp
-      : historyController.values[historyController.index - 1];
+    this.hasError = this.pathname.includes(ERROR_KEY);
 
-    this.hasError = this.route.includes(ERROR_KEY);
-
-    if (!this.prevRoute) {
+    if (this.prevPathname === null) {
       this.hasChanged = true;
     } else {
-      // case router.hasPopped back in /chat route
-      const prevRouteKey =
-        '/' + this.prevRoute?.split('/').filter((key) => !!key)[0] || null;
-      this.hasChanged = !this.check(this.route, prevRouteKey);
+      const prevRouteKey = '/' + getKey(this.prevPathname);
+      this.hasChanged = !this.check(this.pathname, prevRouteKey);
+    }
+
+    if (this.hasChanged) {
+      const routeKey = getKey(this.pathname);
+      document.title = title + ' - ' + routeKey;
     }
   },
 
-  push({ href, pathname }) {
-    // @reminder
-    // /contact route is handled in even-handler.js
-    if (historyController.get() === ROUTES.ERROR) {
-      const index = historyController.index;
-      historyController.values[index] = pathname;
-      window.history.replaceState({ href, index }, '', href);
-    } else {
-      const index = historyController.push(pathname);
-      window.history.pushState({ href, index }, '', href);
-    }
+  push({ pathname }) {
+    const href = ORIGIN + pathname;
+    // @todo doublecheck error route
+    // if (historyController.get() === ROUTES.ERROR) {
+    //   const index = historyController.replace(pathname);
+    //   window.history.replaceState({ pathname, index }, '', href);
+    // } else {
+    //   const index = historyController.add(pathname);
+    //   window.history.pushState({ pathname, index }, '', href);
+    // }
+    const index = historyController.add(pathname);
+    window.history.pushState({ pathname, index }, '', href);
 
     // this.update() depends on historyController
     this.update(pathname);
-    this.hasPopped = false;
   },
 
-  pop({ href, pathname }) {
-    // @reminder
-    // /contact route is handled by event-handler and this.set()
+  pop({ pathname }) {
+    removePopstateListener();
 
-    // when the historyController has no prior entries
-    // case: first view was /chat route with multiple rendered ChatModule components
-    if (historyController.index === 0) {
-      let prevHref = ORIGIN + historyController.get();
-      historyController.values.unshift(pathname);
-      window.history.replaceState({ href, index: 0 }, '', href);
-      // @consider
-      // push a state for each existing entry?
-      window.history.pushState({ href: prevHref, index: 1 }, '', href);
-      window.history.go(-1);
+    return new Promise((resolve) => {
+      // when the historyController has no prior entries
+      // case: first view was /chat route with multiple rendered ChatModule components
+      if (historyController.index === 0) {
+        // @todo await history.go() timeout
+        historyUnshiftState(pathname);
+        this.update(pathname);
+        restorePopstateListener(resolve);
+        return;
+      }
+
+      // called when user clicked on ChatLink Back or ChatLink linkToParent
+      // updates the current historyController.index
+      const delta = historyController.go(pathname);
+
+      if (historyController.index < 0) {
+        console.log('wat?', this);
+      }
+
+      window.history.go(delta);
+
       this.update(pathname);
-      this.hasPopped = true;
-      return;
-    }
-
-    // called when user clicked on ChatLink Back or ChatLink linkToParent
-    // updates the current historyController.index
-    let delta = historyController.set(pathname);
-
-    // @todo
-    if (historyController.index < 0) {
-      console.log('wat?', e, this);
-    }
-
-    // @doublecheck
-    // is a popstate event dispatched ??
-    window.history.go(delta);
-
-    this.update(pathname);
-    this.hasPopped = true;
+      restorePopstateListener(resolve);
+    });
   },
 
-  replace({ href, index }) {
-    const pathname = href.replace(ORIGIN, '');
-    window.history.replaceState({ href, index }, '', href);
+  restore(prevPathname, nextPathname) {
+    removePopstateListener();
+
+    return new Promise((resolve) => {
+      const delta = !!prevPathname
+        ? historyController.go(prevPathname)
+        : -1 * historyController.index - 1;
+
+      window.history.go(delta);
+
+      setTimeout(() => {
+        const index = !!prevPathname ? historyController.add(nextPathname) : 0;
+        const nextHref = ORIGIN + nextPathname;
+        window.history.pushState(
+          { pathname: nextPathname, index },
+          '',
+          nextHref
+        );
+
+        this.update(nextPathname);
+        restorePopstateListener(resolve);
+      }, 10);
+    });
+  },
+
+  replace({ pathname }) {
+    const index = historyController.replace(pathname);
+    const href = ORIGIN + pathname;
+    window.history.replaceState({ pathname, index }, '', href);
 
     this.update(pathname);
   },
@@ -142,18 +167,58 @@ export default {
     return !!route && route.startsWith(request);
   },
 
-  validate(pathname) {
-    const route = '/' + pathname.substring(1).split('/')[0];
-
-    if (route === '/') return true;
-
-    if (this.check(route, ROUTES.CONTACT) && !formController.getContactData()) {
-      return false;
-    }
-
-    return Object.values(ROUTES).reduce(
-      (matched, valid) => (valid === route ? true : matched),
-      false
-    );
+  // @dev
+  log() {
+    return [
+      ...Object.keys(this).reduce((all, key) => {
+        if (typeof this[key] === 'function' || !this[key]) return all;
+        typeof this[key] === 'boolean'
+          ? all.push(key)
+          : all.push(`${key}:`, this[key]);
+        return all;
+      }, []),
+    ];
   },
 };
+
+function getKey(pathname) {
+  return pathname.split('/').filter((key) => !!key)[0];
+}
+
+function validate(pathname) {
+  const route = '/' + pathname.substring(1).split('/')[0];
+
+  if (route === '/') return true;
+
+  return Object.values(ROUTES).reduce(
+    (matched, valid) => (valid === route ? true : matched),
+    false
+  );
+}
+
+function historyUnshiftState(pathname) {
+  const prevPathname = historyController.get();
+  const prevHref = ORIGIN + prevPathname;
+  const href = ORIGIN + pathname;
+
+  historyController.values.unshift(pathname);
+  historyController.index = 0;
+  // @todo add isFirstState
+  window.history.replaceState({ pathname, index: 0 }, '', href);
+  // @consider
+  // push a state for each existing entry?
+  window.history.pushState({ pathname: prevPathname, index: 1 }, '', prevHref);
+  window.history.go(-1);
+  // @todo timeout ??
+}
+
+function removePopstateListener() {
+  window.removeEventListener('popstate', handlePopstate);
+}
+
+function restorePopstateListener(resolvePromise) {
+  setTimeout(() => {
+    window.addEventListener('popstate', handlePopstate);
+    resolvePromise();
+  }, 50);
+}

@@ -47,6 +47,7 @@ header {
   }
 
   & a {
+    padding: 0.75rem 0.25rem;
     color: var(--link-color);
 
     &:hover {

@@ -1,5 +1,7 @@
 import router from '../../router/router.js';
 import renderer from '../../renderer/renderer.js';
+
+import historyController from '../../controller/history-controller.js';
 import formController from '../../controller/form/form-controller.js';
 import { CONTACT_VAL } from '../../controller/form/config.js';
 
@@ -53,14 +55,6 @@ export function constructChildren(fragment, children) {
 const getComponents = (fragment, ...tags) =>
   tags.map((tag) => [...fragment.querySelectorAll(tag)]);
 
-// const getTargetLinks = (links, ...values) =>
-//   links.filter((all, link) =>
-//     values.reduce(
-//       (bool, value) =>
-//         bool ? bool : checkAttribute(link, LINK_ATTR.TARGET_KEY, value),
-//       false
-//     )
-//   );
 const getTargetLinks = (links, ...values) =>
   values.map((value) => links.find((link) => link.target === value));
 
@@ -76,7 +70,12 @@ export function renderChildren(fragment, moduleKey) {
   return fragment;
 }
 
-export function updateChildren(fragment, prevModuleKey, moduleKey, moduleHref) {
+export function updateChildren(
+  fragment,
+  prevModuleKey,
+  moduleKey,
+  modulePathname
+) {
   const [messages] = getComponents(fragment, MESSAGE_TAG);
 
   // update share link
@@ -88,23 +87,23 @@ export function updateChildren(fragment, prevModuleKey, moduleKey, moduleHref) {
   const links = adjustLinks(fragment, prevModuleKey);
   links
     .filter((link) => !link.isBackLink)
-    .forEach((link) => link.update(moduleHref));
+    .forEach((link) => link.update(modulePathname));
 
   const [linkBack] = getTargetLinks(links, TARGET_VAL.BACK);
 
   if (!linkBack || (router.isChatRoute && !prevModuleKey)) return;
 
   if (router.isChatRoute) {
-    const prevModuleHref = renderer.getPathnameUrl(prevModuleKey);
-    linkBack.update(prevModuleHref);
+    const prevModulePathname = renderer.getPathnameUrl(prevModuleKey);
+    linkBack.update(prevModulePathname);
     return;
   }
 
-  router.prevRoute && linkBack.update(router.prevRoute);
+  const prevPathname = historyController.get(-1);
+  !!prevPathname && linkBack.update(prevPathname);
 }
 
 function adjustLinks(fragment, prevModuleKey) {
-  // const hasContacts = !!fragment.querySelector(LIST_TAG);
   const [links] = getComponents(fragment, LINK_TAG);
 
   if (router.isAboutRoute) return [];
@@ -209,27 +208,25 @@ export function showAllLinks(module) {
   if (router.isSharedRoute) {
     showLink(linkHome);
     hideLink(linkShare);
+  }
 
-    if (!linkBack) {
-      console.log('@todo');
-      return;
-    }
+  const prevPathname = historyController.get(-1);
 
-    !router.prevRoute ? hideLink(linkBack) : showLink(linkBack);
-    return;
+  if (!router.isChatRoute && !!linkBack) {
+    // hide / show
+    !prevPathname ? hideLink(linkBack) : showLink(linkBack);
   }
 
   // hide/show homeLink depending on formController status
   if (router.isContactRoute) {
-    // show
-    formController.check(CONTACT_VAL[0]) && showLink(linkHome);
+    const formState = formController.get();
+    formState === CONTACT_VAL[0] && showLink(linkHome);
     // hide
-    formController.check(CONTACT_VAL[1]) && hideLink(linkHome);
-  }
-
-  if (!router.isChatRoute && !!linkBack) {
-    // hide / show
-    !router.prevRoute ? hideLink(linkBack) : showLink(linkBack);
+    formState === CONTACT_VAL[1] && hideLink(linkHome);
+    formState === CONTACT_VAL[2] && hideLink(linkHome);
+    formState === CONTACT_VAL[2] && hideLink(linkBack);
+    formState === CONTACT_VAL[3] && showLink(linkHome);
+    formState === CONTACT_VAL[3] && showLink(linkBack);
   }
 }
 

@@ -1,10 +1,29 @@
+import { buttonClass as contactButtonClass } from '../components/contact-list/utils.js';
+
+import contacts from '../data/contacts.js';
+
 export const buttonClass = {
   copy: 'button-copy-value',
   share: 'button-share-value',
 };
 
+export const buttonAttribute = {
+  id: 'data-id',
+};
+
 const isCopyButton = (target) => {
   return target.classList.contains(buttonClass.copy);
+};
+
+const getString = (target) => {
+  // element is share url button
+  if (!target.classList.contains(contactButtonClass.mail)) {
+    return target.value;
+  }
+
+  // element is copy contact mail button
+  const id = 1 * target.getAttribute(buttonAttribute.id);
+  return contacts.find((contact) => contact._id === id)?.mail || null;
 };
 
 const isShareButton = (target) => {
@@ -18,8 +37,8 @@ export default {
     const { target } = e;
 
     if (isCopyButton(target)) {
-      const text = target.value;
-      const copied = await copyData(text);
+      const string = getString(target);
+      const copied = string && (await copyData(string));
 
       document
         .querySelectorAll('.' + buttonClass.copy)

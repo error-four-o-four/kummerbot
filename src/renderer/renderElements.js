@@ -1,7 +1,11 @@
-import elements from '../elements/elements.js';
+import router from '../router/router.js';
 import renderer from './renderer.js';
 import animator from './animation/animator.js';
 
+import errorController from '../controller/error-controller.js';
+
+import { ROUTES } from '../router/config.js';
+import { ERROR_KEY } from '../controller/error-controller.js';
 import { MODULE_TAG } from '../components/components.js';
 
 export async function renderElementsDelayed(signal) {
@@ -21,33 +25,40 @@ export async function renderElementsDelayed(signal) {
 
     if (doContinue) continue;
 
-    // else create a new ChatModule component
-    elements.header.setIndicatorPending();
-
     // @reminder
     // cloneNode() method of an element within a template does not call the constructor
     // it's necessary to call the constructor to make setters, getters and methods available
-    const module = document.createElement(MODULE_TAG);
+    const moduleElt = document.createElement(MODULE_TAG);
 
     // use moduleKey to fetch and store .html-file initially
     // render contents depending on route
-    await module.render(relativeKeys);
+    await moduleElt.render(relativeKeys);
 
-    elements.outlet.append(module);
+    if (moduleElt.key === ERROR_KEY) {
+      errorController.set('Morp');
+      router.hasError = true;
+      moduleElt.renderError(...relativeKeys);
+    }
+
+    renderer.outlet.append(moduleElt);
 
     // skip animation if it's not the last module
-    if (module.next !== null || relativeKeys[2] !== null) continue;
+    if (moduleElt.next !== null) continue;
 
-    animator.scrollToChatModule(module);
-    await animator.pushChatModule(module, signal);
+    animator.scrollToChatModule(moduleElt);
 
-    elements.header.setIndicatorWaiting();
+    if (router.isPopstateEvent) {
+      await animator.pushChatModuleImmediately(moduleElt, signal);
+    } else {
+      await animator.pushChatModule(moduleElt, signal);
+    }
+
+    if (moduleElt.key === ERROR_KEY) break;
   }
 }
 
-// @todo @refactor
 function checkCurrentStep(step, next) {
-  const renderedModule = elements.outlet.children[step];
+  const renderedModule = renderer.outlet.children[step];
 
   if (!renderedModule) return false;
 
@@ -56,22 +67,24 @@ function checkCurrentStep(step, next) {
     return true;
   }
 
-  // @doublecheck
-  // missed a case
-  console.warn('missed a case in renderElments.js checkCurrentStep');
+  renderedModule.next = null;
   return true;
 }
 
 export async function renderElementsImmediately(signal) {
   // function isn't called in /chat route
   // outlet was cleared beforehand
-  elements.header.setIndicatorPending();
 
   const moduleKey = renderer.getKeys()[0];
-  const module = document.createElement(MODULE_TAG);
-  await module.render([null, moduleKey, null]);
+  const moduleElt = document.createElement(MODULE_TAG);
+  await moduleElt.render([null, moduleKey, null]);
 
-  elements.outlet.append(module);
-  await animator.pushChatModuleImmediately(module, signal);
-  elements.header.setIndicatorWaiting();
+  // requested .html-file could not be fetched
+  if (moduleElt.key === ERROR_KEY) {
+    router.replace({ pathname: ROUTES.ERROR });
+    moduleElt.renderError();
+  }
+
+  renderer.outlet.append(moduleElt);
+  await animator.pushChatModuleImmediately(moduleElt, signal);
 }

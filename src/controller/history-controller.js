@@ -1,7 +1,11 @@
 export default {
   index: -1,
   values: [],
-  push(item) {
+  replace(pathname) {
+    this.values[this.index] = pathname;
+    return this.index;
+  },
+  add(item) {
     if (this.index < this.values.length - 1) {
       this.values = this.values.slice(0, this.index + 1);
     }
@@ -11,17 +15,12 @@ export default {
 
     return this.index;
   },
-  pop() {
-    this.values.pop();
-    this.index =
-      this.index > this.values.length - 1 ? this.values.length - 1 : this.index;
+  back() {
+    this.index -= 1;
 
     return this.index;
   },
-  get() {
-    return this.values[this.index];
-  },
-  set(pathname) {
+  go(pathname) {
     // used by router.pop()
     // change index but keep values
     let index = this.index;
@@ -37,5 +36,20 @@ export default {
 
     this.index = index;
     return delta;
+  },
+  get(delta = 0) {
+    return this.values[this.index + delta];
+  },
+  // @dev
+  log() {
+    return [
+      'history:',
+      this.index,
+      `[${this.values
+        .map((item, index) =>
+          index === this.index ? item.toLocaleUpperCase() : item
+        )
+        .join(', ')}]`,
+    ];
   },
 };
