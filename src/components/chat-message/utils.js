@@ -1,5 +1,6 @@
 import templates from '../../controller/templates.js';
 import formController from '../../controller/form/form-controller.js';
+import errorController from '../../controller/error-controller.js';
 import { ERROR_KEY } from '../../controller/error-controller.js';
 
 import { buttonClass } from '../../handler/button-handler.js';
@@ -12,12 +13,22 @@ import { anchorClass } from '../chat-link/utils.js';
   <p>&#x26A0; Da hat etwas nicht funktioniert ...</p>
   <p>
     Versuche die Seite neu zu laden oder<br />
-    kehre Startseite zur&uuml;ck.
+    kehre zur Startseite zur&uuml;ck.
   </p>
   `;
 
   templates.set(template.id, template);
 })();
+
+export function injectErrorMessage(component) {
+  const message = errorController.get();
+
+  if (!message) return;
+
+  const para = document.createElement('p');
+  para.innerHTML = message;
+  component.firstElementChild.after(para);
+}
 
 export function createShareLinkHtml(href) {
   return `

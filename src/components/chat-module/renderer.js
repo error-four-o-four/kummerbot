@@ -33,9 +33,6 @@ export function cloneFragment(input, prevModuleKey, moduleKey, moduleHref) {
 }
 
 export async function createFragment(prevModuleKey, moduleKey, moduleHref) {
-  // handle /error route
-  if (moduleKey === ERROR_KEY) return null;
-
   let path = getFilePath(moduleKey);
   let data = await getData(path);
 
@@ -56,6 +53,7 @@ export async function createFragment(prevModuleKey, moduleKey, moduleHref) {
     }
   }
 
+  // special case /contact route
   if (router.isContactRoute && renderer.keys[1] !== CONTACT_VAL[0]) {
     const contactAttributes = getContactTmplAttributes(renderer.keys[1]);
     // module isn't cached yet
@@ -98,7 +96,7 @@ export async function createFragment(prevModuleKey, moduleKey, moduleHref) {
   return fragment;
 }
 
-export function createErrorFragment(moduleHref) {
+export function createErrorFragment(prevModuleKey, moduleKey) {
   // message template is cached by iife
   // in chat-message/utils.js
   const message = document.createElement(MESSAGE_TAG);
@@ -111,7 +109,7 @@ export function createErrorFragment(moduleHref) {
   fragment.appendChild(message);
   fragment.appendChild(link);
 
-  updateChildren(fragment, [null, ERROR_KEY, null], moduleHref);
+  updateChildren(fragment, prevModuleKey, moduleKey, null);
 
   return fragment;
 }

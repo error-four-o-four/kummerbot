@@ -55,14 +55,6 @@ export function constructChildren(fragment, children) {
 const getComponents = (fragment, ...tags) =>
   tags.map((tag) => [...fragment.querySelectorAll(tag)]);
 
-// const getTargetLinks = (links, ...values) =>
-//   links.filter((all, link) =>
-//     values.reduce(
-//       (bool, value) =>
-//         bool ? bool : checkAttribute(link, LINK_ATTR.TARGET_KEY, value),
-//       false
-//     )
-//   );
 const getTargetLinks = (links, ...values) =>
   values.map((value) => links.find((link) => link.target === value));
 
@@ -107,7 +99,6 @@ export function updateChildren(fragment, prevModuleKey, moduleKey, moduleHref) {
 }
 
 function adjustLinks(fragment, prevModuleKey) {
-  // const hasContacts = !!fragment.querySelector(LIST_TAG);
   const [links] = getComponents(fragment, LINK_TAG);
 
   if (router.isAboutRoute) return [];

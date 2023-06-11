@@ -1,18 +1,12 @@
 import { ChatMessage } from '../chat-message/chat-message.js';
 import { setBooleanAttribute } from '../utils.js';
 
-import { CUSTOM_ATTR, CUSTOM_VAL } from './config.js';
+import { CUSTOM_ATTR } from './config.js';
 import { createItemHtml } from './utils.js';
-
-import contacts from '../../data/contacts.js';
 
 export class ContactList extends ChatMessage {
   constructor() {
     super();
-  }
-
-  get key() {
-    return this.getAttribute(CUSTOM_ATTR.KEY);
   }
 
   get loaded() {
@@ -22,12 +16,7 @@ export class ContactList extends ChatMessage {
     setBooleanAttribute(this, CUSTOM_ATTR.LOADED, !!value);
   }
 
-  async render() {
-    const filteredContacts =
-      this.key === CUSTOM_VAL.ALL
-        ? contacts
-        : contacts.filter((item) => item.tag.includes(this.key));
-
+  render(filteredContacts) {
     const fragment = new DocumentFragment();
 
     for (const item of filteredContacts) {

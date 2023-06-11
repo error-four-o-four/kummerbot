@@ -12,11 +12,13 @@ import { CUSTOM_ATTR } from './config.js';
 
 import {
   createShareLinkHtml,
+  updateShareLink,
+  injectErrorMessage,
   injectContactMessage,
   injectContactName,
   setCaptchaValue,
-  updateShareLink,
 } from './utils.js';
+import { ERROR_KEY } from '../../controller/error-controller.js';
 
 export class ChatMessage extends HTMLElement {
   static get observedAttributes() {
@@ -52,6 +54,11 @@ export class ChatMessage extends HTMLElement {
   }
 
   update(moduleKey) {
+    if (moduleKey === ERROR_KEY) {
+      injectErrorMessage(this);
+      return;
+    }
+
     if (moduleKey === TARGET_VAL.SHARE) {
       const href = renderer.getShareUrl();
       updateShareLink(this, href);

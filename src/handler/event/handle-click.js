@@ -45,8 +45,9 @@ export default (e) => {
   e.preventDefault();
   e.stopImmediatePropagation();
 
-  if (router.hasError) {
-    console.log('@todo check state.isFirstPage, historyController.values');
+  if (!router.isChatRoute && router.hasError) {
+    handleErrorBackLink(element);
+    return;
   }
 
   if (!router.isContactRoute) {
@@ -91,6 +92,13 @@ export default (e) => {
   renderer.update();
 };
 
+async function handleErrorBackLink(element) {
+  // console.log('@todo check state.isFirstPage, historyController.values');
+  const prevPathname = historyController.get(-2);
+  await router.restore(prevPathname, element.pathname);
+  renderer.update();
+}
+
 function handleLinkToContact(element) {
   // used in /chat or /shared route => /contact/message
   const id = 1 * element.getAttribute(buttonAttribute.id);
@@ -102,7 +110,6 @@ function handleLinkToContact(element) {
       href: ORIGIN + ROUTES.ERROR,
       pathname: ROUTES.ERROR,
     };
-    // @todo replace?
     router.push(state);
     renderer.update();
     return;

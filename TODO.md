@@ -1,31 +1,31 @@
 # todos
 
-- [ ] consider using a default message [@](src/controller/error-controller.js)
-- [ ] doublecheck each route when it's the landing page
-- [ ] doublecheck possible error cases
+- [ ] consider using a default error message [@](src/controller/error-controller.js)
+- [x] doublecheck each route when it's the landing page
+- [x] doublecheck possible error cases
 
-  - [ ] /contact route is first view => replace /chat
-  - [ ] ContactList component error
-  - [ ] `handleLinkToContact()` use replaceState when the contact data can not be found => /error
+  - [x] /contact route is first view => replace /chat
+  - [ ] ~~ContactList component error~~ error handling is not required because the contacts aren't imported asynchronous at the moment => consider using dynamic import()
+  - [x] `handleLinkToContact()` ~~use replaceState when the contact data can not be found => /error~~ use router.restore()
 
 - [ ] doublecheck href vs pathname ChatLink.update()
 - [ ] doublecheck when user clicked on historyLink but history.state.index === 0 => router.js historyUnshiftState() await timeout (?)
-- [x] ~~hide about link in /contact route or~~ hide captcha form in /about route, find /contact/message in historyController.values - [ ] doublecheck ChatLink **back** in each route (use historyController/router.prevroute)
+- [x] ~~hide about link in /contact route or~~ hide captcha form in /about route, find /contact/message in historyController.values - [x] doublecheck ChatLink **back** in each route (use historyController/router.prevroute)
 
   - [x] chat
   - [x] shared
   - [x] about (either /chat or prevRoute)
-  - [ ] error
+  - [x] error
   - [x] contact
 
-- [ ] doublecheck ChatLink **home** in each route
+- [x] doublecheck ChatLink **home** in each route
 
   - [x] chat
   - [x] shared
-  - [ ] error
+  - [x] error
   - [x] contact
 
-- [ ] update document.title
+- [x] update document.title
 - [ ] alert user when user clicked on link to contact route if message has not been send yet (!!messageForm.textarea.value)
 - [ ] Share API / navigator.canShare / Permissions [@](src/listener/button-handler.js)
 - [ ] security: sanitize textarea.value

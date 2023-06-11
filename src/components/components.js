@@ -11,7 +11,10 @@ import {
   CUSTOM_ATTR as MESSAGE_ATTR,
 } from './chat-message/config.js';
 
-import { CUSTOM_TAG as LIST_TAG } from './contact-list/config.js';
+import {
+  CUSTOM_TAG as LIST_TAG,
+  CUSTOM_VAL as LIST_VAL,
+} from './contact-list/config.js';
 
 import {
   CUSTOM_TAG as MODULE_TAG,
@@ -24,6 +27,7 @@ export {
   MESSAGE_TAG,
   MESSAGE_ATTR,
   LIST_TAG,
+  LIST_VAL,
   LINK_TAG,
   LINK_ATTR,
   TARGET_VAL,

@@ -1,9 +1,11 @@
 import router from '../../router/router.js';
+import contacts from '../../data/contacts.js';
 import renderer from '../../renderer/renderer.js';
 import templates from '../../controller/templates.js';
 
-import { MESSAGE_TAG, LIST_TAG, LINK_TAG } from '../components.js';
+import { MESSAGE_TAG, LIST_TAG, LIST_VAL, LINK_TAG } from '../components.js';
 import { ERROR_KEY } from '../../controller/error-controller.js';
+
 import { setAttribute } from '../utils.js';
 
 import {
@@ -62,6 +64,11 @@ export class ChatModule extends HTMLElement {
     const nextModuleKey = relativeKeys[2];
     const moduleHref = renderer.getPathnameUrl(moduleKey);
 
+    // render /error route
+    if (moduleKey === ERROR_KEY) {
+      return;
+    }
+
     const cacheId = templates.getId(CUSTOM_TAG, moduleKey);
     const isCached = templates.isCached(cacheId);
 
@@ -84,9 +91,6 @@ export class ChatModule extends HTMLElement {
 
     if (!fragment) {
       this.key = ERROR_KEY;
-      this.append(createErrorFragment(moduleHref));
-      showAllLinks(this);
-      this.next = null;
       return;
     }
 
@@ -96,18 +100,35 @@ export class ChatModule extends HTMLElement {
 
     const list = this.list;
 
-    if (!isCached && !list) {
-      templates.set(cacheId, this);
+    // @todo @consider
+    // if (!isCached && !list) {
+    //   templates.set(cacheId, this);
+    // }
+
+    // if (!isCached && !!list) {
+    if (!!list) {
+      // @todo @consider Promise ?!?!
+      const filteredContacts =
+        moduleKey === LIST_VAL.ALL
+          ? contacts
+          : contacts.filter((item) => item.tag.includes(moduleKey));
+      list.render(filteredContacts);
+      // clean before caching
+      // templates.set(cacheId, this, true);
     }
 
-    if (!isCached && !!list) {
-      list.render().then(() => {
-        templates.set(cacheId, this, true);
-      });
+    if (!isCached) {
+      templates.set(cacheId, this);
     }
 
     this.next = nextModuleKey;
     // router.isChatRoute && (this.next = nextModuleKey);
+  }
+
+  renderError(prevModuleKey = null, moduleKey = ERROR_KEY) {
+    this.append(createErrorFragment(prevModuleKey, moduleKey));
+    showAllLinks(this);
+    this.next = null;
   }
 
   attributeChangedCallback(name, _, next) {

@@ -2,9 +2,11 @@ import { ORIGIN, ROUTES } from './config.js';
 
 import historyController from '../controller/history-controller.js';
 import errorController, { ERROR_KEY } from '../controller/error-controller.js';
-import formController from '../controller/form/form-controller.js';
+// import formController from '../controller/form/form-controller.js';
 
 import handlePopstate from '../handler/event/handle-popstate.js';
+
+const title = document.title;
 
 const entries = {
   isChatRoute: ROUTES.HOME,
@@ -33,19 +35,23 @@ export default {
       window.history.replaceState({ isFirstState: true }, '', null);
     }
 
-    if (!this.validate(pathname)) {
+    if (!validate(pathname)) {
+      // user went to an invalid url
       errorController.set('Die angegebene Adresse ist nicht erreichbar.');
       pathname = ROUTES.ERROR;
     }
 
     // on page load => event-handler
-    // redirect from '/' to '/chat'
-    pathname = pathname === '/' ? ROUTES.HOME : pathname;
+    // redirect from '/' and '/contact' to '/chat'
+    pathname =
+      pathname === '/' || this.check(pathname, ROUTES.CONTACT)
+        ? ROUTES.HOME
+        : pathname;
 
     // @todo case
     // popped back from another page
     // example.com - history.back() - this
-    // replace state removes the possibility
+    // pushState removes the possibility
     // to invoke a popstate forward
     const href = ORIGIN + pathname;
     const index = historyController.add(pathname);
@@ -64,13 +70,19 @@ export default {
 
     this.hasError = this.pathname.includes(ERROR_KEY);
 
-    if (!this.prevPathname) {
+    if (this.prevPathname === null) {
       this.hasChanged = true;
     } else {
       // case router.hasPopped back in /chat route
-      const prevRouteKey =
-        '/' + this.prevPathname?.split('/').filter((key) => !!key)[0] || null;
+      // const prevRouteKey =
+      //   '/' + this.prevPathname?.split('/').filter((key) => !!key)[0] || null;
+      const prevRouteKey = '/' + getKey(this.prevPathname);
       this.hasChanged = !this.check(this.pathname, prevRouteKey);
+    }
+
+    if (this.hasChanged) {
+      const routeKey = getKey(this.pathname);
+      document.title = title + ' - ' + routeKey;
     }
   },
 
@@ -154,20 +166,6 @@ export default {
     return !!route && route.startsWith(request);
   },
 
-  validate(pathname) {
-    const route = '/' + pathname.substring(1).split('/')[0];
-
-    if (route === '/') return true;
-
-    if (this.check(route, ROUTES.CONTACT) && !formController.hasContactData()) {
-      return false;
-    }
-
-    return Object.values(ROUTES).reduce(
-      (matched, valid) => (valid === route ? true : matched),
-      false
-    );
-  },
   // @dev
   log() {
     return [
@@ -181,6 +179,21 @@ export default {
     ];
   },
 };
+
+function getKey(pathname) {
+  return pathname.split('/').filter((key) => !!key)[0];
+}
+
+function validate(pathname) {
+  const route = '/' + pathname.substring(1).split('/')[0];
+
+  if (route === '/') return true;
+
+  return Object.values(ROUTES).reduce(
+    (matched, valid) => (valid === route ? true : matched),
+    false
+  );
+}
 
 function historyUnshiftState(href, pathname) {
   let prevHref = ORIGIN + historyController.get();

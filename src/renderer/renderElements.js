@@ -1,7 +1,12 @@
+import router from '../router/router.js';
 import renderer from './renderer.js';
 import animator from './animation/animator.js';
 
+import errorController from '../controller/error-controller.js';
+
 import { MODULE_TAG } from '../components/components.js';
+import { ERROR_KEY } from '../controller/error-controller.js';
+import { ORIGIN, ROUTES } from '../router/config.js';
 
 export async function renderElementsDelayed(signal) {
   const absoluteKeys = renderer.getKeys();
@@ -29,13 +34,21 @@ export async function renderElementsDelayed(signal) {
     // render contents depending on route
     await moduleElt.render(relativeKeys);
 
+    if (moduleElt.key === ERROR_KEY) {
+      errorController.set('Morp');
+      router.hasError = true;
+      moduleElt.renderError(...relativeKeys);
+    }
+
     renderer.outlet.append(moduleElt);
 
     // skip animation if it's not the last module
-    if (moduleElt.next !== null || relativeKeys[2] !== null) continue;
+    if (moduleElt.next !== null) continue;
 
     animator.scrollToChatModule(moduleElt);
     await animator.pushChatModule(moduleElt, signal);
+
+    if (moduleElt.key === ERROR_KEY) break;
   }
 }
 
@@ -60,6 +73,19 @@ export async function renderElementsImmediately(signal) {
   const moduleKey = renderer.getKeys()[0];
   const moduleElt = document.createElement(MODULE_TAG);
   await moduleElt.render([null, moduleKey, null]);
+
+  // requested .html-file could not be fetched
+  if (moduleElt.key === ERROR_KEY) {
+    const pathname = ROUTES.ERROR;
+    const target = {
+      href: ORIGIN + pathname,
+      pathname,
+    };
+    router.replace(target);
+
+    errorController.set('Morp');
+    moduleElt.renderError();
+  }
 
   renderer.outlet.append(moduleElt);
   await animator.pushChatModuleImmediately(moduleElt, signal);
