@@ -37,7 +37,7 @@ export function createShareLinkHtml(href) {
       class="${anchorClass.routed}"
       href="${href}">${href}</a>
   </p>
-  <p>
+  <p class="share-link-buttons">
     <button
       class="has-icon ${buttonClass.copy}"
       value="${href}"

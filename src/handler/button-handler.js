@@ -50,7 +50,12 @@ export default {
     }
 
     if (isShareButton(target)) {
-      console.log('@todo', target);
+      const data = {
+        title: 'KummerBot',
+        text: 'a2Bs - anonymes Beratungs- und Beschwerdesystem',
+        url: getString(target),
+      };
+      navigator.share(data);
       return;
     }
   },
@@ -67,20 +72,3 @@ async function copyData(string) {
     return false;
   }
 }
-
-// async function writeToClipboard(data) {
-//   if(typeof ClipboardItem && navigator.clipboard.write) {
-//     // https://developer.apple.com/forums/thread/691873
-//     const text = new ClipboardItem({
-//     "text/plain": fetch(someUrl)
-//       .then(response => response.text())
-//       .then(text => new Blob([text], { type: "text/plain" }))
-//     })
-//     navigator.clipboard.write([text])
-//   }
-//   else {
-//     navigator.clipboard.writeText(data)
-//   }
-// }
-
-async function shareData() {}

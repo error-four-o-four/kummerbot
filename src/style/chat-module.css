@@ -23,6 +23,7 @@ chat-message {
   width: fit-content;
   max-width: 80%;
   padding: 0 0.625rem;
+  overflow: hidden;
 }
 
 #message-pending-indicator {

@@ -31,7 +31,7 @@
 }
 
 a {
-  font-weight: 500;
+  font-weight: normal;
   text-decoration: inherit;
   cursor: pointer;
 }
@@ -104,7 +104,7 @@ button {
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
-  font-weight: 500;
+  font-weight: normal;
   font-family: inherit;
   background-color: #1a1a1a;
   cursor: pointer;
@@ -124,4 +124,51 @@ button:focus-visible {
 
 .is-transparent {
   opacity: 0;
+}
+
+.share-link-buttons {
+  height: 3rem;
+  line-height: 3rem;
+  margin: 0.5rem -0.625rem 0 -0.625rem;
+
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: var(--fill-secondary);
+
+  display: flex;
+
+  /* display: grid; */
+  /* gap: 0.5rem; */
+  /* grid-template-columns: repeat(auto-fit, minmax(100px, 50%)); */
+}
+
+.share-link-buttons button {
+  all: unset;
+  color: var(--link-color);
+  cursor: pointer;
+
+  flex: 1 1 100%;
+
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background-color 300ms;
+
+  &:hover {
+    color: var(--link-color-hover);
+    background-color: var(--fill-secondary);
+  }
+
+  &:has(+ button) {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: var(--fill-secondary);
+  }
+
+  &:has(+ button),
+  &:nth-of-type(2) {
+    flex: 0 1 50%;
+  }
 }

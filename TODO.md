@@ -9,7 +9,10 @@
 
 - [x] update document.title
 - [ ] alert user when user clicked on link to contact route if message has not been send yet (!!messageForm.textarea.value)
-- [ ] Share API / navigator.canShare / Permissions [@](src/listener/button-handler.js)
+- [x] Share API / navigator.canShare / Permissions
+  - [x] chrome
+  - [ ] android
+  - [ ] iphone
 - [ ] security: sanitize textarea.value
 
 - [ ] popstate event handling ! gnaaaaa !!! [@](src/handler/event/handle-popstate.js#30) [@](src/handler/event/handle-popstate.js#73) [@](src/router/router.js#43)
