@@ -3,6 +3,8 @@ import renderer from '../../renderer/renderer.js';
 import templates from '../../controller/templates.js';
 import formController from '../../controller/form/form-controller.js';
 
+import { id, useSymbol } from '../../elements/svgs.js';
+
 import { TARGET_VAL } from '../components.js';
 import { setBooleanAttribute } from '../utils.js';
 import { getContactTmplAttributes } from '../chat-module/utils.js';
@@ -118,7 +120,7 @@ export class ChatMessage extends HTMLElement {
     if (prev === null && typeof next === 'string') {
       const indicator = document.createElement('span');
       indicator.id = indicatorId;
-      indicator.innerHTML = `<svg><use xlink:href="#message-pending"></use></svg>`;
+      indicator.innerHTML = useSymbol(id.pending);
       this.before(indicator);
       return;
     }

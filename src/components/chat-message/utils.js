@@ -3,6 +3,7 @@ import formController from '../../controller/form/form-controller.js';
 import errorController from '../../controller/error-controller.js';
 import { ERROR_KEY } from '../../controller/error-controller.js';
 
+import { id, useSymbol } from '../../elements/svgs.js';
 import { buttonClass } from '../../handler/button-handler.js';
 import { anchorClass } from '../chat-link/utils.js';
 
@@ -39,18 +40,18 @@ export function createShareLinkHtml(href) {
   </p>
   <p class="share-link-buttons">
     <button
-      class="has-icon ${buttonClass.copy}"
+      class="${anchorClass.icon} ${buttonClass.copy}"
       value="${href}"
       type="button"
-      >URL Kopieren<svg><use href="#icon-copy-svg"></use></svg></button>
+      >URL Kopieren${useSymbol(id.clipboardCopy)}</button>
     ${
       !!navigator.canShare
         ? `
       <button
-        class="has-icon ${buttonClass.share}"
+        class="${anchorClass.icon} ${buttonClass.share}"
         value="${href}"
         type="button"
-        >URL Teilen<svg><use href="#icon-share-svg"></use></svg></button>`
+        >URL Teilen${useSymbol(id.share)}</button>`
         : ''
     }
   </p>`;

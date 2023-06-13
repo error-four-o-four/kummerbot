@@ -1,4 +1,5 @@
 import { CUSTOM_VAL } from './config.js';
+import { id, useSymbol } from '../../elements/svgs.js';
 
 export const html = {
   [CUSTOM_VAL.HOME]: 'Ich m&ouml;chte zur&uuml;ck zur Startseite',
@@ -10,11 +11,13 @@ export const anchorClass = {
   toParent: 'parent-link',
   toTarget: 'target-link',
   routed: 'is-routed',
+  icon: 'has-icon',
 };
 
 export const getParentLinkHtml = (text) => `
 <div>
-  <a class="${anchorClass.routed} ${anchorClass.toParent}">✖</a>
+  <a class="${anchorClass.routed} ${anchorClass.toParent}"></a>
+  ${useSymbol(id.reset)}
   <span>${text}</span>
 </div>`;
 

@@ -45,26 +45,6 @@ a:hover {
   color: var(--link-color-hover);
 }
 
-/* @todo */
-a.has-icon svg,
-button.has-icon svg {
-  position: relative;
-  display: inline-block;
-  width: 1.375rem;
-  height: 1.375rem;
-  right: -0.125rem;
-  bottom: -0.25rem;
-}
-
-a.has-icon-before svg {
-  position: relative;
-  display: inline-block;
-  width: 1.375rem;
-  height: 1.375rem;
-  left: -0.125rem;
-  bottom: -0.25rem;
-}
-
 html {
   overflow-y: scroll;
   scroll-behavior: smooth;
@@ -95,8 +75,30 @@ body {
 
 main {
   padding: 0.5rem 1rem 2rem;
-  z-index: 10;
-  /* prevent overlap on bounceIn animation */
+
+  & a.has-icon {
+    position: relative;
+    z-index: 10;
+  }
+
+  & a.has-icon svg,
+  & button.has-icon svg {
+    position: relative;
+    display: inline-block;
+    width: 1.375rem;
+    height: 1.375rem;
+    right: -0.125rem;
+    bottom: -0.25rem;
+  }
+
+  & a.has-icon-before svg {
+    position: relative;
+    display: inline-block;
+    width: 1.375rem;
+    height: 1.375rem;
+    left: -0.125rem;
+    bottom: -0.25rem;
+  }
 }
 
 button {
@@ -124,6 +126,10 @@ button:focus-visible {
 
 .is-transparent {
   opacity: 0;
+}
+
+.sr-only {
+  visibility: hidden;
 }
 
 .share-link-buttons {
@@ -170,5 +176,33 @@ button:focus-visible {
   &:has(+ button),
   &:nth-of-type(2) {
     flex: 0 1 50%;
+  }
+}
+
+#svg-message-pending circle {
+  animation: 1000ms infinite ease-in-out pending;
+}
+#svg-message-pending circle:nth-of-type(2) {
+  animation-delay: 100ms;
+}
+#svg-message-pending circle:nth-of-type(3) {
+  animation-delay: 200ms;
+}
+
+@keyframes pending {
+  0% {
+    transform: translateY(0);
+  }
+  15% {
+    transform: translateY(-30%);
+  }
+  35% {
+    transform: translateY(20%);
+  }
+  55% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(0%);
   }
 }

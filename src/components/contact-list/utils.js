@@ -1,4 +1,5 @@
 import { isMobileDevice } from '../../renderer/utils.js';
+import { id, useSymbol } from '../../elements/svgs.js';
 
 import { anchorClass } from '../chat-link/utils.js';
 
@@ -37,7 +38,7 @@ const info = [
         <a
           href="${data}"
           class="has-icon-before ${this.class}"
-          ><svg><use href="#icon-website-svg"></use></svg>Website
+          >${useSymbol(id.globe)}Website
         </a>
       </p>`;
     },

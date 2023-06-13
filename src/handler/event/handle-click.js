@@ -16,8 +16,14 @@ import { ROUTES } from '../../router/config.js';
 
 const isLink = (element) => element.localName === 'a';
 
+const isSvg = (element) => element.localName === 'svg';
+
+const hasAnchorClass = (element) =>
+  element.classList.contains(anchorClass.routed);
+
 const isRouterLink = (element) =>
-  isLink(element) && element.classList.contains(anchorClass.routed);
+  (isLink(element) && hasAnchorClass(element)) ||
+  (isSvg(element) && hasAnchorClass(element.parentElement));
 
 const isHistoryLink = (element) =>
   element.classList.contains(anchorClass.toParent);
@@ -34,12 +40,15 @@ const isContactLink = (element) =>
   isLink(element) && element.classList.contains(buttonClass.message);
 
 export default (e) => {
-  const element = e.target;
+  let element = e.target;
 
   if (renderer.transition) {
     e.preventDefault();
     return;
   }
+
+  // e.preventDefault();
+  // console.log(e.target);
 
   if (!isRouterLink(element)) return;
 
