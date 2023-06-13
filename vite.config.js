@@ -5,7 +5,7 @@ import cssNesting from 'postcss-nesting';
 // import basicSSL from '@vitejs/plugin-basic-ssl';
 
 export default ({ mode }) => {
-  const isDevMode = mode === 'development';
+  // const isDevMode = mode === 'development';
 
   // const plugins = isDevMode ? [basicSSL()] : null;
   // const server = isDevMode ? { https: true } : null;
