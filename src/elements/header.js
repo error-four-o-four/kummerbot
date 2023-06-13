@@ -1,6 +1,8 @@
 import { ROUTES } from '../router/config.js';
 import { anchorClass } from '../components/chat-link/utils.js';
 
+import { id, useSymbol } from './svgs.js';
+
 const header = document.querySelector('header');
 
 const headerHeight = header.offsetHeight + 8;
@@ -16,8 +18,8 @@ const indicatorClass = 'pending';
 // indicator.innerText = htmlWaiting;
 
 const checkPathname = (pathname) => pathname.startsWith(ROUTES.ABOUT);
-const htmlInactive = 'Details';
-const htmlActive = 'zur&uuml;ck';
+const htmlInactive = useSymbol(id.about);
+const htmlActive = useSymbol(id.back);
 
 let isActive = checkPathname(window.location.pathname);
 
