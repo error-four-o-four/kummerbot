@@ -117,10 +117,19 @@ export function createItemHtml(data) {
 			<div class="${elementClass.buttonWrap}">
         ${buttons.reduce((html, props) => {
           // @todo renderer property ?
-          if (!isMobileDevice && props.key === buttonKey.phone) return html;
+          // if (!isMobileDevice && props.key === buttonKey.phone) return html;
 
           const value = data[props.key];
-          if (!!value) html += props.html(data._id);
+          if (!value) return html;
+
+          if (isMobileDevice && props.key === buttonKey.phone) {
+            html += props.html(data.phone);
+          }
+
+          if (props.key !== buttonKey.phone) {
+            html += props.html(data._id);
+          }
+
           return html;
         }, '')}
     </div>

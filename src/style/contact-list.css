@@ -1,5 +1,5 @@
 contact-list {
-  width: clamp(240px, 80%, 320px);
+  width: clamp(240px, 85%, 320px);
 }
 
 div.contact-item {
@@ -66,6 +66,7 @@ div.contact-item div.contact-body {
       text-align: center;
       font-size: 0.75rem;
       font-weight: bold;
+      letter-spacing: 1px;
       text-transform: uppercase;
 
       border-right-width: 1px;
