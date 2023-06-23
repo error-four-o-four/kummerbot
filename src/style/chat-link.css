@@ -28,7 +28,6 @@ chat-link {
   & > div {
     display: none;
 
-
     & > a.parent-link {
       position: absolute;
       z-index: 20;
@@ -46,7 +45,6 @@ chat-link {
       /* color: var(--secondary-stroke); */
       & + svg {
         color: var(--secondary-stroke);
-
       }
       &:visited + svg {
         color: var(--secondary-stroke);
