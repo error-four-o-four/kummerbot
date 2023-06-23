@@ -37,7 +37,7 @@ const info = [
       <p>
         <a
           href="${data}"
-          class="has-icon-before ${this.class}"
+          class="${anchorClass.iconBefore} ${this.class}"
           >${useSymbol(id.globe)}Website
         </a>
       </p>`;
@@ -63,13 +63,16 @@ const buttons = [
     label: 'Nachricht',
     html(data) {
       return `
+    <div>
+      ${useSymbol(id.mail)}
       <a
         class="${elementClass.button} ${anchorClass.routed} ${
         buttonClass.message
       }"
         href="${ROUTES.CONTACT + '/' + CONTACT_VAL[0]}"
         ${buttonActionAttribute.id}="${data}"
-        >${this.label}</a>`;
+        >${this.label}</a>
+      </div>`;
     },
   },
   {
@@ -77,11 +80,16 @@ const buttons = [
     label: 'E-Mail',
     html(data) {
       return `
+    <div>
+      ${useSymbol(id.clipboardCopy)}
       <button
         type="button"
         ${buttonActionAttribute.id}="${data}"
-        class="${elementClass.button} ${buttonActionClass.copy} ${buttonClass.mail}"
-        >${this.label}</button>`;
+        class="${elementClass.button} ${buttonActionClass.copy} ${
+        buttonClass.mail
+      }"
+        >${this.label}</button>
+    </div>`;
     },
   },
   {
@@ -90,10 +98,13 @@ const buttons = [
     html(data) {
       const href = 'tel:+49' + data.replaceAll(/\s/g, '').substring(1);
       return `
-      <a
-        href="${href}"
-        class="${elementClass.button} ${buttonClass.phone}"
-        >${this.label}</a>`;
+      <div>
+        ${useSymbol(id.phone)}
+        <a
+          href="${href}"
+          class="${elementClass.button} ${buttonClass.phone}"
+          >${this.label}</a>
+      </div>`;
     },
   },
 ];

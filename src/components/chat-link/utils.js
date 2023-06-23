@@ -12,6 +12,7 @@ export const anchorClass = {
   toTarget: 'target-link',
   routed: 'is-routed',
   icon: 'has-icon',
+  iconBefore: 'has-icon-before',
 };
 
 export const getParentLinkHtml = (text) => `

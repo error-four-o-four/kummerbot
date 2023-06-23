@@ -25,9 +25,9 @@
 
 ### Renderer / Animation
 
-- [ ] create/use a svg factory (cross browser! ChatLink icons)
+- [x] create/use a svg factory (cross browser! ChatLink icons)
 - [ ] Loading Indicator on Page when it's the first/initial render and the html hasn't been fetched yet => use `router.hasChanged` and `router.hasPopped`
-- [ ] indicate when a url/mail has been copied
+- [x] indicate when a url/mail has been copied
 - [ ] use scrollToTop in `removeAllElements()`
 - [x] doublecheck renderer.hasPopped to decide if `removeAllElements()` vs `removeElements()` should be called
 - [x] render immediately when cached / popstate forward ?
