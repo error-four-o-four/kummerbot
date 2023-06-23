@@ -5,6 +5,7 @@ chat-module {
 
   &:last-of-type {
     min-height: calc(100vh - var(--scroll-padding, 72px) - 2.5rem);
+    min-height: calc(100dvh - var(--scroll-padding, 72px) - 2.5rem);
   }
 }
 
