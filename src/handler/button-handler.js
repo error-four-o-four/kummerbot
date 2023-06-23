@@ -1,7 +1,7 @@
 import { buttonClass as contactButtonClass } from '../components/contact-list/utils.js';
 
 import contacts from '../data/contacts.js';
-import { id, useSymbol } from '../elements/svgs.js';
+import { id, setSymbolPath, useSymbol } from '../elements/svgs.js';
 
 export const buttonClass = {
   copy: 'button-copy-value',
@@ -48,24 +48,28 @@ export default {
       const string = target.value;
       const copied = await copyData(string);
 
-      // @todo show toast message
-      const html = copied
-        ? `URL kopieren${useSymbol(id.clipboardCheck)}`
-        : `URL kopieren${useSymbol(id.clipboardX)}`;
-      target.innerHTML = html;
+      const useElement = target.querySelector('use');
+      const useId = copied ? id.clipboardCheck : id.clipboardX;
+      setSymbolPath(useElement, useId);
       return;
     }
 
     if (isCopyMailButton(target)) {
+      console.log(target);
       const string = getCopyMailString(target);
       const copied = string && (await copyData(string));
 
       document
-        .querySelectorAll('.' + buttonClass.copy)
-        .forEach((button) => button.classList.remove('success'));
+        .querySelectorAll('.' + contactButtonClass.mail)
+        .forEach((button) => {
+          const useElement = button.previousElementSibling.children[0];
+          useElement && setSymbolPath(useElement, id.clipboardCopy);
+        });
 
-      target.classList.add(copied ? 'success' : 'error');
+      const useElement = target.previousElementSibling.children[0];
+      const useId = copied ? id.clipboardCheck : id.clipboardX;
 
+      useElement && setSymbolPath(useElement, useId);
       return;
     }
 
@@ -73,7 +77,7 @@ export default {
       const data = {
         title: 'KummerBot',
         text: 'a2Bs - anonymes Beratungs- und Beschwerdesystem',
-        url: getString(target),
+        url: target.value,
       };
       navigator.share(data);
       return;

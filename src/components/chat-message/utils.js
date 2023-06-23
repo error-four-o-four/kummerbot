@@ -40,18 +40,18 @@ export function createShareLinkHtml(href) {
   </p>
   <p class="share-link-buttons">
     <button
-      class="${anchorClass.icon} ${buttonClass.copy}"
+      class="${anchorClass.iconBefore} ${buttonClass.copy}"
       value="${href}"
       type="button"
-      >URL Kopieren${useSymbol(id.clipboardCopy)}</button>
+      >${useSymbol(id.clipboardCopy)}URL Kopieren</button>
     ${
       !!navigator.canShare
         ? `
       <button
-        class="${anchorClass.icon} ${buttonClass.share}"
+        class="${anchorClass.iconBefore} ${buttonClass.share}"
         value="${href}"
         type="button"
-        >URL Teilen${useSymbol(id.share)}</button>`
+        >${useSymbol(id.share)}URL Teilen</button>`
         : ''
     }
   </p>`;
