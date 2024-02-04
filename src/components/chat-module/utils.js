@@ -122,8 +122,8 @@ function adjustLinks(fragment, prevModuleKey) {
       !!linkHome
         ? linkHome.after(linkBack)
         : !!links[0]
-        ? links[0].before(linkBack)
-        : fragment.appendChild(linkBack);
+          ? links[0].before(linkBack)
+          : fragment.appendChild(linkBack);
       links.push(linkBack);
     }
   }

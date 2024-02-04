@@ -67,8 +67,8 @@ const buttons = [
       ${useSymbol(id.mail)}
       <a
         class="${elementClass.button} ${anchorClass.routed} ${
-        buttonClass.message
-      }"
+          buttonClass.message
+        }"
         href="${ROUTES.CONTACT + '/' + CONTACT_VAL[0]}"
         ${buttonActionAttribute.id}="${data}"
         >${this.label}</a>
@@ -86,8 +86,8 @@ const buttons = [
         type="button"
         ${buttonActionAttribute.id}="${data}"
         class="${elementClass.button} ${buttonActionClass.copy} ${
-        buttonClass.mail
-      }"
+          buttonClass.mail
+        }"
         >${this.label}</button>
     </div>`;
     },
