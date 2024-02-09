@@ -8,8 +8,8 @@ import {
   buttonAttribute as buttonActionAttribute,
 } from '../../handler/button-handler.js';
 
-import { ROUTES } from '../../router/config.js';
-import { CONTACT_VAL } from '../../controller/form/config.js';
+// import { ROUTES } from '../../router/config.js';
+// import { CONTACT_VAL } from '../../controller/form/config.js';
 
 const elementClass = {
   infoWrap: 'contact-info-wrap',
@@ -58,19 +58,34 @@ export const buttonClass = {
 };
 
 const buttons = [
+  // {
+  //   key: 'mail',
+  //   label: 'Nachricht',
+  //   html(data) {
+  //     return `
+  //   <div>
+  //     ${useSymbol(id.mail)}
+  //     <a
+  //       class="${elementClass.button} ${anchorClass.routed} ${
+  //         buttonClass.message
+  //       }"
+  //       href="${ROUTES.CONTACT + '/' + CONTACT_VAL[0]}"
+  //       ${buttonActionAttribute.id}="${data}"
+  //       >${this.label}</a>
+  //     </div>`;
+  //   },
+  // },
   {
     key: 'mail',
     label: 'Nachricht',
-    html(data) {
+    html({ mail }) {
       return `
     <div>
       ${useSymbol(id.mail)}
       <a
-        class="${elementClass.button} ${anchorClass.routed} ${
-          buttonClass.message
-        }"
-        href="${ROUTES.CONTACT + '/' + CONTACT_VAL[0]}"
-        ${buttonActionAttribute.id}="${data}"
+        class="${elementClass.button}"
+        href="mailto:${mail}"
+        target="_blank"
         >${this.label}</a>
       </div>`;
     },
@@ -78,13 +93,13 @@ const buttons = [
   {
     key: 'mail',
     label: 'E-Mail',
-    html(data) {
+    html({ _id }) {
       return `
     <div>
       ${useSymbol(id.clipboardCopy)}
       <button
         type="button"
-        ${buttonActionAttribute.id}="${data}"
+        ${buttonActionAttribute.id}="${_id}"
         class="${elementClass.button} ${buttonActionClass.copy} ${
           buttonClass.mail
         }"
@@ -95,8 +110,8 @@ const buttons = [
   {
     key: 'phone',
     label: 'Anruf',
-    html(data) {
-      const href = 'tel:+49' + data.replaceAll(/\s/g, '').substring(1);
+    html({ phone }) {
+      const href = 'tel:+49' + phone.replaceAll(/\s/g, '').substring(1);
       return `
       <div>
         ${useSymbol(id.phone)}
@@ -138,8 +153,10 @@ export function createItemHtml(data) {
             html += props.html(data.phone);
           }
 
+          // @TODO
+          // temporary use href=mailto:{data.mail}
           if (props.key !== buttonKey.phone) {
-            html += props.html(data._id);
+            html += props.html(data);
           }
 
           return html;
