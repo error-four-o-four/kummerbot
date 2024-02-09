@@ -119,10 +119,19 @@ export default [
   {
     _id: 70708287,
     name: 'Frau Gerdes',
-    dscr: 'Allgemeiner Sozialer Dienst (ASD) Ammerland<br />Zust&auml;ndig f&uuml;r:<br />intensivp&auml;dagogische Wohngruppe Linswege',
+    dscr: 'Allgemeiner Sozialer Dienst (ASD) Ammerland<br />Zust&auml;ndig f&uuml;r:<br />Intensivp&auml;dagogische Wohngruppe Linswege',
     url: 'https://www.ammerland.de/Landkreis/Kreisverwaltung/Fach%C3%A4mter/Jugendamt/index.php?object=tx,2843.1&ModID=9&FID=2843.1267.1&NavID=2843.271&La=1',
     mail: 'k.gerdes@ammerland.de',
     phone: '04488 56 3180',
+    tag: ['external-complaint'],
+  },
+  {
+    _id: 59187410,
+    name: 'Frau Preu&szlig;&ndash;Hinrichs',
+    dscr: 'Allgemeiner Sozialer Dienst (ASD) Ammerland<br />Zust&auml;ndig f&uuml;r:<br />Betreutes Jugendwohnen',
+    url: 'https://www.ammerland.de/Landkreis/Kreisverwaltung/Organisationsstruktur/index.php?object=tx,2843.1&ModID=9&FID=2843.346.1&NavID=2843.247&La=1',
+    mail: 'a.preuss-hinrichs@ammerland.de',
+    phone: '04488 56 5354',
     tag: ['external-complaint'],
   },
   {
