@@ -149,8 +149,12 @@ export function createItemHtml(data) {
           const value = data[props.key];
           if (!value) return html;
 
-          if (isMobileDevice && props.key === buttonKey.phone) {
-            html += props.html(data.phone);
+          if (
+            isMobileDevice &&
+            props.key === buttonKey.phone &&
+            Boolean(data.phone)
+          ) {
+            html += props.html(data);
           }
 
           // @TODO
