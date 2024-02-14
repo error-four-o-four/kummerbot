@@ -19,11 +19,20 @@ export default [
   },
   {
     _id: 57411576,
-    name: 'Vertrauensstelle',
-    dscr: 'pro&nbsp;liberis&nbsp;gGmbH',
+    name: 'Kristina Wermer&szlig;en',
+    dscr: 'Vertrauensstelle pro&nbsp;liberis&nbsp;gGmbH',
     url: null,
     mail: 'vertrauensstelle@pro-liberis.de',
-    phone: null,
+    phone: '0176 60 33 98 91',
+    tag: ['internal-complaint', 'internal-event'],
+  },
+  {
+    _id: 57411577,
+    name: 'Christina Thenner',
+    dscr: 'Vertrauensstelle pro&nbsp;liberis&nbsp;gGmbH',
+    url: null,
+    mail: 'vertrauensstelle@pro-liberis.de',
+    phone: '0179 590 89 83',
     tag: ['internal-complaint', 'internal-event'],
   },
   {
